@@ -15,16 +15,16 @@ export default function HomePage() {
         {/* Information Paragraph */}
         <p className="text-lg text-gray-300 mb-8 leading-relaxed">
           Welcome to the Chart Information Portal. This interactive tool allows you to 
-          visualize and analyze data through customizable charts. You&apos;ll be able to 
+          visualize and analyze data through customizable charts. You'll be able to 
           input your data points, choose from various chart types (bar, line, pie, etc.), 
-          and customize the appearance to match your needs. The chart you&apos;ll be filling 
+          and customize the appearance to match your needs. The chart you'll be filling 
           out will help organize and present your data in a clear, visually appealing format.
         </p>
         
         {/* Begin Button/Link */}
         <Link 
           href="/corruchart"
-          className="inline-flex items-center justify-center px-8 py-3 text-lg font-semibold text-white bg-violet-800 hover:bg-violet-800 focus:outline-none focus:ring-2 focus:ring-violet-200 focus:ring-offset-2 focus:ring-offset-gray-900"
+          className="inline-flex items-center justify-center px-8 py-3 text-lg font-semibold text-white bg-violet-800 hover:bg-violet-900 focus:outline-none transition-colors duration-200"
         >
           Begin
         </Link>

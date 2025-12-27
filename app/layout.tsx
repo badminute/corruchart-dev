@@ -1,8 +1,8 @@
 import "./globals.css";
 
 export const metadata = {
-  title: "GraySite",
-  description: "A calm gray landing page",
+  title: "Corruchart",
+  description: "An interactive charting tool to visualize preferences.",
 };
 
 export default function RootLayout({

@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import html2canvas from "html2canvas";
+import Link from "next/link";
 
 import { OPTIONS } from "@/data/options";
 import type { Option } from "@/types/option";
@@ -35,10 +36,22 @@ export default function Page() {
   const [query, setQuery] = useState("");
   const [colorFilter, setColorFilter] = useState<Set<number>>(new Set());
 
-  /** Load persisted state */
+  /** Load persisted state safely */
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
-    setStates(saved ? JSON.parse(saved) : Array(options.length).fill(0));
+    let loaded: number[] = saved ? JSON.parse(saved) : Array(options.length).fill(0);
+
+    // Trim or extend to match options length
+    if (loaded.length > options.length) loaded = loaded.slice(0, options.length);
+    if (loaded.length < options.length) loaded = [
+      ...loaded,
+      ...Array(options.length - loaded.length).fill(0),
+    ];
+
+    // Ensure all indices are valid
+    loaded = loaded.map((val) => val % COLOR_HEX.length);
+
+    setStates(loaded);
   }, [options.length]);
 
   /** Persist state */
@@ -48,6 +61,7 @@ export default function Page() {
     }
   }, [states]);
 
+  /** Cycle a single option's color */
   const cycleColor = (index: number) => {
     setStates((prev) => {
       const next = [...prev];
@@ -56,17 +70,15 @@ export default function Page() {
     });
   };
 
+  /** Reset all options */
   const resetAll = () => {
-    if (
-      confirm(
-        "Reset all selections to 'Indifferent'?"
-      )
-    ) {
+    if (confirm("Reset all selections to 'Indifferent'?")) {
       setStates(Array(options.length).fill(0));
       setColorFilter(new Set());
     }
   };
 
+  /** Toggle color filter */
   const toggleColor = (colorIndex: number) => {
     setColorFilter((prev) => {
       const next = new Set(prev);
@@ -85,22 +97,22 @@ export default function Page() {
           option.label.toLowerCase().includes(query.toLowerCase());
 
         const matchesColor =
-          colorFilter.size === 0 || colorFilter.has(states[index]);
+          colorFilter.size === 0 || colorFilter.has(states[index] % COLOR_HEX.length);
 
         return matchesText && matchesColor;
       });
   }, [options, query, states, colorFilter]);
 
-  /** Screenshot export (hardened) */
+  /** Screenshot export (hardened for html2canvas) */
   const exportScreenshot = async () => {
     if (!containerRef.current) return;
 
     const canvas = await html2canvas(containerRef.current, {
-      backgroundColor: "#262626",
+      backgroundColor: "#191B1C",
       scale: 2,
       onclone: (doc) => {
         const root = doc.body;
-        root.style.backgroundColor = "#262626";
+        root.style.backgroundColor = "#191B1C";
         root.style.color = "#c084fc";
 
         root.querySelectorAll("*").forEach((el) => {
@@ -134,7 +146,7 @@ export default function Page() {
   if (!states.length) return null;
 
   return (
-    <main className="min-h-screen bg-neutral-800 px-8">
+    <main className="min-h-screen px-8" style={{ backgroundColor: "#191B1C" }}>
       {/* Controls */}
       <div className="py-4 space-y-3">
         <div className="flex items-center gap-4 flex-wrap">
@@ -142,22 +154,29 @@ export default function Page() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search options…"
-            className="px-3 py-2 rounded bg-gray-700 text-gray-100 placeholder-gray-400 outline-none w-64"
+            className="px-3 py-2 rounded bg-neutral-700 text-gray-100 placeholder-gray-400 outline-none w-64"
           />
 
           <button
             onClick={exportScreenshot}
-            className="px-4 py-2 rounded bg-gray-700 text-gray-200 hover:bg-gray-600"
+            className="px-4 py-2 rounded bg-neutral-700 text-neutral-200 hover:bg-neutral-600 cursor-pointer"
           >
             Export Screenshot
           </button>
 
           <button
             onClick={resetAll}
-            className="px-4 py-2 rounded bg-gray-700 text-gray-200 hover:bg-red-900/30 hover:text-red-300"
+            className="px-4 py-2 rounded bg-neutral-700 text-neutral-200 hover:bg-red-900/90 hover:text-neutral-300 cursor-pointer"
           >
             Reset All
           </button>
+
+          <Link
+            href="/results"
+            className="px-4 py-2 rounded bg-neutral-700 text-neutral-200 hover:bg-green-900/90 hover:text-neutral-300 cursor-pointer"
+          >
+            Results
+          </Link>
 
           <span className="text-gray-400">
             Showing {filtered.length} / {options.length}
@@ -173,8 +192,8 @@ export default function Page() {
               <button
                 key={i}
                 onClick={() => toggleColor(i)}
-                className={`flex items-center gap-2 px-2 py-1 rounded ${
-                  active ? "bg-gray-700" : "bg-gray-800"
+                className={`flex items-center gap-2 px-2 py-1 rounded cursor-pointer ${
+                  active ? "bg-neutral-700" : "bg-neutral-900"
                 }`}
               >
                 <span
@@ -202,7 +221,7 @@ export default function Page() {
       {/* EXPORT-SAFE AREA */}
       <div
         ref={containerRef}
-        style={{ backgroundColor: "#262626", color: "#c084fc" }}
+        style={{ backgroundColor: "#191B1C", color: "#c084fc" }}
       >
         <div
           className="
@@ -231,12 +250,19 @@ export default function Page() {
                   width: 16,
                   height: 16,
                   borderRadius: "50%",
-                  backgroundColor: COLOR_HEX[states[index]],
+                  backgroundColor: COLOR_HEX[states[index] % COLOR_HEX.length],
                   border: "1px solid #000",
                 }}
               />
-              <span className="text-lg">{option.label}</span>
-            </button>
+              <span 
+              className="text-lg"
+              style={{
+                textShadow: "0 2px 4px rgba(0,0,0,0.2)", // ultra-subtle drop shadow
+              }}
+            >
+              {option.label}
+            </span>
+          </button>
           ))}
         </div>
       </div>
