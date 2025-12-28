@@ -1,193 +1,255 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import html2canvas from "html2canvas-pro";
-import { computeScore, THRESHOLDS, CATEGORY_POINTS, CategoryId } from "@/data/scoring";
-import { OPTIONS } from "@/data/options";
 
+import { OPTIONS } from "@/data/options";
+import { ROLES } from "@/data/roles";
+import { computeScore, THRESHOLDS } from "@/data/scoring";
+
+/** html2canvas-safe hex colors */
 const COLOR_HEX = [
   "#d1d5db", // Indifferent
-  "#ef4444", // Highly Dislike
+  "#ef4444", // Disgust
   "#3b82f6", // Dislike
   "#22c55e", // Like
-  "#facc15", // Highly Like
-  "#f97316", // Fetish
+  "#facc15", // Love
+  "#f97316", // Lust
 ];
 
 const COLOR_NAMES = [
   "Indifferent",
-  "Highly Dislike",
+  "Disgust",
   "Dislike",
   "Like",
-  "Highly Like",
-  "Fetish",
+  "Love",
+  "Lust",
 ];
 
-const STORAGE_KEY = "option-color-states";
+const METER_MAX_POINTS = 3000;
 
 export default function ResultsPage() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [userOptions, setUserOptions] = useState<{ category: CategoryId; value: string }[]>([]);
-  const [scoreData, setScoreData] = useState({ total: 0, category6Hit: false });
+  const [selections, setSelections] = useState<any[]>([]);
+  const [identityOptions, setIdentityOptions] = useState<typeof ROLES>([]);
 
-  /** Load persisted options and compute score */
+  /** Load Corruption Chart selections */
   useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      const savedStates: number[] = JSON.parse(saved);
-      const valMap = ["Indifferent", "Highly Dislike", "Dislike", "Mildly Like", "Like", "Love"];
-
-      const optionsWithValues = OPTIONS.map((opt, i) => ({
-        category: (opt as any).category || 1,
-        value: valMap[savedStates[i] % valMap.length],
-      }));
-
-      setUserOptions(optionsWithValues);
-      setScoreData(computeScore(optionsWithValues));
-    }
+    const saved = localStorage.getItem("corruchart-selections");
+    if (saved) setSelections(JSON.parse(saved));
   }, []);
 
-  /** Screenshot handler */
-  const exportScreenshot = async () => {
-    if (!containerRef.current) return;
+  /** Listen for storage changes */
+  useEffect(() => {
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === "corruchart-selections") {
+        setSelections(e.newValue ? JSON.parse(e.newValue) : []);
+      }
+    };
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
+  }, []);
 
-    const canvas = await html2canvas(containerRef.current, {
-      backgroundColor: "#262626",
-      scale: 2,
-      onclone: (doc) => {
-        const root = doc.body;
-        root.querySelectorAll("*").forEach((el) => {
-          const htmlEl = el as HTMLElement;
-          htmlEl.className = htmlEl.className
-            .split(" ")
-            .filter(
-              (c) =>
-                !c.startsWith("bg-") &&
-                !c.startsWith("text-") &&
-                !c.startsWith("border-") &&
-                !c.startsWith("ring-") &&
-                !c.startsWith("shadow")
-            )
-            .join(" ");
-          htmlEl.style.color ||= "#ffffff";
-          htmlEl.style.backgroundColor ||= "transparent";
-          htmlEl.style.borderColor ||= "transparent";
-        });
-      },
+  /** Load Identity / Roles selections */
+  useEffect(() => {
+    const rolesSelections = JSON.parse(
+      localStorage.getItem("rolespage-option-color-states") ?? "[]"
+    );
+    const selectedRoles = ROLES.filter((role, idx) => rolesSelections[idx] === 1);
+    setIdentityOptions(selectedRoles);
+  }, []);
+
+  /** Map selections to scoring input */
+  const scoredSelections = useMemo(() => {
+    return selections
+      .map((sel, index) => {
+        const option = OPTIONS[index];
+        if (!option) return null;
+        return { category: option.category, value: sel.value };
+      })
+      .filter(Boolean);
+  }, [selections]);
+
+  const scoreData = useMemo(() => computeScore(scoredSelections), [scoredSelections]);
+
+  const fillPercent = useMemo(() => {
+    if (scoreData.category6Hit) return 100;
+    return Math.min((scoreData.total / METER_MAX_POINTS) * 100, 100);
+  }, [scoreData]);
+
+  /** Count colors for distribution */
+  const colorCounts = useMemo(() => {
+    const counts = Array(COLOR_HEX.length).fill(0);
+    scoredSelections.forEach((sel: any) => {
+      const idx = COLOR_NAMES.indexOf(sel.value);
+      if (idx !== -1) counts[idx]++;
     });
+    return counts;
+  }, [scoredSelections]);
 
+  /** Screenshot export */
+  const exportScreenshot = async () => {
+    const container = document.getElementById("results-container");
+    if (!container) return;
+
+    const canvas = await html2canvas(container, { scale: 2, backgroundColor: "#191B1C" });
     const link = document.createElement("a");
-    link.download = "results-screenshot.png";
+    link.download = "results.png";
     link.href = canvas.toDataURL("image/png");
     link.click();
   };
 
-  if (!userOptions.length) {
-    return (
-      <main className="min-h-screen bg-neutral-800 px-8 py-8">
-        <div className="max-w-4xl mx-auto">
-          <h1 className="text-3xl font-bold text-white mb-6">Results</h1>
-          <p className="text-gray-300 mb-6">No data available yet.</p>
-          <Link
-            href="/corruchart"
+  return (
+    <main className="min-h-screen bg-[#191B1C] text-neutral-200 px-6 py-10">
+      <div id="results-container" className="max-w-3xl mx-auto space-y-10">
+        <header className="space-y-2">
+          <h1
+            className="text-3xl text-center font-semibold"
+            style={{ textShadow: "0px 5px 3px rgba(0,0,0,0.7)" }}
+          >
+            Results
+          </h1>
+          <p className="text-neutral-400 text-center">
+            These are the results of your Corruption Chart. You can mouse over each threshold tick to see what threshold of corruption you met.
+          </p>
+        </header>
+
+        {/* Actions */}
+        <div className="flex gap-2">
+          <button
+            onClick={exportScreenshot}
             className="px-4 py-2 rounded bg-neutral-700 text-neutral-200 hover:bg-neutral-600 cursor-pointer"
           >
-            Go to Chart
+            Export Screenshot
+          </button>
+          <Link
+            href="/"
+            className="px-4 py-2 rounded bg-neutral-700 text-neutral-200 hover:bg-neutral-600 cursor-pointer"
+          >
+            Back
           </Link>
         </div>
-      </main>
-    );
-  }
 
-  // Dynamically calculate maxPoints (sum of "Love" for all non-category6 options)
-  const maxPoints = OPTIONS.reduce((sum, opt) => {
-    const cat: CategoryId = (opt as any).category || 1;
-    return cat !== 6 ? sum + CATEGORY_POINTS[cat].love : sum;
-  }, 0);
-
-  const fillPercentage = Math.min((scoreData.total / maxPoints) * 100, 100);
-
-  return (
-    <main className="min-h-screen bg-neutral-800 px-8 py-8">
-      <div className="max-w-4xl mx-auto" ref={containerRef}>
-        {/* Header */}
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-white">Results Summary</h1>
-          <div className="flex gap-2">
-            <button
-              onClick={exportScreenshot}
-              className="px-4 py-2 rounded bg-neutral-700 text-neutral-200 hover:bg-neutral-600 cursor-pointer"
-            >
-              Export Screenshot
-            </button>
-            <Link
-              href="/corruchart"
-              className="px-4 py-2 rounded bg-neutral-700 text-neutral-200 hover:bg-neutral-600 cursor-pointer"
-            >
-              Back to Chart
-            </Link>
+        {/* SCORE METER */}
+        <section className="space-y-3">
+          <div className="flex justify-between text-sm text-neutral-400">
+            <span style={{ textShadow: "0px 5px 3px rgba(0,0,0,0.3)" }}>Score</span>
+            <span style={{ textShadow: "0px 5px 3px rgba(0,0,0,0.3)" }}>
+              {scoreData.total} / {METER_MAX_POINTS}
+            </span>
           </div>
-        </div>
 
-        {/* Score Meter */}
-        <div className="bg-neutral-900 rounded-lg p-6 mb-8">
-          <h2 className="text-xl font-semibold text-white mb-4">Score Meter</h2>
-          <div className="w-full bg-neutral-700 rounded-full h-6 relative">
+          <div className="w-full h-4 rounded bg-neutral-800 overflow-hidden">
             <div
-              className="bg-purple-600 h-6 rounded-full transition-all duration-500"
-              style={{ width: `${fillPercentage}%` }}
+              className="h-full bg-violet-500 transition-all duration-500"
+              style={{ width: `${fillPercent}%` }}
             />
-            {THRESHOLDS.slice(0, 5).map((t, i) => {
-              const markerPercent = (t.points / maxPoints) * 100;
+          </div>
+
+          {/* Threshold markers */}
+          <div className="relative w-full h-6">
+            {THRESHOLDS.filter(t => t.points > 0).map((t, i) => {
+              const leftPercent = (t.points / METER_MAX_POINTS) * 100;
+
               return (
                 <div
                   key={i}
-                  className="absolute top-0 bottom-0 w-px bg-white"
-                  style={{ left: `${markerPercent}%` }}
-                />
+                  className="absolute top-0 text-center group"
+                  style={{ left: `${leftPercent}%`, transform: 'translateX(-50%)' }}
+                >
+                  {/* Tick line */}
+                  <div className="w-px h-4 bg-neutral-500 mx-auto" />
+
+                  {/* Numeric label below tick */}
+                  <span className="text-xs text-neutral-400 block mt-1">{i + 1}</span>
+
+                  {/* Tooltip */}
+                  <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
+                    <div className="bg-black text-white text-xs px-2 py-1 rounded shadow-lg relative">
+                      {t.description}
+                      {/* Arrow */}
+                      <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-2 h-2 bg-black rotate-45"></div>
+                    </div>
+                  </div>
+                </div>
               );
             })}
           </div>
-          <div className="flex justify-between mt-2 text-sm text-gray-300">
-            {THRESHOLDS.map((t, i) => (
-              <span key={i}>{t.label}</span>
+        </section>
+
+        {/* CATEGORY 6 NOTE */}
+        {scoreData.category6Hit && (
+          <div
+            className="p-2 rounded bg-neutral-900 text-center text-sm text-violet-400 relative group cursor-pointer"
+            title={THRESHOLDS[5].description} // tooltip text
+            style={{ textShadow: "0px 5px 3px rgba(0,0,0,0.7)" }}
+          >
+            CATEGORY 6 CONDITION MET.
+
+            {/* Optional custom tooltip styling */}
+            <span className="absolute bottom-full mb-1 left-1/2 transform -translate-x-1/2 bg-neutral-800 text-xs text-white px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+              {THRESHOLDS[5].description}
+            </span>
+          </div>
+        )}
+
+        {/* IDENTITY & ROLES */}
+        {identityOptions.length > 0 && (
+          <section className="mt-8">
+            <h2
+              className="text-xl text-center font-semibold mb-4 text-white"
+              style={{ textShadow: "0px 5px 3px rgba(0,0,0,0.7)" }}
+            >
+              Identity and Roles
+            </h2>
+
+            <div
+              className="grid gap-4 justify-items-start"
+              style={{
+                gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
+              }}
+            >
+              {identityOptions.map((opt) => (
+                <div
+                  key={opt.id}
+                  className="flex items-center gap-2 text-white text-lg"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="w-5 h-5 text-yellow-400 flex-shrink-0"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                  >
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14l-5-4.87 6.91-1.01L12 2z" />
+                  </svg>
+                  <span>{opt.label}</span>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* COLOR DISTRIBUTION */}
+        <section className="space-y-3">
+          <h2
+            className="text-3xl text-center font-semibold"
+            style={{ textShadow: "0px 5px 3px rgba(0,0,0,0.7)" }}
+          >
+            Distribution
+          </h2>
+          <div className="space-y-2">
+            {COLOR_HEX.map((color, i) => (
+              <div key={i} className="flex text-center drop-shadow items-center gap-3 text-sm">
+                <div
+                  className="w-4 h-4 rounded"
+                  style={{ backgroundColor: color }}
+                />
+                <span className="flex-1 text-neutral-400">{COLOR_NAMES[i]}</span>
+                <span>{colorCounts[i]}</span>
+              </div>
             ))}
           </div>
-          {scoreData.category6Hit && (
-            <div className="mt-2 text-yellow-400 font-semibold">
-              Category 6 threshold reached!
-            </div>
-          )}
-        </div>
-
-        {/* Distribution by Category */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          {COLOR_HEX.map((hex, i) => {
-            const count = userOptions.filter((opt) => {
-              const valMap = ["Indifferent", "Highly Dislike", "Dislike", "Mildly Like", "Like", "Love"];
-              return valMap[i] === opt.value;
-            }).length;
-            const percentage = userOptions.length > 0 ? ((count / userOptions.length) * 100).toFixed(1) : "0";
-            return (
-              <div key={i} className="bg-neutral-900 rounded-lg p-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <span
-                      style={{ backgroundColor: hex }}
-                      className="w-5 h-5 rounded-full border border-black"
-                    />
-                    <span className="text-gray-200">{COLOR_NAMES[i]}</span>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-white font-medium">{count.toLocaleString()}</div>
-                    <div className="text-gray-400 text-sm">{percentage}%</div>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+        </section>
       </div>
     </main>
   );

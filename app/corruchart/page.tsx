@@ -8,30 +8,39 @@ import { OPTIONS, OptionData } from "@/data/options";
 import type { Option as BaseOption } from "@/types/option";
 import { CategoryId, CATEGORY_POINTS } from "@/data/scoring";
 
+const STATE_TO_VALUE = [
+  "Indifferent",
+  "Disgust",
+  "Dislike",
+  "Like",
+  "Love",
+  "Lust",
+] as const;
+
 /** html2canvas-safe hex colors */
 const COLOR_HEX = [
   "#828282ff", // Indifferent
-  "#e74c3c", // Highly Dislike
+  "#e74c3c", // Disgust
   "#fc8d59", // Dislike
   "#27ae60", // Like
-  "#37bdf6ff", // Highly Like
-  "#c88de8ff", // Fetish
+  "#37bdf6ff", // Love
+  "#c88de8ff", // Lust
 ];
 
 const COLOR_NAMES = [
   "Indifferent",
-  "Highly Dislike",
+  "Disgust",
   "Dislike",
   "Like",
-  "Highly Like",
-  "Fetish",
+  "Love",
+  "Lust",
 ];
 
 const STORAGE_KEY = "option-color-states";
 
 type Option = BaseOption & {
   category: CategoryId;
-  value?: "Indifferent" | "Dislike" | "Mildly Like" | "Like" | "Love" | "Highly Dislike" | "Fetish";
+  value?: "Indifferent" | "Disgust" | "Dislike" | "Like" | "Love" | "Lust";
 };
 
 export default function Page() {
@@ -65,14 +74,31 @@ export default function Page() {
   }, [states]);
 
   /** Cycle a single option's color and update value for scoring */
+  // Mapping of color index → scoring value
+  const STATE_TO_VALUE: Record<number, string> = {
+    0: "Indifferent",
+    1: "Highly Dislike",
+    2: "Dislike",
+    3: "Like",   // Positive
+    4: "Love",   // Positive
+    5: "Lust",   // Positive
+  };
+
   const cycleColor = (index: number) => {
     setStates((prev) => {
       const next = [...prev];
       next[index] = (next[index] + 1) % COLOR_HEX.length;
 
-      // Map state to a value for scoring
-      const valMap = ["Indifferent", "Highly Dislike", "Dislike", "Mildly Like", "Like", "Love"];
-      options[index].value = valMap[next[index]] as Option["value"];
+      // Persist scoring-ready selections
+      const selections = options.map((opt, i) => ({
+        category: opt.category,
+        value: STATE_TO_VALUE[next[i]],
+      }));
+
+      localStorage.setItem(
+        "corruchart-selections",
+        JSON.stringify(selections)
+      );
 
       return next;
     });
