@@ -1,9 +1,10 @@
+import { Roboto } from "next/font/google";
 import "./globals.css";
 
-export const metadata = {
-  title: "Corruchart",
-  description: "An interactive charting tool to visualize preferences.",
-};
+const roboto = Roboto({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+});
 
 export default function RootLayout({
   children,
@@ -12,7 +13,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="bg-gray-100 text-gray-800 antialiased">
+      <body className={`${roboto.className} font-semibold`}>
         {children}
       </body>
     </html>
