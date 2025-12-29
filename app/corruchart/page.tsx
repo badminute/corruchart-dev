@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import html2canvas from "html2canvas";
+import html2canvas from "html2canvas-pro";
 import Link from "next/link";
 
-import { OPTIONS, OptionData } from "@/data/options";
+import { GROUPS } from "@/data/groups";
+import { OPTIONS } from "@/data/options";
 import type { Option as BaseOption } from "@/types/option";
-import { CategoryId, CATEGORY_POINTS } from "@/data/scoring";
 
 const STATE_TO_VALUE = [
   "Indifferent",
@@ -39,26 +39,41 @@ const COLOR_NAMES = [
 const STORAGE_KEY = "option-color-states";
 
 type Option = BaseOption & {
-  category: CategoryId;
+  categories: string[]; // array of GROUPS ids
+  category: number; // numeric category
   value?: "Indifferent" | "Disgust" | "Dislike" | "Like" | "Love" | "Lust";
 };
 
 export default function Page() {
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // Map OPTIONS to use string category IDs from GROUPS
   const options: Option[] = OPTIONS.map((opt) => ({
     ...opt,
-    category: (opt as any).category || 1, // Assign category if missing
+    categories:
+      (opt.categories as string[] | number[] | undefined)?.map((cat) => {
+        if (typeof cat === "number") return GROUPS[cat - 1]?.id || "general";
+        return cat; // already string id
+      }) || ["general"],
   }));
 
   const [states, setStates] = useState<number[]>([]);
   const [query, setQuery] = useState("");
   const [colorFilter, setColorFilter] = useState<Set<number>>(new Set());
+  const [selectedGroup, setSelectedGroup] = useState<string>("");
+  const [showCategory6, setShowCategory6] = useState(false); // hide category 6 by default
 
-  /** Load persisted state safely */
+  /** Load persisted state */
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
-    let loaded: number[] = saved ? JSON.parse(saved) : Array(options.length).fill(0);
+    let loaded: number[];
+
+    try {
+      const parsed = saved ? JSON.parse(saved) : null;
+      loaded = Array.isArray(parsed) ? parsed : Array(options.length).fill(0);
+    } catch {
+      loaded = Array(options.length).fill(0);
+    }
 
     if (loaded.length > options.length) loaded = loaded.slice(0, options.length);
     if (loaded.length < options.length)
@@ -73,15 +88,14 @@ export default function Page() {
     if (states.length) localStorage.setItem(STORAGE_KEY, JSON.stringify(states));
   }, [states]);
 
-  /** Cycle a single option's color and update value for scoring */
-  // Mapping of color index → scoring value
+  /** Mapping of color index → scoring value */
   const STATE_TO_VALUE: Record<number, string> = {
     0: "Indifferent",
     1: "Highly Dislike",
     2: "Dislike",
-    3: "Like",   // Positive
-    4: "Love",   // Positive
-    5: "Lust",   // Positive
+    3: "Like",
+    4: "Love",
+    5: "Lust",
   };
 
   const cycleColor = (index: number) => {
@@ -89,16 +103,11 @@ export default function Page() {
       const next = [...prev];
       next[index] = (next[index] + 1) % COLOR_HEX.length;
 
-      // Persist scoring-ready selections
       const selections = options.map((opt, i) => ({
-        category: opt.category,
+        categories: opt.categories, // array of string ids
         value: STATE_TO_VALUE[next[i]],
       }));
-
-      localStorage.setItem(
-        "corruchart-selections",
-        JSON.stringify(selections)
-      );
+      localStorage.setItem("corruchart-selections", JSON.stringify(selections));
 
       return next;
     });
@@ -110,6 +119,8 @@ export default function Page() {
       setStates(Array(options.length).fill(0));
       options.forEach((opt) => (opt.value = "Indifferent"));
       setColorFilter(new Set());
+      setSelectedGroup("");
+      setShowCategory6(false);
     }
   };
 
@@ -127,11 +138,17 @@ export default function Page() {
     return options
       .map((option, index) => ({ option, index }))
       .filter(({ option, index }) => {
-        const matchesText = !query.trim() || option.label.toLowerCase().includes(query.toLowerCase());
-        const matchesColor = colorFilter.size === 0 || colorFilter.has(states[index] % COLOR_HEX.length);
-        return matchesText && matchesColor;
+        const matchesText =
+          !query.trim() || option.label.toLowerCase().includes(query.toLowerCase());
+        const matchesColor =
+          colorFilter.size === 0 || colorFilter.has(states[index] % COLOR_HEX.length);
+        const matchesGroup =
+          !selectedGroup || option.categories.includes(selectedGroup);
+        const matchesCategory6 =
+          showCategory6 || option.category !== 6; // hide category 6 unless toggled
+        return matchesText && matchesColor && matchesGroup && matchesCategory6;
       });
-  }, [options, query, states, colorFilter]);
+  }, [options, query, states, colorFilter, selectedGroup, showCategory6]);
 
   /** Screenshot export */
   const exportScreenshot = async () => {
@@ -142,23 +159,31 @@ export default function Page() {
       scale: 2,
       onclone: (doc) => {
         const root = doc.body;
-        root.style.backgroundColor = "#1C1E20";
+        root.style.backgroundColor = "#1F2023";
         root.style.color = "#B794F4";
 
         root.querySelectorAll("*").forEach((el) => {
-          const element = el as HTMLElement;
-          element.className = element.className
-            .split(" ")
-            .filter(
-              (c) =>
-                !c.startsWith("bg-") &&
-                !c.startsWith("text-") &&
-                !c.startsWith("border-") &&
-                !c.startsWith("ring-") &&
-                !c.startsWith("shadow")
-            )
-            .join(" ");
+          // Skip SVGs completely
+          if (el instanceof SVGElement) return;
 
+          const element = el as HTMLElement;
+
+          // Safely strip Tailwind classes if className is string
+          if (typeof element.className === "string") {
+            element.className = element.className
+              .split(" ")
+              .filter(
+                (c) =>
+                  !c.startsWith("bg-") &&
+                  !c.startsWith("text-") &&
+                  !c.startsWith("border-") &&
+                  !c.startsWith("ring-") &&
+                  !c.startsWith("shadow")
+              )
+              .join(" ");
+          }
+
+          // Reset styles
           element.style.color ||= "inherit";
           element.style.backgroundColor ||= "transparent";
           element.style.borderColor ||= "transparent";
@@ -183,33 +208,66 @@ export default function Page() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search options…"
-            className="px-3 py-2 rounded bg-neutral-700 text-gray-100 placeholder-gray-400 outline-none w-64"
+            className="px-3 py-2 rounded bg-neutral-900 text-gray-100 placeholder-gray-400 outline-none w-64"
           />
 
           <button
             onClick={exportScreenshot}
-            className="px-4 py-2 rounded bg-neutral-700 text-neutral-200 hover:bg-neutral-600 cursor-pointer"
+            className="px-4 py-2 rounded bg-neutral-900 text-neutral-200 hover:bg-neutral-600 cursor-pointer"
           >
             Export Screenshot
           </button>
 
           <button
             onClick={resetAll}
-            className="px-4 py-2 rounded bg-neutral-700 text-neutral-200 hover:bg-red-900/90 hover:text-neutral-300 cursor-pointer"
+            className="px-4 py-2 rounded bg-neutral-900 text-neutral-200 hover:bg-red-900/90 hover:text-neutral-300 cursor-pointer"
           >
             Reset All
           </button>
 
           <Link
             href="/roles"
-            className="px-4 py-2 rounded bg-neutral-700 text-neutral-200 hover:bg-green-900/90 hover:text-neutral-300 cursor-pointer"
+            className="px-4 py-2 rounded bg-neutral-900 text-neutral-200 hover:bg-green-900/90 hover:text-neutral-300 cursor-pointer"
           >
             Next
           </Link>
 
+          <button
+            onClick={() => setShowCategory6((prev) => !prev)}
+            className="px-4 py-2 rounded bg-neutral-900 text-neutral-400 hover:bg-neutral-800 cursor-pointer"
+          >
+            {showCategory6 ? "Forbidden Interests: ON" : "Forbidden Interests: OFF"}
+          </button>
+
           <span className="text-gray-400">
             Showing {filtered.length} / {options.length}
           </span>
+        </div>
+
+        {/* Group (category) filter */}
+        <div className="flex items-center gap-2 overflow-x-auto py-1">
+          <span className="text-gray-400 mr-2 flex-shrink-0">Filter by Group:</span>
+
+          <button
+            onClick={() => setSelectedGroup("")}
+            className={`flex-shrink-0 px-3 py-1 rounded whitespace-nowrap font-medium transition ${selectedGroup === "" ? "bg-neutral-700 text-gray-100" : "bg-neutral-900 text-gray-400 hover:bg-neutral-800"
+              }`}
+          >
+            All
+          </button>
+
+          {GROUPS.map((group) => (
+            <button
+              key={group.id}
+              onClick={() => setSelectedGroup(group.id)}
+              className={`flex-shrink-0 px-3 py-1 rounded whitespace-nowrap font-medium transition ${selectedGroup === group.id
+                  ? "bg-neutral-700 text-gray-100"
+                  : "bg-neutral-900 text-gray-400 hover:bg-neutral-800"
+                }`}
+            >
+              {group.name}
+            </button>
+          ))}
         </div>
 
         {/* Color filter */}

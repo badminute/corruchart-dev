@@ -68,7 +68,7 @@ export default function Page() {
         if (!containerRef.current) return;
 
         const canvas = await html2canvas(containerRef.current, {
-            backgroundColor: "#191B1C",
+            backgroundColor: "#191b1cff",
             scale: 2,
             onclone: (doc) => {
                 const root = doc.body;
@@ -145,26 +145,26 @@ export default function Page() {
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
                         placeholder="Search options…"
-                        className="px-3 py-2 rounded bg-neutral-700 text-gray-100 placeholder-gray-400 outline-none w-64"
+                        className="px-3 py-2 rounded bg-neutral-900 text-gray-100 placeholder-gray-400 outline-none w-64"
                     />
 
                     <button
                         onClick={exportScreenshot}
-                        className="px-4 py-2 rounded bg-neutral-700 text-neutral-200 hover:bg-neutral-600 cursor-pointer"
+                        className="px-4 py-2 rounded bg-neutral-900 text-neutral-200 hover:bg-neutral-600 cursor-pointer"
                     >
                         Export Screenshot
                     </button>
 
                     <button
                         onClick={resetAll}
-                        className="px-4 py-2 rounded bg-neutral-700 text-neutral-200 hover:bg-red-900/90 hover:text-neutral-300 cursor-pointer"
+                        className="px-4 py-2 rounded bg-neutral-900 text-neutral-200 hover:bg-red-900/90 hover:text-neutral-300 cursor-pointer"
                     >
                         Reset All
                     </button>
 
                     <Link
                         href="/results"
-                        className="px-4 py-2 rounded bg-neutral-700 text-neutral-200 hover:bg-green-900/90 hover:text-neutral-300 cursor-pointer"
+                        className="px-4 py-2 rounded bg-neutral-900 text-neutral-200 hover:bg-green-900/90 hover:text-neutral-300 cursor-pointer"
                     >
                         Results
                     </Link>

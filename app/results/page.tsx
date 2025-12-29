@@ -29,6 +29,9 @@ const COLOR_NAMES = [
 
 const METER_MAX_POINTS = 3000;
 
+// ** Define the page background color once **
+const PAGE_BACKGROUND_COLOR = "#1F2023";
+
 export default function ResultsPage() {
   const [selections, setSelections] = useState<any[]>([]);
   const [identityOptions, setIdentityOptions] = useState<typeof ROLES>([]);
@@ -92,7 +95,7 @@ export default function ResultsPage() {
     const container = document.getElementById("results-container");
     if (!container) return;
 
-    const canvas = await html2canvas(container, { scale: 2, backgroundColor: "#191B1C" });
+    const canvas = await html2canvas(container, { scale: 2, backgroundColor: PAGE_BACKGROUND_COLOR });
     const link = document.createElement("a");
     link.download = "results.png";
     link.href = canvas.toDataURL("image/png");
@@ -100,7 +103,10 @@ export default function ResultsPage() {
   };
 
   return (
-    <main className="min-h-screen bg-[#191B1C] text-neutral-200 px-6 py-10">
+    <main
+      className="min-h-screen text-neutral-200 px-6 py-10"
+      style={{ backgroundColor: PAGE_BACKGROUND_COLOR }}
+    >
       <div id="results-container" className="max-w-3xl mx-auto space-y-10">
         <header className="space-y-2">
           <h1
@@ -118,13 +124,13 @@ export default function ResultsPage() {
         <div className="flex gap-2">
           <button
             onClick={exportScreenshot}
-            className="px-4 py-2 rounded bg-neutral-700 text-neutral-200 hover:bg-neutral-600 cursor-pointer"
+            className="px-4 py-2 rounded bg-neutral-900 text-neutral-200 hover:bg-neutral-800 cursor-pointer"
           >
             Export Screenshot
           </button>
           <Link
             href="/"
-            className="px-4 py-2 rounded bg-neutral-700 text-neutral-200 hover:bg-neutral-600 cursor-pointer"
+            className="px-4 py-2 rounded bg-neutral-900 text-neutral-200 hover:bg-neutral-800 cursor-pointer"
           >
             Back
           </Link>
@@ -139,7 +145,7 @@ export default function ResultsPage() {
             </span>
           </div>
 
-          <div className="w-full h-4 rounded bg-neutral-800 overflow-hidden">
+          <div className="w-full h-4 rounded overflow-hidden" style={{ backgroundColor: "#2c2e33" }}>
             <div
               className="h-full bg-violet-500 transition-all duration-500"
               style={{ width: `${fillPercent}%` }}
@@ -157,18 +163,12 @@ export default function ResultsPage() {
                   className="absolute top-0 text-center group"
                   style={{ left: `${leftPercent}%`, transform: 'translateX(-50%)' }}
                 >
-                  {/* Tick line */}
-                  <div className="w-px h-4 bg-neutral-500 mx-auto" />
-
-                  {/* Numeric label below tick */}
-                  <span className="text-xs text-neutral-400 block mt-1">{i + 1}</span>
-
-                  {/* Tooltip */}
-                  <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
-                    <div className="bg-black text-white text-xs px-2 py-1 rounded shadow-lg relative">
+                  <div className="w-px h-4 cursor-pointer bg-neutral-500 mx-auto" />
+                  <span className="text-xl cursor-pointer text-neutral-400 block mt-1">{i + 1}</span>
+                  <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer z-50">
+                    <div className="bg-black text-white text-s px-2 py-1 rounded shadow-lg relative">
                       {t.description}
-                      {/* Arrow */}
-                      <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-2 h-2 bg-black rotate-45"></div>
+                      <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-2 h-2 bg-black cursor-pointer rotate-45"></div>
                     </div>
                   </div>
                 </div>
@@ -180,14 +180,12 @@ export default function ResultsPage() {
         {/* CATEGORY 6 NOTE */}
         {scoreData.category6Hit && (
           <div
-            className="p-2 rounded bg-neutral-900 text-center text-sm text-violet-400 relative group cursor-pointer"
-            title={THRESHOLDS[5].description} // tooltip text
-            style={{ textShadow: "0px 5px 3px rgba(0,0,0,0.7)" }}
+            className="p-2 rounded text-center text-xl text-violet-400 relative group cursor-pointer"
+            title={THRESHOLDS[5].description}
+            style={{ backgroundColor: "#2c2e33", textShadow: "0px 4px 1px rgba(0,0,0,0.7)" }}
           >
-            CATEGORY 6 CONDITION MET.
-
-            {/* Optional custom tooltip styling */}
-            <span className="absolute bottom-full mb-1 left-1/2 transform -translate-x-1/2 bg-neutral-800 text-xs text-white px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+            YOU ARE TAINTED WITH FORBIDDEN CORRUPTION.
+            <span className="absolute bottom-full mb-1 left-1/2 transform -translate-x-1/2 bg-neutral-900 text-xs text-white px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
               {THRESHOLDS[5].description}
             </span>
           </div>
