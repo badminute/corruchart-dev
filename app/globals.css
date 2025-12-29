@@ -3,6 +3,13 @@
 
 @custom-variant dark (&:is(.dark *));
 
+html,
+body {
+  background-color: #191B1C;
+  transition: background-color 0.15s;
+  /* optional smooth fade */
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
