@@ -250,7 +250,7 @@ export default function Page() {
 
           <button
             onClick={() => setSelectedGroup("")}
-            className={`flex-shrink-0 px-3 py-1 rounded whitespace-nowrap font-medium transition ${selectedGroup === "" ? "bg-neutral-700 text-gray-100" : "bg-neutral-900 text-gray-400 hover:bg-neutral-800"
+            className={`flex-shrink-0 px-3 py-1 rounded whitespace-nowrap font-medium transition cursor-pointer ${selectedGroup === "" ? "bg-neutral-700 text-gray-100" : "bg-neutral-900 text-gray-400 hover:bg-neutral-800"
               }`}
           >
             All
@@ -261,8 +261,8 @@ export default function Page() {
               key={group.id}
               onClick={() => setSelectedGroup(group.id)}
               className={`flex-shrink-0 px-3 py-1 rounded whitespace-nowrap font-medium transition ${selectedGroup === group.id
-                  ? "bg-neutral-700 text-gray-100"
-                  : "bg-neutral-900 text-gray-400 hover:bg-neutral-800"
+                  ? "bg-neutral-700 text-gray-100 cursor-pointer"
+                  : "bg-neutral-900 text-gray-400 hover:bg-neutral-800 cursor-pointer"
                 }`}
             >
               {group.name}
