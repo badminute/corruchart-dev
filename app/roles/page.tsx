@@ -11,8 +11,8 @@ const STORAGE_KEY = "rolespage-option-color-states";
 
 // Only keep two colors
 const COLOR_HEX = [
-    "#828282ff", // "I do not identify as"
-    "#59c961ff", // "I am / Identify as"
+    "#828282ff", // I do not identify as
+    "#59c961ff", // I am / Identify as
 ];
 
 const COLOR_NAMES = ["I do not identify as", "I am / Identify as"];
@@ -28,18 +28,23 @@ export default function Page() {
     /** Load persisted state */
     useEffect(() => {
         const saved = localStorage.getItem(STORAGE_KEY);
-        let loaded: number[] = saved ? JSON.parse(saved) : Array(options.length).fill(0);
+        let loaded: number[] = saved
+            ? JSON.parse(saved)
+            : Array(options.length).fill(0);
 
         if (loaded.length > options.length) loaded = loaded.slice(0, options.length);
-        if (loaded.length < options.length) loaded = [...loaded, ...Array(options.length - loaded.length).fill(0)];
+        if (loaded.length < options.length)
+            loaded = [...loaded, ...Array(options.length - loaded.length).fill(0)];
 
-        loaded = loaded.map((val) => val % COLOR_HEX.length);
+        loaded = loaded.map((v) => v % COLOR_HEX.length);
         setStates(loaded);
     }, [options.length]);
 
     /** Persist state */
     useEffect(() => {
-        if (states.length) localStorage.setItem(STORAGE_KEY, JSON.stringify(states));
+        if (states.length) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(states));
+        }
     }, [states]);
 
     /** Cycle color */
@@ -52,9 +57,9 @@ export default function Page() {
     };
 
     const toggleColor = (colorIndex: number) => {
-        const newSet = new Set(colorFilter);
-        newSet.has(colorIndex) ? newSet.delete(colorIndex) : newSet.add(colorIndex);
-        setColorFilter(newSet);
+        const next = new Set(colorFilter);
+        next.has(colorIndex) ? next.delete(colorIndex) : next.add(colorIndex);
+        setColorFilter(next);
     };
 
     const resetAll = () => {
@@ -74,6 +79,7 @@ export default function Page() {
                 const root = doc.body;
                 root.style.backgroundColor = "#1C1E20";
                 root.style.color = "#B794F4";
+
                 root.querySelectorAll("*").forEach((el) => {
                     const element = el as HTMLElement;
                     if (typeof element.className === "string") {
@@ -104,17 +110,24 @@ export default function Page() {
 
     if (!states.length) return null;
 
-    // Filter options by search and color
+    /** Filter options */
     const filtered = options
         .map((option, index) => ({ option, index }))
         .filter(({ option, index }) => {
-            const matchesQuery = option.label.toLowerCase().includes(query.toLowerCase());
-            const matchesColor = colorFilter.size === 0 || colorFilter.has(states[index]);
+            const matchesQuery = option.label
+                .toLowerCase()
+                .includes(query.toLowerCase());
+            const matchesColor =
+                colorFilter.size === 0 || colorFilter.has(states[index]);
             return matchesQuery && matchesColor;
         });
 
-    // Group filtered options by category
-    const categoriesMap: Record<string, { option: Option; index: number }[]> = {};
+    /** Group by category */
+    const categoriesMap: Record<
+        string,
+        { option: Option; index: number }[]
+    > = {};
+
     filtered.forEach(({ option, index }) => {
         option.categories.forEach((cat) => {
             if (!categoriesMap[cat]) categoriesMap[cat] = [];
@@ -122,22 +135,27 @@ export default function Page() {
         });
     });
 
-    // Custom category order
-    const categoryOrder = ["Sex Role", "BDSM Role", "Sexual Orientation", "Sex"];
+    const categoryOrder = [
+        "Sex Role",
+        "BDSM Role",
+        "Sexual Orientation",
+        "Sex",
+    ];
 
-    // Sort categories: custom order first, then alphabetical for the rest
     const categoryNames = Object.keys(categoriesMap).sort((a, b) => {
-        const indexA = categoryOrder.indexOf(a);
-        const indexB = categoryOrder.indexOf(b);
-
-        if (indexA !== -1 && indexB !== -1) return indexA - indexB;
-        if (indexA !== -1) return -1;
-        if (indexB !== -1) return 1;
+        const ia = categoryOrder.indexOf(a);
+        const ib = categoryOrder.indexOf(b);
+        if (ia !== -1 && ib !== -1) return ia - ib;
+        if (ia !== -1) return -1;
+        if (ib !== -1) return 1;
         return a.localeCompare(b);
     });
 
     return (
-        <main className="min-h-screen px-8 flex flex-col items-center" style={{ backgroundColor: "#1F2023" }}>
+        <main
+            className="min-h-screen px-8 flex flex-col items-center"
+            style={{ backgroundColor: "#1F2023" }}
+        >
             {/* Controls */}
             <div className="py-4 space-y-3 w-full max-w-7xl">
                 <div className="flex items-center gap-4 flex-wrap justify-center">
@@ -150,21 +168,21 @@ export default function Page() {
 
                     <button
                         onClick={exportScreenshot}
-                        className="px-4 py-2 rounded bg-neutral-900 text-neutral-200 hover:bg-neutral-600 cursor-pointer"
+                        className="px-4 py-2 rounded bg-neutral-900 text-neutral-200 hover:bg-neutral-600"
                     >
                         Export Screenshot
                     </button>
 
                     <button
                         onClick={resetAll}
-                        className="px-4 py-2 rounded bg-neutral-900 text-neutral-200 hover:bg-red-900/90 hover:text-neutral-300 cursor-pointer"
+                        className="px-4 py-2 rounded bg-neutral-900 text-neutral-200 hover:bg-red-900/90"
                     >
                         Reset All
                     </button>
 
                     <Link
                         href="/results"
-                        className="px-4 py-2 rounded bg-neutral-900 text-neutral-200 hover:bg-green-900/90 hover:text-neutral-300 cursor-pointer"
+                        className="px-4 py-2 rounded bg-neutral-900 text-neutral-200 hover:bg-green-900/90"
                     >
                         Results
                     </Link>
@@ -174,13 +192,15 @@ export default function Page() {
                     </span>
                 </div>
 
-                {/* Color Filter (only 2 buttons) */}
-                <div className="flex items-center gap-3 flex-wrap justify-center mt-2">
+                {/* Color filter */}
+                <div className="flex items-center gap-3 flex-wrap justify-center">
                     {COLOR_HEX.map((hex, i) => (
                         <button
                             key={i}
                             onClick={() => toggleColor(i)}
-                            className={`flex items-center gap-2 px-2 py-1 rounded cursor-pointer ${colorFilter.has(i) ? "bg-neutral-700 text-gray-100" : "bg-neutral-900 text-gray-400"
+                            className={`flex items-center gap-2 px-2 py-1 rounded ${colorFilter.has(i)
+                                    ? "bg-neutral-700 text-gray-100"
+                                    : "bg-neutral-900 text-gray-400"
                                 }`}
                         >
                             <span
@@ -198,57 +218,62 @@ export default function Page() {
                 </div>
             </div>
 
-            {/* EXPORT-SAFE AREA */}
+            {/* EXPORT SAFE AREA */}
             <div
                 ref={containerRef}
-                className="w-full flex flex-col items-center"
-                style={{ backgroundColor: "#1F2023", color: "#9F86D8" }}
-            >
+                className="w-full max-w-6xl mx-auto columns-1 md:columns-2 lg:columns-3 gap-4"
+                style={{
+                    gridAutoFlow: "dense",
+                    backgroundColor: "#1F2023",
+                    color: "#9F86D8",
+                }}
+                >
                 {categoryNames.map((category) => (
                     <div
                         key={category}
-                        className="mb-8 w-full flex flex-col items-center transition-all duration-300 hover:border-white"
+                        className="w-full break-inside-avoid mb-4"
                         style={{
-                            border: "1px solid rgba(255, 255, 255, 0.1)", // subtle translucent white border
-                            padding: "16px",
+                            border: "1px solid rgba(255,255,255,0.1)",
+                            padding: "12px",
                             borderRadius: "8px",
                         }}
                     >
                         <h2
-                            className="text-4xl font-bold mb-4 text-center"
+                            className="text-xl font-semibold mb-2 text-center"
                             style={{
                                 color: "#D3D3D3",
-                                textShadow: "0px 5px 3px rgba(0,0,0,0.7)",
+                                textShadow: "0 3px 2px rgba(0,0,0,0.6)",
                             }}
                         >
                             {category}
                         </h2>
-                        <div
-                            className="grid gap-4 justify-items-center"
-                            style={{
-                                gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-                                maxWidth: "1000px",
-                                width: "100%",
-                            }}
-                        >
+
+                        {/* COMPACT LIST */}
+                        <div className="space-y-1">
                             {categoriesMap[category].map(({ option, index }) => (
                                 <button
                                     key={option.id}
                                     onClick={() => cycleColor(index)}
-                                    className="flex flex-col items-center justify-center gap-2 p-4 rounded border border-transparent hover:border-gray-500 cursor-pointer w-full h-36 text-center"
+                                    className="flex items-center gap-3 px-3 py-2 w-full rounded-md cursor-pointer text-left transition hover:bg-white/5"
                                 >
                                     <svg
-                                        className="flex-shrink-0"
-                                        width="40"
-                                        height="40"
+                                        width="18"
+                                        height="18"
                                         viewBox="0 0 24 24"
-                                        fill={COLOR_HEX[states[index] % COLOR_HEX.length]}
+                                        fill={COLOR_HEX[states[index]]}
                                         stroke="#000"
                                         strokeWidth="0.5"
+                                        className="flex-shrink-0"
                                     >
                                         <path d="M12 2.5l2.9 6.1 6.7.6-5 4.4 1.5 6.5L12 16.8 5.9 20.1l1.5-6.5-5-4.4 6.7-.6L12 2.5z" />
                                     </svg>
-                                    <span className="text-2xl" style={{ textShadow: "0 2px 4px rgba(0,0,0,0.3)" }}>
+
+                                    <span
+                                        className="text-sm"
+                                        style={{
+                                            textShadow: "0 1px 2px rgba(0,0,0,0.3)",
+                                        }}
+                                    >
                                         {option.label}
                                     </span>
                                 </button>
