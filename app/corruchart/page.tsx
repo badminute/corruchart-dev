@@ -8,6 +8,8 @@ import { GROUPS } from "@/data/groups";
 import { OPTIONS } from "@/data/options";
 import type { Option as BaseOption } from "@/types/option";
 
+type GroupState = "include" | "exclude";
+
 const STATE_TO_VALUE = [
   "Indifferent",
   "Disgust",
@@ -60,7 +62,7 @@ export default function Page() {
   const [states, setStates] = useState<number[]>([]);
   const [query, setQuery] = useState("");
   const [colorFilter, setColorFilter] = useState<Set<number>>(new Set());
-  const [selectedGroup, setSelectedGroup] = useState<string>("");
+  const [groupStates, setGroupStates] = useState<Record<string, GroupState>>({});
   const [showCategory6, setShowCategory6] = useState(false); // hide category 6 by default
 
   /** Load persisted state */
@@ -119,7 +121,6 @@ export default function Page() {
       setStates(Array(options.length).fill(0));
       options.forEach((opt) => (opt.value = "Indifferent"));
       setColorFilter(new Set());
-      setSelectedGroup("");
       setShowCategory6(false);
     }
   };
@@ -129,6 +130,25 @@ export default function Page() {
     setColorFilter((prev) => {
       const next = new Set(prev);
       next.has(colorIndex) ? next.delete(colorIndex) : next.add(colorIndex);
+      return next;
+    });
+  };
+
+  const toggleGroup = (groupId: string) => {
+    setGroupStates((prev) => {
+      const next = { ...prev };
+
+      if (!next[groupId]) {
+        // NEUTRAL → INCLUDE
+        next[groupId] = "include";
+      } else if (next[groupId] === "include") {
+        // INCLUDE → EXCLUDE
+        next[groupId] = "exclude";
+      } else {
+        // EXCLUDE → NEUTRAL
+        delete next[groupId];
+      }
+
       return next;
     });
   };
@@ -143,12 +163,16 @@ export default function Page() {
         const matchesColor =
           colorFilter.size === 0 || colorFilter.has(states[index] % COLOR_HEX.length);
         const matchesGroup =
-          !selectedGroup || option.categories.includes(selectedGroup);
+          // include logic (OR)
+          (!Object.values(groupStates).includes("include") ||
+            option.categories.some((cat) => groupStates[cat] === "include")) &&
+          // exclude logic (hard veto)
+          !option.categories.some((cat) => groupStates[cat] === "exclude");
         const matchesCategory6 =
           showCategory6 || option.category !== 6; // hide category 6 unless toggled
         return matchesText && matchesColor && matchesGroup && matchesCategory6;
       });
-  }, [options, query, states, colorFilter, selectedGroup, showCategory6]);
+  }, [options, query, states, colorFilter, groupStates, showCategory6]);
 
   /** Screenshot export */
   const exportScreenshot = async () => {
@@ -245,33 +269,41 @@ export default function Page() {
         </div>
 
         {/* Group (category) filter */}
-        <div className="flex items-center gap-2 overflow-x-auto py-1">
+        <div className="flex items-center gap-1 py-1 flex-wrap md:flex-nowrap">
           <span className="text-gray-400 mr-2 flex-shrink-0">Filter by Group:</span>
 
           <button
-            onClick={() => setSelectedGroup("")}
-            className={`flex-shrink-0 px-3 py-1 rounded whitespace-nowrap font-medium transition cursor-pointer ${selectedGroup === "" ? "bg-neutral-700 text-gray-100" : "bg-neutral-900 text-gray-400 hover:bg-neutral-800"
+            onClick={() => setGroupStates({})}
+            className={`flex-shrink-0 px-3 py-1 cursor-pointer rounded font-medium transition ${Object.keys(groupStates).length === 0
+                ? "bg-neutral-700 text-gray-100"
+                : "bg-neutral-900 text-gray-400 hover:bg-neutral-800"
               }`}
           >
             All
           </button>
 
-          {GROUPS.map((group) => (
-            <button
-              key={group.id}
-              onClick={() => setSelectedGroup(group.id)}
-              className={`flex-shrink-0 px-3 py-1 rounded whitespace-nowrap font-medium transition ${selectedGroup === group.id
-                  ? "bg-neutral-700 text-gray-100 cursor-pointer"
-                  : "bg-neutral-900 text-gray-400 hover:bg-neutral-800 cursor-pointer"
-                }`}
-            >
-              {group.name}
-            </button>
-          ))}
+          {GROUPS.map((group) => {
+            const state = groupStates[group.id];
+
+            return (
+              <button
+                key={group.id}
+                onClick={() => toggleGroup(group.id)}
+                className={`flex-shrink-0 px-3 py-1 rounded whitespace-nowrap font-medium transition cursor-pointer ${state === "include"
+                    ? "bg-green-700 text-green-100"
+                    : state === "exclude"
+                      ? "bg-red-700 text-red-100 line-through"
+                      : "bg-neutral-900 text-gray-400 hover:bg-neutral-800"
+                  }`}
+              >
+                {group.name}
+              </button>
+            );
+          })}
         </div>
 
         {/* Color filter */}
-        <div className="flex items-center gap-3 flex-wrap">
+        <div className="flex items-center gap-1 flex-wrap">
           {COLOR_HEX.map((hex, i) => {
             const active = colorFilter.has(i);
             return (
