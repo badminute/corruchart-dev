@@ -7,6 +7,7 @@ import Link from "next/link";
 import { GROUPS } from "@/data/groups";
 import { OPTIONS } from "@/data/options";
 import type { Option as BaseOption } from "@/types/option";
+import { DESCRIPTIONS } from "@/data/descriptions";
 
 type GroupState = "include" | "exclude";
 
@@ -64,6 +65,7 @@ export default function Page() {
   const [colorFilter, setColorFilter] = useState<Set<number>>(new Set());
   const [groupStates, setGroupStates] = useState<Record<string, GroupState>>({});
   const [showCategory6, setShowCategory6] = useState(false); // hide category 6 by default
+  const [openDescription, setOpenDescription] = useState<string | null>(null);
 
   /** Load persisted state */
   useEffect(() => {
@@ -344,31 +346,92 @@ export default function Page() {
             xl:grid-cols-5
           "
         >
-          {filtered.map(({ option, index }) => (
-            <button
-              key={option.id}
-              onClick={() => cycleColor(index)}
-              className="flex items-center gap-2 text-left p-2 rounded border border-transparent hover:border-gray-500 cursor-pointer"
-            >
-              <svg
-                className="flex-shrink-0"
-                width="32"
-                height="32"
-                viewBox="0 0 24 24"
-                fill={COLOR_HEX[states[index] % COLOR_HEX.length]}
-                stroke="#000"
-                strokeWidth="0.5"
-              >
-                <path d="M12 2.5l2.9 6.1 6.7.6-5 4.4 1.5 6.5L12 16.8 5.9 20.1l1.5-6.5-5-4.4 6.7-.6L12 2.5z" />
-              </svg>
-              <span
-                className="text-lg"
-                style={{ textShadow: "0 2px 4px rgba(0,0,0,0.3)" }}
-              >
-                {option.label}
-              </span>
-            </button>
-          ))}
+          {filtered.map(({ option, index }) => {
+            const description = DESCRIPTIONS[option.id];
+
+            return (
+              <div key={option.id} className="relative">
+                <div
+                  className="
+          flex items-center gap-2
+          text-left p-2 rounded
+          border border-transparent hover:border-gray-500
+          w-full
+          group
+        "
+                >
+                  {/* STAR */}
+                  <button
+                    onClick={() => cycleColor(index)}
+                    className="flex-shrink-0 cursor-pointer"
+                  >
+                    <svg
+                      width="32"
+                      height="32"
+                      viewBox="0 0 24 24"
+                      fill={COLOR_HEX[states[index] % COLOR_HEX.length]}
+                      stroke="#000"
+                      strokeWidth="0.5"
+                    >
+                      <path d="M12 2.5l2.9 6.1 6.7.6-5 4.4 1.5 6.5L12 16.8 5.9 20.1l1.5-6.5-5-4.4 6.7-.6L12 2.5z" />
+                    </svg>
+                  </button>
+
+                  {/* LABEL + QUESTION MARK OVERLAY */}
+                  <span
+                    className="relative text-lg pr-4"
+                    style={{ textShadow: "0 2px 4px rgba(0,0,0,0.3)" }}
+                  >
+                    {option.label}
+
+                    {description && (
+                      <span
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setOpenDescription(
+                            openDescription === option.id ? null : option.id
+                          );
+                        }}
+                        className="
+                absolute -top-1 -right-1
+                w-4 h-4
+                flex items-center justify-center
+                rounded-full
+                text-[9px] font-bold
+                bg-neutral-800 text-gray-300
+                border border-neutral-600
+                cursor-pointer
+                opacity-0
+                group-hover:opacity-100
+              "
+                        title="Show description"
+                      >
+                        ?
+                      </span>
+                    )}
+                  </span>
+                </div>
+
+                {/* DESCRIPTION POPOVER */}
+                {openDescription === option.id && description && (
+                  <div
+                    className="
+            absolute z-10
+            left-1 bottom-full mb-1
+            max-w-xs
+            p-3 rounded
+            bg-neutral-900 text-gray-200
+            text-sm
+            border border-neutral-700
+            shadow-lg
+          "
+                  >
+                    {description}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
     </main>
