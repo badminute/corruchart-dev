@@ -4,6 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import html2canvas from "html2canvas-pro";
 
+import { computeTagScores, TagBreakdown } from "@/lib/tagScores";
+import { Reaction } from "@/data/scoring";
 import { OPTIONS } from "@/data/options";
 import { ROLES } from "@/data/roles";
 import { computeScore, THRESHOLDS } from "@/data/scoring";
@@ -28,32 +30,56 @@ const COLOR_NAMES = [
 ];
 
 const METER_MAX_POINTS = 3000;
-
-// ** Define the page background color once **
 const PAGE_BACKGROUND_COLOR = "#1F2023";
 
+// === Tags you want to hide from results ===
+const HIDDEN_TAGS = new Set<string>(["upper-body", "qualities", "acts", "lower-body", "misc", "roles-themes"]); // example
+
 export default function ResultsPage() {
+  // ----------------------------
+  // STATE
+  // ----------------------------
   const [selections, setSelections] = useState<any[]>([]);
   const [identityOptions, setIdentityOptions] = useState<typeof ROLES>([]);
+  const [positiveTags, setPositiveTags] = useState<TagBreakdown[]>([]);
+  const [negativeTags, setNegativeTags] = useState<TagBreakdown[]>([]);
+  const [openTag, setOpenTag] = useState<string | null>(null);
 
-  /** Load Corruption Chart selections */
+  // ----------------------------
+  // Load selections from localStorage
+  // ----------------------------
   useEffect(() => {
     const saved = localStorage.getItem("corruchart-selections");
-    if (saved) setSelections(JSON.parse(saved));
+    if (!saved) return;
+
+    const userSelections: Record<string, Reaction> = JSON.parse(saved);
+
+    // Set raw selections for scoring
+    setSelections(Object.entries(userSelections).map(([id, value]) => ({ id, value })));
+
+    // Compute tag breakdowns
+    const { positive, negative } = computeTagScores(userSelections);
+    setPositiveTags(positive);
+    setNegativeTags(negative);
   }, []);
 
-  /** Listen for storage changes */
+  // ----------------------------
+  // Listen for storage changes
+  // ----------------------------
   useEffect(() => {
     const handleStorage = (e: StorageEvent) => {
       if (e.key === "corruchart-selections") {
-        setSelections(e.newValue ? JSON.parse(e.newValue) : []);
+        const newSelections = e.newValue ? JSON.parse(e.newValue) : [];
+        setSelections(newSelections);
       }
     };
     window.addEventListener("storage", handleStorage);
     return () => window.removeEventListener("storage", handleStorage);
   }, []);
 
-  /** Load Identity / Roles selections */
+  // ----------------------------
+  // Load identity / roles
+  // ----------------------------
   useEffect(() => {
     const rolesSelections = JSON.parse(
       localStorage.getItem("rolespage-option-color-states") ?? "[]"
@@ -62,7 +88,9 @@ export default function ResultsPage() {
     setIdentityOptions(selectedRoles);
   }, []);
 
-  /** Map selections to scoring input */
+  // ----------------------------
+  // Map selections for scoring
+  // ----------------------------
   const scoredSelections = useMemo(() => {
     return selections
       .map((sel, index) => {
@@ -80,7 +108,6 @@ export default function ResultsPage() {
     return Math.min((scoreData.total / METER_MAX_POINTS) * 100, 100);
   }, [scoreData]);
 
-  /** Count colors for distribution */
   const colorCounts = useMemo(() => {
     const counts = Array(COLOR_HEX.length).fill(0);
     scoredSelections.forEach((sel: any) => {
@@ -90,38 +117,47 @@ export default function ResultsPage() {
     return counts;
   }, [scoredSelections]);
 
-  /** Screenshot export */
+  // ----------------------------
+  // Screenshot export
+  // ----------------------------
   const exportScreenshot = async () => {
     const container = document.getElementById("results-container");
     if (!container) return;
 
-    const canvas = await html2canvas(container, { scale: 2, backgroundColor: PAGE_BACKGROUND_COLOR });
+    // Create a temporary wrapper with padding
+    const wrapper = document.createElement("div");
+    wrapper.style.padding = "40px"; // <-- adjust padding here
+    wrapper.style.backgroundColor = PAGE_BACKGROUND_COLOR;
+    wrapper.style.display = "inline-block"; // shrink to content
+    wrapper.className = "text-neutral-200";
+    wrapper.appendChild(container.cloneNode(true)); // clone to avoid moving the real DOM
+
+    document.body.appendChild(wrapper); // temporarily add to DOM
+
+    const canvas = await html2canvas(wrapper, { scale: 2, backgroundColor: PAGE_BACKGROUND_COLOR });
+
+    document.body.removeChild(wrapper); // clean up
+
     const link = document.createElement("a");
-    link.download = "results.png";
+    link.download = "corruchart-results.png";
     link.href = canvas.toDataURL("image/png");
     link.click();
   };
 
+  /** Filter visible tags based on HIDDEN_TAGS */
+  const visiblePositiveTags = positiveTags.filter(tag => !HIDDEN_TAGS.has(tag.tag));
+  const visibleNegativeTags = negativeTags.filter(tag => !HIDDEN_TAGS.has(tag.tag));
+
+  // ----------------------------
+  // RENDER
+  // ----------------------------
   return (
     <main
       className="min-h-screen text-neutral-200 px-6 py-10"
       style={{ backgroundColor: PAGE_BACKGROUND_COLOR }}
     >
-      <div id="results-container" className="max-w-3xl mx-auto space-y-10">
-        <header className="space-y-2">
-          <h1
-            className="text-3xl text-center font-semibold"
-            style={{ textShadow: "0px 5px 3px rgba(0,0,0,0.7)" }}
-          >
-            Results
-          </h1>
-          <p className="text-neutral-400 text-center">
-            These are the results of your Corruption Chart. You can mouse over each threshold tick to see what threshold of corruption you met.
-          </p>
-        </header>
-
         {/* Actions */}
-        <div className="flex gap-2">
+        <div className="flex gap-3">
           <button
             onClick={exportScreenshot}
             className="px-4 py-2 rounded bg-neutral-900 text-neutral-200 hover:bg-neutral-800 cursor-pointer"
@@ -134,17 +170,41 @@ export default function ResultsPage() {
           >
             Back
           </Link>
-        </div>
-
-        {/* SCORE METER */}
+      </div><div id="results-container" className="max-w-3xl mx-auto space-y-15">
+        <header className="space-y-2">
+          <h1
+            className="text-3xl text-center font-semibold"
+            style={{ textShadow: "0px 5px 3px rgba(0,0,0,0.7)" }}
+          >
+            Results
+          </h1>
+          <p className="text-neutral-400 text-center">
+            These are the results of your Corruption Chart. Feel free to save them using the "Export Screenshot" button and share with your pals.
+          </p>
+        </header>
         <section className="space-y-3">
-          <div className="flex justify-between text-sm text-neutral-400">
-            <span style={{ textShadow: "0px 5px 3px rgba(0,0,0,0.3)" }}>Score</span>
+
+          {/* 1️⃣ Current Threshold Message */}
+          <div className="text-center text-lg text-violet-500 font-semibold mb-2">
+            {(() => {
+              const reachedThresholds = THRESHOLDS.filter(
+                t => t.points > 0 && scoreData.total >= t.points
+              );
+              if (reachedThresholds.length === 0) return "";
+              const highest = reachedThresholds[reachedThresholds.length - 1];
+              return highest.description;
+            })()}
+          </div>
+
+          {/* 2️⃣ Score Display */}
+          <div className="flex justify-between text-xl text-neutral-400">
+            <span style={{ textShadow: "0px 5px 3px rgba(0,0,0,0.3)" }}>Corruption</span>
             <span style={{ textShadow: "0px 5px 3px rgba(0,0,0,0.3)" }}>
               {scoreData.total} / {METER_MAX_POINTS}
             </span>
           </div>
 
+          {/* 3️⃣ Meter Bar */}
           <div className="w-full h-4 rounded overflow-hidden" style={{ backgroundColor: "#2c2e33" }}>
             <div
               className="h-full bg-violet-500 transition-all duration-500"
@@ -152,10 +212,11 @@ export default function ResultsPage() {
             />
           </div>
 
-          {/* Threshold markers */}
+          {/* 4️⃣ Threshold markers */}
           <div className="relative w-full h-6">
             {THRESHOLDS.filter(t => t.points > 0).map((t, i) => {
               const leftPercent = (t.points / METER_MAX_POINTS) * 100;
+              const reached = scoreData.total >= t.points;
 
               return (
                 <div
@@ -163,12 +224,21 @@ export default function ResultsPage() {
                   className="absolute top-0 text-center group"
                   style={{ left: `${leftPercent}%`, transform: 'translateX(-50%)' }}
                 >
-                  <div className="w-px h-4 cursor-pointer bg-neutral-500 mx-auto" />
-                  <span className="text-xl cursor-pointer text-neutral-400 block mt-1">{i + 1}</span>
+                  <div
+                    className={`w-px h-4 cursor-pointer mx-auto transition-colors duration-300 ${reached ? 'bg-violet-500' : 'bg-neutral-500'
+                      }`}
+                  />
+                  <span
+                    className={`text-xl block mt-1 cursor-pointer transition-colors duration-300 ${reached ? 'text-violet-500' : 'text-neutral-400'
+                      }`}
+                  >
+                    {i + 1}
+                  </span>
+                  {/* Tooltip */}
                   <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer z-50">
-                    <div className="bg-black text-white text-s px-2 py-1 rounded shadow-lg relative">
+                    <div className="bg-black text-white text-m px-4 py-2 rounded shadow-lg relative inline-block whitespace-normal text-center max-w-[80vw]">
                       {t.description}
-                      <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-2 h-2 bg-black cursor-pointer rotate-45"></div>
+                      <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-2 h-2 bg-black rotate-45"></div>
                     </div>
                   </div>
                 </div>
@@ -227,26 +297,72 @@ export default function ResultsPage() {
           </section>
         )}
 
-        {/* COLOR DISTRIBUTION */}
-        <section className="space-y-3">
+        {/* TAG SUMMARY */}
+        <section className="space-y-6">
           <h2
             className="text-3xl text-center font-semibold"
             style={{ textShadow: "0px 5px 3px rgba(0,0,0,0.7)" }}
           >
-            Distribution
+            Tag Affinities
           </h2>
-          <div className="space-y-2">
-            {COLOR_HEX.map((color, i) => (
-              <div key={i} className="flex text-center drop-shadow items-center gap-3 text-sm">
-                <div
-                  className="w-4 h-4 rounded"
-                  style={{ backgroundColor: color }}
-                />
-                <span className="flex-1 text-neutral-400">{COLOR_NAMES[i]}</span>
-                <span>{colorCounts[i]}</span>
+          <p className="text-neutral-400 text-center">
+            These are the tags of the interests you're most into, and tags of the interests you're most disgusted by.
+          </p>
+
+          {/* Positive Tags */}
+          <div>
+            <h3 className="text-xl font-semibold mb-2">Most Positive Tags</h3>
+            {visiblePositiveTags.length === 0 ? (
+              <p className="text-neutral-400">No positive reactions yet.</p>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                  {visiblePositiveTags.map(tag => (
+                  <span
+                    key={tag.tag}
+                    className="bg-green-600 px-3 py-1 rounded-full text-sm cursor-pointer"
+                    onClick={() => setOpenTag(openTag === tag.tag ? null : tag.tag)}
+                  >
+                    {tag.tag.toUpperCase()} ({tag.positive.length})
+                  </span>
+                ))}
               </div>
-            ))}
+            )}
           </div>
+
+          {/* Negative Tags */}
+          <div>
+            <h3 className="text-xl font-semibold mb-2">Most Negative Tags</h3>
+            {visibleNegativeTags.length === 0 ? (
+              <p className="text-neutral-400">No negative reactions yet.</p>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                  {visibleNegativeTags.map(tag => (
+                  <span
+                    key={tag.tag}
+                    className="bg-red-600 px-3 py-1 rounded-full text-sm cursor-pointer"
+                    onClick={() => setOpenTag(openTag === tag.tag ? null : tag.tag)}
+                  >
+                    {tag.tag.toUpperCase()} ({tag.negative.length})
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Show expanded options for selected tag */}
+          {openTag && (
+            <div className="mt-4 p-2 bg-neutral-800 rounded">
+              <h4 className="font-semibold mb-2">{openTag.toUpperCase()} Options</h4>
+              <ul className="list-disc pl-5">
+                {positiveTags.find(t => t.tag === openTag)?.positive.map(opt => (
+                  <li key={opt.id} className="text-green-400">{opt.label}</li>
+                ))}
+                {negativeTags.find(t => t.tag === openTag)?.negative.map(opt => (
+                  <li key={opt.id} className="text-red-400">{opt.label}</li>
+                ))}
+              </ul>
+            </div>
+          )}
         </section>
       </div>
     </main>

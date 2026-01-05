@@ -11,7 +11,8 @@ import { DESCRIPTIONS } from "@/data/descriptions";
 
 type GroupState = "include" | "exclude";
 
-const STATE_TO_VALUE = [
+/** Reaction labels (UI only) */
+const STATE_TO_LABEL = [
   "Indifferent",
   "Disgust",
   "Dislike",
@@ -23,9 +24,9 @@ const STATE_TO_VALUE = [
 /** html2canvas-safe hex colors */
 const COLOR_HEX = [
   "#828282ff", // Indifferent
-  "#e74c3c", // Disgust
-  "#fc8d59", // Dislike
-  "#27ae60", // Like
+  "#e74c3c",   // Disgust
+  "#fc8d59",   // Dislike
+  "#27ae60",   // Like
   "#37bdf6ff", // Love
   "#c88de8ff", // Lust
 ];
@@ -37,70 +38,120 @@ const COLOR_NAMES = [
   "Like",
   "Love",
   "Lust",
-];
+] as const;
 
 const STORAGE_KEY = "option-color-states";
+const RESULTS_KEY = "corruchart-selections";
 
 type Option = BaseOption & {
-  categories: string[]; // array of GROUPS ids
-  category: number; // numeric category
-  value?: "Indifferent" | "Disgust" | "Dislike" | "Like" | "Love" | "Lust";
+  tags: string[];
+  category: number;
 };
+
+const STATE_TO_VALUE = [
+  "Indifferent",
+  "Disgust",
+  "Dislike",
+  "Like",
+  "Love",
+  "Lust",
+] as const;
 
 export default function Page() {
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Map OPTIONS to use string category IDs from GROUPS
-  const options: Option[] = OPTIONS.map((opt) => ({
-    ...opt,
-    categories:
-      (opt.categories as string[] | number[] | undefined)?.map((cat) => {
-        if (typeof cat === "number") return GROUPS[cat - 1]?.id || "general";
-        return cat; // already string id
-      }) || ["general"],
-  }));
+  // Progressive group filter state
+  const [showAllGroups, setShowAllGroups] = useState(false);
+  const INITIAL_VISIBLE_GROUPS = 6;
+  const visibleGroups = showAllGroups ? GROUPS : GROUPS.slice(0, INITIAL_VISIBLE_GROUPS);
+
+  /** Normalize OPTIONS tags */
+  const options: Option[] = useMemo(
+    () =>
+      OPTIONS.map((opt) => ({
+        ...opt,
+        tags:
+          (opt.tags as (string | number)[] | undefined)?.map((tag) => {
+            if (typeof tag === "number") return GROUPS[tag - 1]?.id || "general";
+            return tag;
+          }) || ["general"],
+      })),
+    []
+  );
 
   const [states, setStates] = useState<number[]>([]);
   const [query, setQuery] = useState("");
   const [colorFilter, setColorFilter] = useState<Set<number>>(new Set());
   const [groupStates, setGroupStates] = useState<Record<string, GroupState>>({});
-  const [showCategory6, setShowCategory6] = useState(false); // hide category 6 by default
+  const [showCategory6, setShowCategory6] = useState(false);
   const [openDescription, setOpenDescription] = useState<string | null>(null);
 
-  /** Load persisted state */
+  /** Load persisted numeric state */
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
     let loaded: number[];
 
     try {
       const parsed = saved ? JSON.parse(saved) : null;
-      loaded = Array.isArray(parsed) ? parsed : Array(options.length).fill(0);
+      loaded = Array.isArray(parsed)
+        ? parsed
+        : Array(options.length).fill(0);
     } catch {
       loaded = Array(options.length).fill(0);
     }
 
     if (loaded.length > options.length) loaded = loaded.slice(0, options.length);
-    if (loaded.length < options.length)
+    if (loaded.length < options.length) {
       loaded = [...loaded, ...Array(options.length - loaded.length).fill(0)];
+    }
 
-    loaded = loaded.map((val) => val % COLOR_HEX.length);
+    loaded = loaded.map((v) => v % COLOR_HEX.length);
     setStates(loaded);
   }, [options.length]);
 
-  /** Persist state */
+  /** Persist numeric state + semantic reactions */
   useEffect(() => {
-    if (states.length) localStorage.setItem(STORAGE_KEY, JSON.stringify(states));
-  }, [states]);
+    if (!states.length) return;
 
-  /** Mapping of color index → scoring value */
-  const STATE_TO_VALUE: Record<number, string> = {
-    0: "Indifferent",
-    1: "Highly Dislike",
-    2: "Dislike",
-    3: "Like",
-    4: "Love",
-    5: "Lust",
-  };
+    // Keep original behavior
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(states));
+
+    // 🔥 NEW: semantic data for results page
+    const selectionsForResults: Record<string, string> = {};
+
+    states.forEach((stateIndex, idx) => {
+      const option = options[idx];
+      if (!option) return;
+
+      let reaction: string;
+      switch (stateIndex) {
+        case 1:
+          reaction = "disgust";
+          break;
+        case 2:
+          reaction = "hate";
+          break;
+        case 3:
+          reaction = "like";
+          break;
+        case 4:
+          reaction = "love";
+          break;
+        case 5:
+          reaction = "lust";
+          break;
+        default:
+          reaction = "indifferent";
+      }
+
+      selectionsForResults[option.id] = reaction;
+    });
+
+    localStorage.setItem(
+      RESULTS_KEY,
+      JSON.stringify(selectionsForResults)
+    );
+  }, [states, options]);
 
   const cycleColor = (index: number) => {
     setStates((prev) => {
@@ -108,7 +159,7 @@ export default function Page() {
       next[index] = (next[index] + 1) % COLOR_HEX.length;
 
       const selections = options.map((opt, i) => ({
-        categories: opt.categories, // array of string ids
+        tags: opt.tags, // array of string ids
         value: STATE_TO_VALUE[next[i]],
       }));
       localStorage.setItem("corruchart-selections", JSON.stringify(selections));
@@ -121,7 +172,6 @@ export default function Page() {
   const resetAll = () => {
     if (confirm("Reset all selections to 'Indifferent'?")) {
       setStates(Array(options.length).fill(0));
-      options.forEach((opt) => (opt.value = "Indifferent"));
       setColorFilter(new Set());
       setShowCategory6(false);
     }
@@ -167,9 +217,9 @@ export default function Page() {
         const matchesGroup =
           // include logic (OR)
           (!Object.values(groupStates).includes("include") ||
-            option.categories.some((cat) => groupStates[cat] === "include")) &&
+            option.tags.some((cat) => groupStates[cat] === "include")) &&
           // exclude logic (hard veto)
-          !option.categories.some((cat) => groupStates[cat] === "exclude");
+          !option.tags.some((cat) => groupStates[cat] === "exclude");
         const matchesCategory6 =
           showCategory6 || option.category !== 6; // hide category 6 unless toggled
         return matchesText && matchesColor && matchesGroup && matchesCategory6;
@@ -180,21 +230,29 @@ export default function Page() {
   const exportScreenshot = async () => {
     if (!containerRef.current) return;
 
-    const canvas = await html2canvas(containerRef.current, {
-      backgroundColor: "#191B1C",
+    // Clone the container into a wrapper with extra padding
+    const wrapper = document.createElement("div");
+    wrapper.style.padding = "40px"; // extra padding around content
+    wrapper.style.backgroundColor = "#1F2023"; // match page background
+    wrapper.style.display = "inline-block"; // shrink to content
+    wrapper.appendChild(containerRef.current.cloneNode(true));
+
+    document.body.appendChild(wrapper); // temporarily add to DOM
+
+    const canvas = await html2canvas(wrapper, {
       scale: 2,
+      backgroundColor: "#1F2023",
       onclone: (doc) => {
         const root = doc.body;
         root.style.backgroundColor = "#1F2023";
-        root.style.color = "#B794F4";
+        root.style.color = "#E5E7EB"; // tailwind text-neutral-200
 
         root.querySelectorAll("*").forEach((el) => {
-          // Skip SVGs completely
-          if (el instanceof SVGElement) return;
+          if (el instanceof SVGElement) return; // leave SVGs
 
           const element = el as HTMLElement;
 
-          // Safely strip Tailwind classes if className is string
+          // Strip Tailwind classes that might override colors
           if (typeof element.className === "string") {
             element.className = element.className
               .split(" ")
@@ -209,13 +267,13 @@ export default function Page() {
               .join(" ");
           }
 
-          // Reset styles
-          element.style.color ||= "inherit";
           element.style.backgroundColor ||= "transparent";
           element.style.borderColor ||= "transparent";
         });
       },
     });
+
+    document.body.removeChild(wrapper); // clean up
 
     const link = document.createElement("a");
     link.download = "selections.png";
@@ -274,6 +332,7 @@ export default function Page() {
         <div className="flex items-center gap-1 py-1 flex-wrap md:flex-nowrap">
           <span className="text-gray-400 mr-2 flex-shrink-0">Filter by Group:</span>
 
+          {/* "All" button */}
           <button
             onClick={() => setGroupStates({})}
             className={`flex-shrink-0 px-3 py-1 cursor-pointer rounded font-medium transition ${Object.keys(groupStates).length === 0
@@ -284,7 +343,8 @@ export default function Page() {
             All
           </button>
 
-          {GROUPS.map((group) => {
+          {/* Visible group buttons */}
+          {visibleGroups.map((group) => {
             const state = groupStates[group.id];
 
             return (
@@ -302,6 +362,16 @@ export default function Page() {
               </button>
             );
           })}
+
+          {/* Show More / Show Less button */}
+          {GROUPS.length > INITIAL_VISIBLE_GROUPS && (
+            <button
+              onClick={() => setShowAllGroups((prev) => !prev)}
+              className="flex-shrink-0 px-3 py-1 rounded bg-neutral-800 text-gray-300 hover:bg-neutral-700 transition cursor-pointer"
+            >
+              {showAllGroups ? "Show Less" : "Show More"}
+            </button>
+          )}
         </div>
 
         {/* Color filter */}

@@ -3,46 +3,56 @@
 export type CategoryId = 1 | 2 | 3 | 4 | 5 | 6;
 
 /** UI answer values */
-export type PositiveAnswer = "Like" | "Love" | "Lust";
+export type PositiveAnswer = "like" | "love" | "lust";
+export type Reaction = "disgust" | "hate" | "indifferent" | "like" | "love" | "lust";
+
+export const REACTION_SCORES: Record<Reaction, number> = {
+    disgust: -2,
+    hate: -1,
+    indifferent: 0,
+    like: 1,
+    love: 2,
+    lust: 3,
+  };
 
 export const CATEGORY_POINTS: Record<
     CategoryId,
     Record<PositiveAnswer, number>
 > = {
     1: {
-        Like: 2,
-        "Love": 3,
-        Lust: 3,
+        like: 2,
+        "love": 3,
+        lust: 3,
     },
     2: {
-        Like: 5,
-        "Love": 7,
-        Lust: 7,
+        like: 5,
+        "love": 7,
+        lust: 7,
     },
     3: {
-        Like: 12,
-        "Love": 16,
-        Lust: 16,
+        like: 12,
+        "love": 16,
+        lust: 16,
     },
     4: {
-        Like: 20,
-        "Love": 25,
-        Lust: 25,
+        like: 20,
+        "love": 25,
+        lust: 25,
     },
     5: {
-        Like: 35,
-        "Love": 45,
-        Lust: 45,
+        like: 35,
+        "love": 45,
+        lust: 45,
     },
     6: {
-        Like: 0,
-        "Love": 0,
-        Lust: 0, // category 6 never gives points
+        like: 0,
+        "love": 0,
+        lust: 0, // category 6 never gives points
     },
 };
 
 export const THRESHOLDS = [
-    { label: "Threshold 1", points: 100, description: "You are barely corrupt. Here's a headpat." },
+    { label: "Threshold 1", points: 100, description: "You are barely corrupt." },
     { label: "Threshold 2", points: 400, description: "You are mildly corrupt." },
     { label: "Threshold 3", points: 900, description: "You are moderately corrupt." },
     { label: "Threshold 4", points: 1800, description: "You are very corrupt." },

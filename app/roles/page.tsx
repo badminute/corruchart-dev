@@ -9,7 +9,6 @@ import type { Option } from "@/types/option";
 
 const STORAGE_KEY = "rolespage-option-color-states";
 
-// Only keep two colors
 const COLOR_HEX = [
     "#828282ff", // I do not identify as
     "#59c961ff", // I am / Identify as
@@ -72,16 +71,29 @@ export default function Page() {
     const exportScreenshot = async () => {
         if (!containerRef.current) return;
 
-        const canvas = await html2canvas(containerRef.current, {
-            backgroundColor: "#191b1cff",
+        // Create a temporary wrapper for extra padding
+        const wrapper = document.createElement("div");
+        wrapper.style.padding = "40px"; // extra padding
+        wrapper.style.backgroundColor = "#1C1E20"; // match page background
+        wrapper.style.display = "inline-block";
+        wrapper.appendChild(containerRef.current.cloneNode(true));
+
+        document.body.appendChild(wrapper); // temporarily add to DOM
+
+        const canvas = await html2canvas(wrapper, {
+            backgroundColor: "#1C1E20",
             scale: 2,
             onclone: (doc) => {
                 const root = doc.body;
-                root.style.backgroundColor = "#1C1E20";
-                root.style.color = "#B794F4";
 
+                // Keep the original text color (do not force)
                 root.querySelectorAll("*").forEach((el) => {
                     const element = el as HTMLElement;
+
+                    // Leave SVGs alone
+                    if (el instanceof SVGElement) return;
+
+                    // Strip Tailwind classes that might override colors
                     if (typeof element.className === "string") {
                         element.className = element.className
                             .split(" ")
@@ -95,6 +107,8 @@ export default function Page() {
                             )
                             .join(" ");
                     }
+
+                    // Preserve existing text/background/border styles if present
                     element.style.color ||= "inherit";
                     element.style.backgroundColor ||= "transparent";
                     element.style.borderColor ||= "transparent";
@@ -102,11 +116,14 @@ export default function Page() {
             },
         });
 
+        document.body.removeChild(wrapper); // clean up wrapper
+
         const link = document.createElement("a");
         link.download = "selections.png";
         link.href = canvas.toDataURL("image/png");
         link.click();
     };
+      
 
     if (!states.length) return null;
 
@@ -129,7 +146,7 @@ export default function Page() {
     > = {};
 
     filtered.forEach(({ option, index }) => {
-        option.categories.forEach((cat) => {
+        option.tags.forEach((cat) => {
             if (!categoriesMap[cat]) categoriesMap[cat] = [];
             categoriesMap[cat].push({ option, index });
         });

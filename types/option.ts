@@ -6,5 +6,5 @@ export type Category = {
 export type Option = {
   id: string;
   label: string;
-  categories: string[]; // category ids
+  tags: string[]; // category ids
 };
