@@ -67,15 +67,26 @@ export default function ResultsPage() {
   // Listen for storage changes
   // ----------------------------
   useEffect(() => {
-    const handleStorage = (e: StorageEvent) => {
-      if (e.key === "corruchart-selections") {
-        const newSelections = e.newValue ? JSON.parse(e.newValue) : [];
-        setSelections(newSelections);
-      }
-    };
-    window.addEventListener("storage", handleStorage);
-    return () => window.removeEventListener("storage", handleStorage);
-  }, []);
+  const handleStorage = (e: StorageEvent) => {
+    if (e.key !== "corruchart-selections" || !e.newValue) return;
+
+    try {
+      const parsed: Record<string, Reaction> = JSON.parse(e.newValue);
+
+      const normalized = Object.entries(parsed).map(([id, value]) => ({
+        id,
+        value,
+      }));
+
+      setSelections(normalized);
+    } catch {
+      setSelections([]);
+    }
+  };
+
+  window.addEventListener("storage", handleStorage);
+  return () => window.removeEventListener("storage", handleStorage);
+}, []);
 
   // ----------------------------
   // Load identity / roles
@@ -102,6 +113,8 @@ export default function ResultsPage() {
   }, [selections]);
 
   const scoreData = useMemo(() => computeScore(scoredSelections), [scoredSelections]);
+
+  const isTainted = scoreData.category6Hit;
 
   const fillPercent = useMemo(() => {
     if (scoreData.category6Hit) return 100;
@@ -185,17 +198,18 @@ export default function ResultsPage() {
         <section className="space-y-3">
 
           {/* 1️⃣ Current Threshold Message */}
-          <div className="text-center text-lg text-violet-500 font-semibold mb-2">
-            {(() => {
-              const reachedThresholds = THRESHOLDS.filter(
-                t => t.points > 0 && scoreData.total >= t.points
-              );
-              if (reachedThresholds.length === 0) return "";
-              const highest = reachedThresholds[reachedThresholds.length - 1];
-              return highest.description;
-            })()}
-          </div>
-
+          {!isTainted && (
+        <div className="text-center text-lg text-violet-500 font-semibold mb-2">
+          {(() => {
+            const reachedThresholds = THRESHOLDS.filter(
+              t => t.points > 0 && scoreData.total >= t.points
+            );
+            if (reachedThresholds.length === 0) return "";
+            const highest = reachedThresholds[reachedThresholds.length - 1];
+            return highest.description;
+          })()}
+        </div>
+                )}
           {/* 2️⃣ Score Display */}
           <div className="flex justify-between text-xl text-neutral-400">
             <span style={{ textShadow: "0px 5px 3px rgba(0,0,0,0.3)" }}>Corruption</span>
@@ -207,8 +221,11 @@ export default function ResultsPage() {
           {/* 3️⃣ Meter Bar */}
           <div className="w-full h-4 rounded overflow-hidden" style={{ backgroundColor: "#2c2e33" }}>
             <div
-              className="h-full bg-violet-500 transition-all duration-500"
-              style={{ width: `${fillPercent}%` }}
+              className="h-full transition-all duration-500"
+              style={{
+                width: `${fillPercent}%`,
+                backgroundColor: isTainted ? "#8b5cf6" : "#8b5cf6",
+              }}
             />
           </div>
 
@@ -216,7 +233,7 @@ export default function ResultsPage() {
           <div className="relative w-full h-6">
             {THRESHOLDS.filter(t => t.points > 0).map((t, i) => {
               const leftPercent = (t.points / METER_MAX_POINTS) * 100;
-              const reached = scoreData.total >= t.points;
+              const reached = isTainted || scoreData.total >= t.points;
 
               return (
                 <div

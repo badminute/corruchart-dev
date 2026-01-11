@@ -58,6 +58,7 @@ const STATE_TO_VALUE = [
 ] as const;
 
 export default function Page() {
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Progressive group filter state
@@ -65,19 +66,36 @@ export default function Page() {
   const INITIAL_VISIBLE_GROUPS = 6;
   const visibleGroups = showAllGroups ? GROUPS : GROUPS.slice(0, INITIAL_VISIBLE_GROUPS);
 
+  useEffect(() => {
+  const handler = (e: KeyboardEvent) => {
+    const isMac = navigator.platform.toUpperCase().includes("MAC");
+    const modifier = isMac ? e.metaKey : e.ctrlKey;
+
+    if (modifier && e.key.toLowerCase() === "f") {
+      e.preventDefault(); // stop browser find
+      searchInputRef.current?.focus();
+      searchInputRef.current?.select(); // optional: select existing text
+    }
+  };
+
+  window.addEventListener("keydown", handler);
+  return () => window.removeEventListener("keydown", handler);
+}, []);
+
   /** Normalize OPTIONS tags */
   const options: Option[] = useMemo(
-    () =>
-      OPTIONS.map((opt) => ({
-        ...opt,
-        tags:
-          (opt.tags as (string | number)[] | undefined)?.map((tag) => {
-            if (typeof tag === "number") return GROUPS[tag - 1]?.id || "general";
-            return tag;
-          }) || ["general"],
-      })),
-    []
-  );
+  () =>
+    OPTIONS.map((opt) => ({
+      ...opt,
+      tags:
+        (opt.tags as (string | number)[] | undefined)?.map((tag) => {
+          if (typeof tag === "number") return GROUPS[tag - 1]?.id || "general";
+          return tag;
+        }) || ["general"],
+      aka: opt.aka?.map((a) => a.toLowerCase()) || [], // 👈 normalize once
+    })),
+  []
+);
 
   const [states, setStates] = useState<number[]>([]);
   const [query, setQuery] = useState("");
@@ -206,25 +224,37 @@ export default function Page() {
   };
 
   /** Filtered options */
-  const filtered = useMemo(() => {
-    return options
-      .map((option, index) => ({ option, index }))
-      .filter(({ option, index }) => {
-        const matchesText =
-          !query.trim() || option.label.toLowerCase().includes(query.toLowerCase());
-        const matchesColor =
-          colorFilter.size === 0 || colorFilter.has(states[index] % COLOR_HEX.length);
-        const matchesGroup =
-          // include logic (OR)
-          (!Object.values(groupStates).includes("include") ||
-            option.tags.some((cat) => groupStates[cat] === "include")) &&
-          // exclude logic (hard veto)
-          !option.tags.some((cat) => groupStates[cat] === "exclude");
-        const matchesCategory6 =
-          showCategory6 || option.category !== 6; // hide category 6 unless toggled
-        return matchesText && matchesColor && matchesGroup && matchesCategory6;
-      });
-  }, [options, query, states, colorFilter, groupStates, showCategory6]);
+const filtered = useMemo(() => {
+  const q = query.trim().toLowerCase();
+
+  return options
+    .map((option, index) => ({ option, index }))
+    .filter(({ option, index }) => {
+      const matchesText =
+        !q ||
+        option.label.toLowerCase().includes(q) ||
+        option.aka.some((alias) => alias.includes(q));
+
+      const matchesColor =
+        colorFilter.size === 0 ||
+        colorFilter.has(states[index] % COLOR_HEX.length);
+
+      const matchesGroup =
+        (!Object.values(groupStates).includes("include") ||
+          option.tags.some((cat) => groupStates[cat] === "include")) &&
+        !option.tags.some((cat) => groupStates[cat] === "exclude");
+
+      const matchesCategory6 =
+        showCategory6 || option.category !== 6;
+
+      return (
+        matchesText &&
+        matchesColor &&
+        matchesGroup &&
+        matchesCategory6
+      );
+    });
+}, [options, query, states, colorFilter, groupStates, showCategory6]);
 
   /** Screenshot export */
   const exportScreenshot = async () => {
@@ -289,6 +319,7 @@ export default function Page() {
       <div className="py-4 space-y-3">
         <div className="flex items-center gap-4 flex-wrap">
           <input
+            ref={searchInputRef}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search options…"
@@ -329,7 +360,7 @@ export default function Page() {
         </div>
 
         {/* Group (category) filter */}
-        <div className="flex items-center gap-1 py-1 flex-wrap md:flex-nowrap">
+        <div className="flex items-center gap-1 py-1 flex-wrap">
           <span className="text-gray-400 mr-2 flex-shrink-0">Filter by Group:</span>
 
           {/* "All" button */}
@@ -482,23 +513,33 @@ export default function Page() {
                   </span>
                 </div>
 
-                {/* DESCRIPTION POPOVER */}
-                {openDescription === option.id && description && (
-                  <div
-                    className="
-            absolute z-10
-            left-1 bottom-full mb-1
-            max-w-xs
-            p-3 rounded
-            bg-neutral-900 text-gray-200
-            text-sm
-            border border-neutral-700
-            shadow-lg
-          "
-                  >
-                    {description}
-                  </div>
-                )}
+{/* DESCRIPTION POPOVER */}
+{openDescription === option.id && description && (
+  <div
+    className="
+      absolute z-10
+      left-1 bottom-full mb-1
+      max-w-xs
+      p-3 rounded
+      bg-neutral-900 text-gray-200
+      text-sm
+      border border-neutral-700
+      shadow-lg
+      text-center
+    "
+  >
+    {/* Description text */}
+    <div>{description}</div>
+
+    {/* AKA list */}
+    {option.aka && option.aka.length > 0 && (
+      <div className="mt-2 pt-2 border-t border-neutral-700 text-xs text-gray-400 text-center">
+        <span className="font-semibold text-gray-300">AKAs:</span>{" "}
+        {option.aka.join(", ")}
+      </div>
+    )}
+  </div>
+)}
               </div>
             );
           })}
