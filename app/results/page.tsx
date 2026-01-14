@@ -9,6 +9,7 @@ import { Reaction } from "@/data/scoring";
 import { OPTIONS } from "@/data/options";
 import { ROLES } from "@/data/roles";
 import { computeScore, THRESHOLDS } from "@/data/scoring";
+import { ROLE_SYMBOLS } from "@/data/roleSymbols";
 
 /** html2canvas-safe hex colors */
 const COLOR_HEX = [
@@ -44,6 +45,95 @@ export default function ResultsPage() {
   const [positiveTags, setPositiveTags] = useState<TagBreakdown[]>([]);
   const [negativeTags, setNegativeTags] = useState<TagBreakdown[]>([]);
   const [openTag, setOpenTag] = useState<string | null>(null);
+  const [favorites, setFavorites] = useState<string[]>([]);
+  const FAVORITES_KEY = "corruchart-favorites";
+  const MAX_FAVORITES = 25;
+  const [openTagInfo, setOpenTagInfo] = useState<{ tag: string; type: "positive" | "negative" } | null>(null);
+  const [openDescription, setOpenDescription] = useState<string | null>(null);
+  const ROLE_SECTION_SYMBOLS: Record<
+    string,
+    {
+      symbol: string;
+      color: string;
+    }
+  > = {
+    identity: {
+      symbol: "◆", // replace with your unicode
+      color: "text-sky-400",
+    },
+    roles: {
+      symbol: "▲",
+      color: "text-red-400",
+    },
+    fun: {
+      symbol: "●",
+      color: "text-purple-400",
+    },
+  };
+  
+
+  const ROLE_SECTIONS: {
+    key: string;
+    title: string;
+    tags: string[];
+  }[] = [
+      {
+        key: "identity",
+        title: "Identities",
+        tags: [
+          "Sex",
+          "Gender",
+          "Gender Expression",
+          "Sexual Orientation",
+        ],
+      },
+      {
+        key: "roles",
+        title: "BDSM & Sex Roles",
+        tags: [
+          "Sex Roles",
+          "BDSM Roles",
+        ],
+      },
+      {
+        key: "fun",
+        title: "Fun Roles",
+        tags: ["Fun Roles"],
+      },
+  ];
+
+  // ----------------------------
+  // Allow ESCAPE key to close tag info
+  // ----------------------------
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setOpenTagInfo(null); // clear the tuple state
+      }
+    };
+
+    window.addEventListener("keydown", handleEscape);
+    return () => {
+      window.removeEventListener("keydown", handleEscape);
+    };
+  }, []);
+
+
+  // ----------------------------
+  // Organize roles by section
+  // ----------------------------  
+  const rolesBySection = useMemo(() => {
+    return ROLE_SECTIONS.map(section => {
+      const roles = identityOptions.filter(role =>
+        role.tags?.some(tag => section.tags.includes(tag))
+      );
+
+      return {
+        ...section,
+        roles,
+      };
+    }).filter(section => section.roles.length > 0);
+  }, [identityOptions]);
 
   // ----------------------------
   // Load selections from localStorage
@@ -62,6 +152,34 @@ export default function ResultsPage() {
     setPositiveTags(positive);
     setNegativeTags(negative);
   }, []);
+
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setOpenTag(null);
+      }
+    };
+
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
+  }, []);
+
+  // ----------------------------
+  // Load favorites
+  // ----------------------------
+  useEffect(() => {
+  const saved = localStorage.getItem(FAVORITES_KEY);
+  if (!saved) return;
+
+  try {
+    const parsed = JSON.parse(saved);
+    if (Array.isArray(parsed)) {
+      setFavorites(parsed.slice(0, MAX_FAVORITES));
+    }
+  } catch {
+    setFavorites([]);
+  }
+}, []);
 
   // ----------------------------
   // Listen for storage changes
@@ -98,6 +216,31 @@ export default function ResultsPage() {
     const selectedRoles = ROLES.filter((role, idx) => rolesSelections[idx] === 1);
     setIdentityOptions(selectedRoles);
   }, []);
+
+  const isFavorite = (id: string) => favorites.includes(id);
+
+  const toggleFavorite = (id: string) => {
+    setFavorites(prev => {
+      let next: string[];
+
+      if (prev.includes(id)) {
+        next = prev.filter(f => f !== id);
+      } else {
+        if (prev.length >= MAX_FAVORITES) return prev;
+        next = [...prev, id];
+      }
+
+      localStorage.setItem(FAVORITES_KEY, JSON.stringify(next));
+      return next;
+    });
+  };
+
+
+    const favoriteOptions = useMemo(() => {
+    return favorites
+      .map(id => OPTIONS.find(o => o.id === id))
+      .filter(Boolean);
+  }, [favorites]);
 
   // ----------------------------
   // Map selections for scoring
@@ -211,7 +354,7 @@ export default function ResultsPage() {
         </div>
                 )}
           {/* 2️⃣ Score Display */}
-          <div className="flex justify-between text-xl text-neutral-400">
+          <div className="flex justify-between text-xl text-violet-400">
             <span style={{ textShadow: "0px 5px 3px rgba(0,0,0,0.3)" }}>Corruption</span>
             <span style={{ textShadow: "0px 5px 3px rgba(0,0,0,0.3)" }}>
               {scoreData.total} / {METER_MAX_POINTS}
@@ -252,7 +395,7 @@ export default function ResultsPage() {
                     {i + 1}
                   </span>
                   {/* Tooltip */}
-                  <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer z-50">
+                  <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity z-50">
                     <div className="bg-black text-white text-m px-4 py-2 rounded shadow-lg relative inline-block whitespace-normal text-center max-w-[80vw]">
                       {t.description}
                       <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-2 h-2 bg-black rotate-45"></div>
@@ -279,107 +422,196 @@ export default function ResultsPage() {
         )}
 
         {/* IDENTITY & ROLES */}
-        {identityOptions.length > 0 && (
-          <section className="mt-8">
-            <h2
-              className="text-xl text-center font-semibold mb-4 text-white"
-              style={{ textShadow: "0px 5px 3px rgba(0,0,0,0.7)" }}
-            >
-              Identity and Roles
-            </h2>
+        {rolesBySection.length > 0 && (
+          <section className="mt-6 space-y-6">
+            <div className="flex flex-col md:flex-row md:justify-center md:gap-6 gap-6">
+              {rolesBySection.map((section) => (
+                <div key={section.key} className="md:flex-1 md:max-w-sm">
+                  <h3 className="text-lg text-center font-semibold text-neutral-300 mb-2">
+                    {section.title}
+                  </h3>
 
-            <div
-              className="grid gap-4 justify-items-start"
-              style={{
-                gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
-              }}
-            >
-              {identityOptions.map((opt) => (
-                <div
-                  key={opt.id}
-                  className="flex items-center gap-2 text-white text-lg"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="w-5 h-5 text-yellow-400 flex-shrink-0"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                  >
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14l-5-4.87 6.91-1.01L12 2z" />
-                  </svg>
-                  <span>{opt.label}</span>
+                  <div className="flex flex-wrap gap-2 justify-center">
+                    {section.roles.map((role) => (
+                      <div
+                        key={role.id}
+                        className="flex items-center gap-1 text-white text-sm bg-neutral-800 px-2 py-1 rounded shadow-sm"
+                      >
+                        {/* Per-role symbol */}
+                        <span
+                          className="flex-shrink-0 w-6 text-center font-bold"
+                          style={{
+                            color: ROLE_SYMBOLS[role.id]?.color ?? "#fff",
+                            fontSize: "18px",
+                          }}
+                        >
+                          {ROLE_SYMBOLS[role.id]?.symbol ?? "★"}
+                        </span>
+
+                        <span>{role.label}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               ))}
             </div>
           </section>
         )}
 
-        {/* TAG SUMMARY */}
-        <section className="space-y-6">
+
+
+        {/* FAVORITE OPTIONS */}
+        <section className="mt-6">
           <h2
-            className="text-3xl text-center font-semibold"
-            style={{ textShadow: "0px 5px 3px rgba(0,0,0,0.7)" }}
+            className="text-xl text-center font-semibold text-yellow-400 mb-3"
+            style={{ textShadow: "0px 3px 2px rgba(0,0,0,0.6)" }}
           >
-            Tag Affinities
+            Favorites
           </h2>
-          <p className="text-neutral-400 text-center">
-            These are the tags of the interests you're most into, and tags of the interests you're most disgusted by.
-          </p>
+
+          {favoriteOptions.length === 0 ? (
+            <p className="text-neutral-400 text-center">
+              No favorites selected. 
+            </p>
+          ) : (
+            <div className="flex flex-wrap gap-2 justify-center">
+              {favoriteOptions.map(opt => (
+                <div
+                  key={opt!.id}
+                  className="flex items-center gap-1 bg-neutral-800 text-sm text-white px-2 py-1 rounded shadow-sm"
+                >
+                  <span>{opt!.label}</span>
+                  <button
+                    onClick={() => toggleFavorite(opt!.id)}
+                    className="text-yellow-400 text-sm ml-1 cursor-pointer hover:text-yellow-300 transition-colors"
+                    title="Remove favorite"
+                  >
+                    ★
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
+
+        {/* TAG AFFINITIES */}
+        <section className="space-y-6">
 
           {/* Positive Tags */}
-          <div>
-            <h3 className="text-xl font-semibold mb-2">Most Positive Tags</h3>
-            {visiblePositiveTags.length === 0 ? (
-              <p className="text-neutral-400">No positive reactions yet.</p>
-            ) : (
-              <div className="flex flex-wrap gap-2">
-                  {visiblePositiveTags.map(tag => (
+          <div className="relative"> {/* Make this div relative so the help tooltip can position absolutely */}
+            {/* Header + Question Mark */}
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <h3
+                className="text-xl font-semibold"
+                style={{ textShadow: "0 2px 4px rgba(0,0,0,0.3)" }}
+              >
+                Positive Tags
+              </h3>
+
+              <span
+                onClick={() =>
+                  setOpenTagInfo(prev =>
+                    prev?.tag === "__positive_help" ? null : { tag: "__positive_help", type: "positive" }
+                  )
+                }
+                className="
+                    w-4 h-4
+                    flex items-center justify-center
+                    rounded-full
+                    text-[9px] font-bold
+                    bg-neutral-800 text-gray-300
+                    border border-neutral-600
+                    cursor-pointer
+                  "
+                title="Show help for positive tags"
+              >
+                ?
+              </span>
+            </div>
+
+            {/* Help tooltip for positive tags header */}
+            {openTagInfo?.tag === "__positive_help" && (
+              <div className="absolute -top-32 left-1/2 transform -translate-x-1/2 z-50 w-64 p-3 bg-neutral-900 text-gray-200 rounded shadow-lg text-center">
+                These are the tags you reacted most positively to. From here you can add and remove up to 25 interests to your favorites.
+              </div>
+            )}
+
+            {/* Positive tags hover drilldown for each tag */}
+            <div className="flex flex-wrap gap-2">
+              {visiblePositiveTags.map(tag => (
+                <div key={tag.tag} className="relative group">
                   <span
-                    key={tag.tag}
-                    className="bg-green-600 px-3 py-1 rounded-full text-sm cursor-pointer"
-                    onClick={() => setOpenTag(openTag === tag.tag ? null : tag.tag)}
+                    className="bg-green-700 px-3 py-1 rounded-sm text-sm cursor-pointer"
+                    onClick={() =>
+                      setOpenTagInfo(prev =>
+                        prev?.tag === tag.tag && prev.type === "positive" ? null : { tag: tag.tag, type: "positive" }
+                      )
+                    }
                   >
                     {tag.tag.toUpperCase()} ({tag.positive.length})
                   </span>
-                ))}
-              </div>
-            )}
+
+                  {/* Hover drilldown for positive tags */}
+                  {openTagInfo?.tag === tag.tag && openTagInfo.type === "positive" && (
+                    <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 z-50 w-64 p-3 bg-neutral-800 text-gray-200 rounded shadow-lg">
+                      <ul className="space-y-1 max-h-64 overflow-y-auto">
+                        {tag.positive.map(opt => (
+                          <li key={opt.id} className="flex justify-between items-center text-green-400">
+                            {opt.label}
+                            <button
+                              onClick={() => toggleFavorite(opt.id)}
+                              className={isFavorite(opt.id) ? "text-yellow-400 cursor-pointer" : "text-neutral-500 cursor-pointer"}
+                            >
+                              ★
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
+
 
           {/* Negative Tags */}
           <div>
-            <h3 className="text-xl font-semibold mb-2">Most Negative Tags</h3>
-            {visibleNegativeTags.length === 0 ? (
-              <p className="text-neutral-400">No negative reactions yet.</p>
-            ) : (
-              <div className="flex flex-wrap gap-2">
-                  {visibleNegativeTags.map(tag => (
+            {/* Header */}
+            <h3 className="flex items-center justify-center gap-2 mb-2">Negative Tags</h3>
+
+            <div className="flex flex-wrap gap-2">
+              {visibleNegativeTags.map(tag => (
+                <div key={tag.tag} className="relative group">
                   <span
-                    key={tag.tag}
-                    className="bg-red-600 px-3 py-1 rounded-full text-sm cursor-pointer"
-                    onClick={() => setOpenTag(openTag === tag.tag ? null : tag.tag)}
+                    className="bg-red-800 px-3 py-1 rounded-full text-sm cursor-pointer"
+                    onClick={() =>
+                      setOpenTagInfo(prev =>
+                        prev?.tag === tag.tag && prev.type === "negative" ? null : { tag: tag.tag, type: "negative" }
+                      )
+                    }
                   >
                     {tag.tag.toUpperCase()} ({tag.negative.length})
                   </span>
-                ))}
-              </div>
-            )}
-          </div>
 
-          {/* Show expanded options for selected tag */}
-          {openTag && (
-            <div className="mt-4 p-2 bg-neutral-800 rounded">
-              <h4 className="font-semibold mb-2">{openTag.toUpperCase()} Options</h4>
-              <ul className="list-disc pl-5">
-                {positiveTags.find(t => t.tag === openTag)?.positive.map(opt => (
-                  <li key={opt.id} className="text-green-400">{opt.label}</li>
-                ))}
-                {negativeTags.find(t => t.tag === openTag)?.negative.map(opt => (
-                  <li key={opt.id} className="text-red-400">{opt.label}</li>
-                ))}
-              </ul>
+                  {/* Hover drilldown for negative tags */}
+                  {openTagInfo?.tag === tag.tag && openTagInfo.type === "negative" && (
+                    <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 z-50 w-64 p-3 bg-neutral-800 text-gray-200 rounded shadow-lg">
+                      <ul className="space-y-1 max-h-64 overflow-y-auto">
+                        {tag.negative.map(opt => (
+                          <li key={opt.id} className="flex justify-between items-center text-red-400">
+                            {opt.label}
+                            {/* No favorite button for negative tags */}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
-          )}
+          </div>
         </section>
       </div>
     </main>

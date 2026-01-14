@@ -437,16 +437,16 @@ const filtered = useMemo(() => {
       {/* EXPORT-SAFE AREA */}
       <div ref={containerRef} style={{ backgroundColor: "#1F2023", color: "#9F86D8" }}>
         <div
-          className="
-            grid
-            gap-x-12 gap-y-4
-            grid-cols-1
-            sm:grid-cols-2
-            md:grid-cols-3
-            lg:grid-cols-4
-            xl:grid-cols-5
-          "
-        >
+                      className="
+                        grid
+                        gap-x-12 gap-y-4
+                        grid-cols-1
+                        sm:grid-cols-2
+                        md:grid-cols-3
+                        lg:grid-cols-4
+                        xl:grid-cols-5
+                      "
+                    >
           {filtered.map(({ option, index }) => {
             const description = DESCRIPTIONS[option.id];
 
@@ -454,13 +454,13 @@ const filtered = useMemo(() => {
               <div key={option.id} className="relative">
                 <div
                   className="
-          flex items-center gap-2
-          text-left p-2 rounded
-          border border-transparent hover:border-gray-500
-          w-full
-          group
-        "
-                >
+                        flex items-center gap-2
+                        text-left p-2 rounded
+                        border border-transparent hover:border-gray-500
+                        w-full
+                        group
+                      "
+                    >
                   {/* STAR */}
                   <button
                     onClick={() => cycleColor(index)}
@@ -494,17 +494,17 @@ const filtered = useMemo(() => {
                           );
                         }}
                         className="
-                absolute -top-1 -right-1
-                w-4 h-4
-                flex items-center justify-center
-                rounded-full
-                text-[9px] font-bold
-                bg-neutral-800 text-gray-300
-                border border-neutral-600
-                cursor-pointer
-                opacity-0
-                group-hover:opacity-100
-              "
+                          absolute -top-1 -right-1
+                          w-4 h-4
+                          flex items-center justify-center
+                          rounded-full
+                          text-[9px] font-bold
+                          bg-neutral-800 text-gray-300
+                          border border-neutral-600
+                          cursor-pointer
+                          opacity-0
+                          group-hover:opacity-100
+                        "
                         title="Show description"
                       >
                         ?
@@ -513,33 +513,33 @@ const filtered = useMemo(() => {
                   </span>
                 </div>
 
-{/* DESCRIPTION POPOVER */}
-{openDescription === option.id && description && (
-  <div
-    className="
-      absolute z-10
-      left-1 bottom-full mb-1
-      max-w-xs
-      p-3 rounded
-      bg-neutral-900 text-gray-200
-      text-sm
-      border border-neutral-700
-      shadow-lg
-      text-center
-    "
-  >
-    {/* Description text */}
-    <div>{description}</div>
+                {/* DESCRIPTION POPOVER */}
+                {openDescription === option.id && description && (
+                      <div
+                        className="
+                          absolute z-10
+                          left-1 bottom-full mb-1
+                          max-w-xs
+                          p-3 rounded
+                          bg-neutral-900 text-gray-200
+                          text-sm
+                          border border-neutral-700
+                          shadow-lg
+                          text-center
+                        "
+                      >
+                    {/* Description text */}
+                    <div>{description}</div>
 
-    {/* AKA list */}
-    {option.aka && option.aka.length > 0 && (
-      <div className="mt-2 pt-2 border-t border-neutral-700 text-xs text-gray-400 text-center">
-        <span className="font-semibold text-gray-300">AKAs:</span>{" "}
-        {option.aka.join(", ")}
-      </div>
-    )}
-  </div>
-)}
+                    {/* AKA list */}
+                    {option.aka && option.aka.length > 0 && (
+                    <div className="mt-2 pt-2 border-t border-neutral-700 text-xs text-gray-400 text-center">
+                      <span className="font-semibold text-gray-300">AKAs:</span>{" "}
+                      {option.aka.join(", ")}
+                    </div>
+                  )}
+                </div>
+              )}
               </div>
             );
           })}

@@ -6,15 +6,9 @@ import Link from "next/link";
 
 import { ROLES } from "@/data/roles";
 import type { Option } from "@/types/option";
+import { ROLE_SYMBOLS } from "@/data/roleSymbols";
 
 const STORAGE_KEY = "rolespage-option-color-states";
-
-const COLOR_HEX = [
-    "#828282ff", // I do not identify as
-    "#59c961ff", // I am / Identify as
-];
-
-const COLOR_NAMES = ["I do not identify as", "I am / Identify as"];
 
 export default function Page() {
     const options: Option[] = ROLES;
@@ -31,11 +25,14 @@ export default function Page() {
             ? JSON.parse(saved)
             : Array(options.length).fill(0);
 
+        // Make sure array length matches options
         if (loaded.length > options.length) loaded = loaded.slice(0, options.length);
         if (loaded.length < options.length)
             loaded = [...loaded, ...Array(options.length - loaded.length).fill(0)];
 
-        loaded = loaded.map((v) => v % COLOR_HEX.length);
+        // Ensure all values are 0 or 1 (untoggled/toggled)
+        loaded = loaded.map((v) => (v === 1 ? 1 : 0));
+
         setStates(loaded);
     }, [options.length]);
 
@@ -50,7 +47,7 @@ export default function Page() {
     const cycleColor = (index: number) => {
         setStates((prev) => {
             const next = [...prev];
-            next[index] = (next[index] + 1) % COLOR_HEX.length;
+            next[index] = next[index] === 1 ? 0 : 1; // simple on/off
             return next;
         });
     };
@@ -208,31 +205,6 @@ export default function Page() {
                         Showing {filtered.length} / {options.length}
                     </span>
                 </div>
-
-                {/* Color filter */}
-                <div className="flex items-center gap-3 flex-wrap justify-center">
-                    {COLOR_HEX.map((hex, i) => (
-                        <button
-                            key={i}
-                            onClick={() => toggleColor(i)}
-                            className={`flex items-center gap-2 px-2 py-1 rounded ${colorFilter.has(i)
-                                    ? "bg-neutral-700 text-gray-100"
-                                    : "bg-neutral-900 text-gray-400"
-                                }`}
-                        >
-                            <span
-                                style={{
-                                    width: 14,
-                                    height: 14,
-                                    borderRadius: "50%",
-                                    backgroundColor: hex,
-                                    border: "1px solid #000",
-                                }}
-                            />
-                            {COLOR_NAMES[i]}
-                        </button>
-                    ))}
-                </div>
             </div>
 
             {/* EXPORT SAFE AREA */}
@@ -273,17 +245,18 @@ export default function Page() {
                                     onClick={() => cycleColor(index)}
                                     className="flex items-center gap-3 px-3 py-2 w-full rounded-md cursor-pointer text-left transition hover:bg-white/5"
                                 >
-                                    <svg
-                                        width="18"
-                                        height="18"
-                                        viewBox="0 0 24 24"
-                                        fill={COLOR_HEX[states[index]]}
-                                        stroke="#000"
-                                        strokeWidth="0.5"
-                                        className="flex-shrink-0"
+                                    {/* Role symbol */}
+                                    <span
+                                        className="flex-shrink-0 w-6 text-center font-bold"
+                                        style={{
+                                            color: states[index] === 1
+                                                ? ROLE_SYMBOLS[option.id]?.color ?? "#fff" // colorful if toggled
+                                                : "#555", // gray if untoggled
+                                            fontSize: "18px",
+                                        }}
                                     >
-                                        <path d="M12 2.5l2.9 6.1 6.7.6-5 4.4 1.5 6.5L12 16.8 5.9 20.1l1.5-6.5-5-4.4 6.7-.6L12 2.5z" />
-                                    </svg>
+                                        {ROLE_SYMBOLS[option.id]?.symbol ?? "★"}
+                                    </span>
 
                                     <span
                                         className="text-sm"
