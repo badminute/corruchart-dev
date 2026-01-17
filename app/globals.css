@@ -120,6 +120,19 @@ body {
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+/* globals.css or a CSS module */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+  /* Chrome, Safari, Opera */
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

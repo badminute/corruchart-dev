@@ -4,11 +4,11 @@ export type CategoryId = 1 | 2 | 3 | 4 | 5 | 6;
 
 /** UI answer values */
 export type PositiveAnswer = "like" | "love" | "lust";
-export type Reaction = "disgust" | "hate" | "indifferent" | "like" | "love" | "lust";
+export type Reaction = "disgust" | "dislike" | "indifferent" | "like" | "love" | "lust";
 
 export const REACTION_SCORES: Record<Reaction, number> = {
     disgust: -2,
-    hate: -1,
+    dislike: -1,
     indifferent: 0,
     like: 1,
     love: 2,

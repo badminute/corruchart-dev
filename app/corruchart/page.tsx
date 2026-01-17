@@ -13,12 +13,12 @@ type GroupState = "include" | "exclude";
 
 /** Reaction labels (UI only) */
 const STATE_TO_LABEL = [
-  "Indifferent",
-  "Disgust",
-  "Dislike",
-  "Like",
-  "Love",
-  "Lust",
+  "indifferent",
+  "disgust",
+  "dislike",
+  "like",
+  "love",
+  "lust",
 ] as const;
 
 /** html2canvas-safe hex colors */
@@ -32,12 +32,12 @@ const COLOR_HEX = [
 ];
 
 const COLOR_NAMES = [
-  "Indifferent",
-  "Disgust",
-  "Dislike",
-  "Like",
-  "Love",
-  "Lust",
+  "indifferent",
+  "disgust",
+  "dislike",
+  "like",
+  "love",
+  "lust",
 ] as const;
 
 const STORAGE_KEY = "option-color-states";
@@ -49,12 +49,12 @@ type Option = BaseOption & {
 };
 
 const STATE_TO_VALUE = [
-  "Indifferent",
-  "Disgust",
-  "Dislike",
-  "Like",
-  "Love",
-  "Lust",
+  "indifferent",
+  "disgust",
+  "dislike",
+  "like",
+  "love",
+  "lust",
 ] as const;
 
 export default function Page() {
@@ -147,7 +147,7 @@ export default function Page() {
           reaction = "disgust";
           break;
         case 2:
-          reaction = "hate";
+          reaction = "dislike";
           break;
         case 3:
           reaction = "like";

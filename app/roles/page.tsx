@@ -16,6 +16,7 @@ export default function Page() {
 
     const [states, setStates] = useState<number[]>([]);
     const [query, setQuery] = useState("");
+    const searchInputRef = useRef<HTMLInputElement>(null);
     const [colorFilter, setColorFilter] = useState<Set<number>>(new Set());
 
     /** Load persisted state */
@@ -35,6 +36,24 @@ export default function Page() {
 
         setStates(loaded);
     }, [options.length]);
+
+    useEffect(() => {
+        const onKeyDown = (e: KeyboardEvent) => {
+            const isMac = navigator.platform.toUpperCase().includes("MAC");
+            const isFind =
+                (isMac && e.metaKey && e.key === "f") ||
+                (!isMac && e.ctrlKey && e.key === "f");
+
+            if (isFind) {
+                e.preventDefault(); // stop browser find
+                searchInputRef.current?.focus();
+                searchInputRef.current?.select();
+            }
+        };
+
+        window.addEventListener("keydown", onKeyDown);
+        return () => window.removeEventListener("keydown", onKeyDown);
+    }, []);    
 
     /** Persist state */
     useEffect(() => {
@@ -174,6 +193,7 @@ export default function Page() {
             <div className="py-4 space-y-3 w-full max-w-7xl">
                 <div className="flex items-center gap-4 flex-wrap justify-center">
                     <input
+                        ref={searchInputRef}
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
                         placeholder="Search options…"
@@ -249,19 +269,29 @@ export default function Page() {
                                     <span
                                         className="flex-shrink-0 w-6 text-center font-bold"
                                         style={{
-                                            color: states[index] === 1
-                                                ? ROLE_SYMBOLS[option.id]?.color ?? "#fff" // colorful if toggled
-                                                : "#555", // gray if untoggled
                                             fontSize: "18px",
+
+                                            // Unicode symbols: real color control
+                                            color: states[index] === 1
+                                                ? ROLE_SYMBOLS[option.id]?.color ?? "#b1b1b1"
+                                                : "#555",
+
+                                            // Emojis: visual dimming
+                                            opacity: states[index] === 1 ? 1 : 0.35,
+                                            filter: states[index] === 1
+                                                ? "none"
+                                                : "grayscale(100%) brightness(70%)",
                                         }}
                                     >
                                         {ROLE_SYMBOLS[option.id]?.symbol ?? "★"}
                                     </span>
 
+                                    {/* Option label (must be separate) */}
                                     <span
                                         className="text-sm"
                                         style={{
                                             textShadow: "0 1px 2px rgba(0,0,0,0.3)",
+                                            color: "#979797", // ensure visible
                                         }}
                                     >
                                         {option.label}

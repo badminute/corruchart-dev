@@ -1,4 +1,3 @@
-// /lib/tagScores.ts
 import { OPTIONS } from "@/data/options";
 import type { Reaction } from "@/data/scoring";
 
@@ -6,13 +5,23 @@ export type TagBreakdown = {
     tag: string;
     positive: { id: string; label: string }[];
     negative: { id: string; label: string }[];
+    reactions: Record<Reaction, { id: string; label: string }[]>;
 };
 
-// Define which reactions are positive/negative
+// Positive and negative reactions
 const POSITIVE = new Set<Reaction>(["like", "love", "lust"] as Reaction[]);
 const NEGATIVE = new Set<Reaction>(["disgust", "dislike"] as Reaction[]);
 
-// Explicit return type
+// Include indifferent internally (but can be ignored in UI if desired)
+const ALL_REACTIONS: Reaction[] = [
+    "indifferent",
+    "disgust",
+    "dislike",
+    "like",
+    "love",
+    "lust",
+];
+
 export function computeTagScores(
     selections: Record<string, Reaction>
 ): { positive: TagBreakdown[]; negative: TagBreakdown[] } {
@@ -22,14 +31,38 @@ export function computeTagScores(
         const reaction = selections[option.id];
         if (!reaction) continue;
 
-        for (const tag of option.tags ?? []) {
-            if (!tagMap[tag]) tagMap[tag] = { tag, positive: [], negative: [] };
+        // Normalize to lowercase for consistent keys
+        const key = reaction.toLowerCase() as Reaction;
 
-            if (POSITIVE.has(reaction)) {
-                tagMap[tag].positive.push({ id: option.id, label: option.label });
+        for (const tag of option.tags ?? []) {
+            if (!tagMap[tag]) {
+                tagMap[tag] = {
+                    tag,
+                    positive: [],
+                    negative: [],
+                    reactions: Object.fromEntries(
+                        ALL_REACTIONS.map(r => [r, []])
+                    ) as Record<Reaction, { id: string; label: string }[]>,
+                };
             }
 
-            if (NEGATIVE.has(reaction)) {
+            // Safety check: only push if the bucket exists
+            if (!tagMap[tag].reactions[key]) {
+                console.warn(`Skipping unknown reaction "${reaction}" for tag "${tag}"`);
+                continue;
+            }
+
+            // Add option to the reaction-specific bucket
+            tagMap[tag].reactions[key].push({
+                id: option.id,
+                label: option.label,
+            });
+
+            // Update positive/negative arrays
+            if (POSITIVE.has(key)) {
+                tagMap[tag].positive.push({ id: option.id, label: option.label });
+            }
+            if (NEGATIVE.has(key)) {
                 tagMap[tag].negative.push({ id: option.id, label: option.label });
             }
         }

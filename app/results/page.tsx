@@ -10,31 +10,13 @@ import { OPTIONS } from "@/data/options";
 import { ROLES } from "@/data/roles";
 import { computeScore, THRESHOLDS } from "@/data/scoring";
 import { ROLE_SYMBOLS } from "@/data/roleSymbols";
-
-/** html2canvas-safe hex colors */
-const COLOR_HEX = [
-  "#d1d5db", // Indifferent
-  "#ef4444", // Disgust
-  "#3b82f6", // Dislike
-  "#22c55e", // Like
-  "#facc15", // Love
-  "#f97316", // Lust
-];
-
-const COLOR_NAMES = [
-  "Indifferent",
-  "Disgust",
-  "Dislike",
-  "Like",
-  "Love",
-  "Lust",
-];
+import TagAffinityDrilldown from "@/components/tags/TagAffinityDrilldown";
 
 const METER_MAX_POINTS = 3000;
 const PAGE_BACKGROUND_COLOR = "#1F2023";
-
-// === Tags you want to hide from results ===
-const HIDDEN_TAGS = new Set<string>(["upper-body", "qualities", "acts", "lower-body", "misc", "roles-themes"]); // example
+const MAX_FAVORITES = 25;
+const FAVORITES_KEY = "corruchart-favorites";
+const HIDDEN_TAGS = new Set<string>(["upper-body", "dynamics", "qualities", "acts", "lower-body", "misc", "roles-themes"]);
 
 export default function ResultsPage() {
   // ----------------------------
@@ -46,10 +28,9 @@ export default function ResultsPage() {
   const [negativeTags, setNegativeTags] = useState<TagBreakdown[]>([]);
   const [openTag, setOpenTag] = useState<string | null>(null);
   const [favorites, setFavorites] = useState<string[]>([]);
-  const FAVORITES_KEY = "corruchart-favorites";
-  const MAX_FAVORITES = 25;
   const [openTagInfo, setOpenTagInfo] = useState<{ tag: string; type: "positive" | "negative" } | null>(null);
   const [openDescription, setOpenDescription] = useState<string | null>(null);
+
   const ROLE_SECTION_SYMBOLS: Record<
     string,
     {
@@ -92,7 +73,10 @@ export default function ResultsPage() {
         title: "BDSM & Sex Roles",
         tags: [
           "Sex Roles",
-          "BDSM Roles",
+          "Bondage & Discipline",
+          "Domination & Submission",
+          "BDSM Roles Cont.",
+          "Sadism & Masochism",
         ],
       },
       {
@@ -101,6 +85,45 @@ export default function ResultsPage() {
         tags: ["Fun Roles"],
       },
   ];
+
+  /** html2canvas-safe hex colors */
+  const COLOR_HEX = [
+    "#d1d5db", // Indifferent
+    "#ef4444", // Disgust
+    "#3b82f6", // Dislike
+    "#22c55e", // Like
+    "#facc15", // Love
+    "#f97316", // Lust
+  ];
+
+  const COLOR_NAMES = [
+    "indifferent",
+    "disgust",
+    "dislike",
+    "like",
+    "love",
+    "lust",
+  ];
+
+  const METER_MAX_POINTS = 3000;
+  const PAGE_BACKGROUND_COLOR = "#1F2023";
+
+  // === Tags you want to hide from results ===
+  const HIDDEN_TAGS = new Set<string>([
+    "upper-body",
+    "dynamics",
+    "qualities",
+    "acts",
+    "lower-body",
+    "misc",
+    "roles-themes"
+  ]);
+
+  const allTags = [...positiveTags, ...negativeTags]; // or however you combine them
+
+  // filter out the hidden tags
+  const visibleTags = allTags.filter(tag => !HIDDEN_TAGS.has(tag.tag));
+  
 
   // ----------------------------
   // Allow ESCAPE key to close tag info
@@ -303,6 +326,11 @@ export default function ResultsPage() {
   /** Filter visible tags based on HIDDEN_TAGS */
   const visiblePositiveTags = positiveTags.filter(tag => !HIDDEN_TAGS.has(tag.tag));
   const visibleNegativeTags = negativeTags.filter(tag => !HIDDEN_TAGS.has(tag.tag));
+  const allVisibleTags = useMemo(() => {
+    const combined = [...visiblePositiveTags, ...visibleNegativeTags];
+    // Deduplicate by tag name
+    return Array.from(new Map(combined.map(t => [t.tag, t])).values());
+  }, [visiblePositiveTags, visibleNegativeTags]);
 
   // ----------------------------
   // RENDER
@@ -496,122 +524,36 @@ export default function ResultsPage() {
 
 
         {/* TAG AFFINITIES */}
-        <section className="space-y-6">
-
-          {/* Positive Tags */}
-          <div className="relative"> {/* Make this div relative so the help tooltip can position absolutely */}
-            {/* Header + Question Mark */}
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <h3
-                className="text-xl font-semibold"
-                style={{ textShadow: "0 2px 4px rgba(0,0,0,0.3)" }}
-              >
-                Positive Tags
-              </h3>
-
-              <span
-                onClick={() =>
-                  setOpenTagInfo(prev =>
-                    prev?.tag === "__positive_help" ? null : { tag: "__positive_help", type: "positive" }
-                  )
-                }
-                className="
-                    w-4 h-4
-                    flex items-center justify-center
-                    rounded-full
-                    text-[9px] font-bold
-                    bg-neutral-800 text-gray-300
-                    border border-neutral-600
-                    cursor-pointer
-                  "
-                title="Show help for positive tags"
-              >
-                ?
-              </span>
-            </div>
-
-            {/* Help tooltip for positive tags header */}
-            {openTagInfo?.tag === "__positive_help" && (
-              <div className="absolute -top-32 left-1/2 transform -translate-x-1/2 z-50 w-64 p-3 bg-neutral-900 text-gray-200 rounded shadow-lg text-center">
-                These are the tags you reacted most positively to. From here you can add and remove up to 25 interests to your favorites.
-              </div>
-            )}
-
-            {/* Positive tags hover drilldown for each tag */}
-            <div className="flex flex-wrap gap-2">
-              {visiblePositiveTags.map(tag => (
-                <div key={tag.tag} className="relative group">
-                  <span
-                    className="bg-green-700 px-3 py-1 rounded-sm text-sm cursor-pointer"
-                    onClick={() =>
-                      setOpenTagInfo(prev =>
-                        prev?.tag === tag.tag && prev.type === "positive" ? null : { tag: tag.tag, type: "positive" }
-                      )
-                    }
-                  >
-                    {tag.tag.toUpperCase()} ({tag.positive.length})
-                  </span>
-
-                  {/* Hover drilldown for positive tags */}
-                  {openTagInfo?.tag === tag.tag && openTagInfo.type === "positive" && (
-                    <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 z-50 w-64 p-3 bg-neutral-800 text-gray-200 rounded shadow-lg">
-                      <ul className="space-y-1 max-h-64 overflow-y-auto">
-                        {tag.positive.map(opt => (
-                          <li key={opt.id} className="flex justify-between items-center text-green-400">
-                            {opt.label}
-                            <button
-                              onClick={() => toggleFavorite(opt.id)}
-                              className={isFavorite(opt.id) ? "text-yellow-400 cursor-pointer" : "text-neutral-500 cursor-pointer"}
-                            >
-                              ★
-                            </button>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
+        <section className="space-y-6 relative">
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <h3 className="text-xl font-semibold" style={{ textShadow: "0 2px 4px rgba(0,0,0,0.3)" }}>
+              Tag Affinities
+            </h3>
+            <span
+              onClick={() =>
+                setOpenTagInfo(prev =>
+                  prev?.tag === "__positive_help" ? null : { tag: "__positive_help", type: "positive" }
+                )
+              }
+              className="w-4 h-4 flex items-center justify-center rounded-full text-[9px] font-bold bg-neutral-800 text-gray-300 border border-neutral-600 cursor-pointer"
+              title="Show help for positive tags"
+            >
+              ?
+            </span>
           </div>
 
-
-          {/* Negative Tags */}
-          <div>
-            {/* Header */}
-            <h3 className="flex items-center justify-center gap-2 mb-2">Negative Tags</h3>
-
-            <div className="flex flex-wrap gap-2">
-              {visibleNegativeTags.map(tag => (
-                <div key={tag.tag} className="relative group">
-                  <span
-                    className="bg-red-800 px-3 py-1 rounded-full text-sm cursor-pointer"
-                    onClick={() =>
-                      setOpenTagInfo(prev =>
-                        prev?.tag === tag.tag && prev.type === "negative" ? null : { tag: tag.tag, type: "negative" }
-                      )
-                    }
-                  >
-                    {tag.tag.toUpperCase()} ({tag.negative.length})
-                  </span>
-
-                  {/* Hover drilldown for negative tags */}
-                  {openTagInfo?.tag === tag.tag && openTagInfo.type === "negative" && (
-                    <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 z-50 w-64 p-3 bg-neutral-800 text-gray-200 rounded shadow-lg">
-                      <ul className="space-y-1 max-h-64 overflow-y-auto">
-                        {tag.negative.map(opt => (
-                          <li key={opt.id} className="flex justify-between items-center text-red-400">
-                            {opt.label}
-                            {/* No favorite button for negative tags */}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </div>
-              ))}
+          {openTagInfo?.tag === "__positive_help" && (
+            <div className="absolute -top-32 left-1/2 transform -translate-x-1/2 z-50 w-64 p-3 bg-neutral-900 text-gray-200 rounded shadow-lg text-center">
+              These are the tags you reacted most positively to. From here you can add and remove up to 25 interests to your favorites.
             </div>
-          </div>
+          )}
+
+          {/* ✅ Replaced old Positive/Negative tags section with TagAffinityDrilldown */}
+          <TagAffinityDrilldown
+            tags={allVisibleTags}
+            favorites={favorites}
+            toggleFavorite={toggleFavorite}
+          />
         </section>
       </div>
     </main>
