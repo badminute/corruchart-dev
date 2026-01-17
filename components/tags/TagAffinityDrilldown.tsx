@@ -43,70 +43,73 @@ export default function TagAffinityDrilldown({
     }, [tags]);
 
     return (
-        <div className="grid grid-cols-2 gap-4 justify-center">
-            {tags.map(tag => {
+        <div className="grid grid-cols-2 gap-4">
+            {tags.map((tag, index) => {
                 const buckets = bucketsByTag[tag.tag];
                 const total = Object.values(buckets).reduce((sum, arr) => sum + arr.length, 0);
                 if (total === 0) return null;
 
+                const isLeftColumn = index % 2 === 0;
+
                 return (
-                    <div key={tag.tag} className="relative group">
+                    <div key={tag.tag} className="relative group w-full">
                         <div
-                            className="font-semibold cursor-pointer text-neutral-200 mb-1 text-center sm:text-left text-sm"
+                            className={`flex items-center h-4 w-full`}
+                            style={{ flexDirection: isLeftColumn ? "row" : "row-reverse" }}
                         >
-                            {tag.tag.toUpperCase()}
+                            {/* Tag name: fixed width so bar always has space */}
+                            <div
+                                className={`font-semibold text-neutral-200 text-sm px-2 truncate ${isLeftColumn ? 'text-right' : 'text-left'}`}
+                                style={{ maxWidth: "150px", minWidth: 50, flexShrink: 1 }}
+                            >
+                                {tag.tag.toUpperCase()}
+                            </div>
+
+                            {/* Horizontal bar: takes remaining space */}
+                            <div className="flex rounded-sm overflow-hidden bg-neutral-900 flex-1 h-6 min-w-0">
+                                {REACTIONS.map(r => {
+                                    const count = buckets[r].length;
+                                    if (!count) return null;
+                                    const widthPercent = (count / total) * 100;
+
+                                    return (
+                                        <div
+                                            key={r}
+                                            style={{
+                                                width: `${widthPercent}%`,
+                                                minWidth: "12px",
+                                                backgroundColor: REACTION_COLORS[r], // use color from reactionConfig.ts directly
+                                                transition: "filter 0.2s ease",
+                                            }}
+                                            className="cursor-pointer hover:brightness-120"
+                                            title={`${r}: ${count}`}
+                                            onClick={() => {
+                                                if (openTag === tag.tag && activeReaction === r) {
+                                                    setOpenTag(null);
+                                                    setActiveReaction(null);
+                                                } else {
+                                                    setOpenTag(tag.tag);
+                                                    setActiveReaction(r);
+                                                }
+                                            }}
+                                        />
+                                    );
+                                })}
+                            </div>
                         </div>
 
-                        {/* Horizontal bar: each segment clickable */}
-                        <div className="flex h-8 rounded overflow-hidden bg-neutral-800"> {/* increased h-6 → h-8 */}
-                            {REACTIONS.map(r => {
-                                const count = buckets[r].length;
-                                if (!count) return null;
-
-                                const widthPercent = (count / total) * 100;
-                                return (
-                                    <div
-                                        key={r}
-                                        style={{
-                                            width: `${widthPercent}%`,
-                                            minWidth: "12px", // ensures tiny segments are still clickable
-                                            backgroundColor: REACTION_COLORS[r],
-                                        }}
-                                        title={`${r}: ${count}`}
-                                        className="cursor-pointer"
-                                        onClick={() => {
-                                            if (openTag === tag.tag && activeReaction === r) {
-                                                setOpenTag(null);
-                                                setActiveReaction(null);
-                                            } else {
-                                                setOpenTag(tag.tag);
-                                                setActiveReaction(r);
-                                            }
-                                        }}
-                                    />
-                                );
-                            })}
-                        </div>
-
-                        {/* Drilldown: show only selected reaction */}
+                        {/* Drilldown */}
                         {openTag === tag.tag && activeReaction && buckets[activeReaction].length > 0 && (
                             <div className="absolute z-50 top-full left-0 mt-2 w-64 p-3 bg-neutral-900 text-gray-200 rounded shadow-lg max-h-48 overflow-y-auto hide-scrollbar">
                                 <div className="mb-2">
-                                    <div
-                                        className="font-semibold mb-1"
-                                        style={{ color: REACTION_COLORS[activeReaction] }}
-                                    >
+                                    <div className="font-semibold mb-1" style={{ color: REACTION_COLORS[activeReaction] }}>
                                         {activeReaction}
                                     </div>
                                     <ul className="space-y-0.5 pl-2">
                                         {buckets[activeReaction].map(opt => {
-                                            // Show star only for like, love, lust
                                             const showStar = ["like", "love", "lust"].includes(activeReaction);
                                             return (
-                                                <li
-                                                    key={opt.id}
-                                                    className="flex justify-between items-center text-neutral-300"
-                                                >
+                                                <li key={opt.id} className="flex justify-between items-center text-neutral-300">
                                                     {opt.label}
                                                     {showStar && (
                                                         <button
@@ -130,6 +133,6 @@ export default function TagAffinityDrilldown({
                     </div>
                 );
             })}
-        </div>
+        </div>      
     );
 }
