@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import html2canvas from "html2canvas-pro";
 import Link from "next/link";
 
 import { GROUPS } from "@/data/groups";
@@ -256,61 +255,6 @@ const filtered = useMemo(() => {
     });
 }, [options, query, states, colorFilter, groupStates, showCategory6]);
 
-  /** Screenshot export */
-  const exportScreenshot = async () => {
-    if (!containerRef.current) return;
-
-    // Clone the container into a wrapper with extra padding
-    const wrapper = document.createElement("div");
-    wrapper.style.padding = "40px"; // extra padding around content
-    wrapper.style.backgroundColor = "#1F2023"; // match page background
-    wrapper.style.display = "inline-block"; // shrink to content
-    wrapper.appendChild(containerRef.current.cloneNode(true));
-
-    document.body.appendChild(wrapper); // temporarily add to DOM
-
-    const canvas = await html2canvas(wrapper, {
-      scale: 2,
-      backgroundColor: "#1F2023",
-      onclone: (doc) => {
-        const root = doc.body;
-        root.style.backgroundColor = "#1F2023";
-        root.style.color = "#E5E7EB"; // tailwind text-neutral-200
-
-        root.querySelectorAll("*").forEach((el) => {
-          if (el instanceof SVGElement) return; // leave SVGs
-
-          const element = el as HTMLElement;
-
-          // Strip Tailwind classes that might override colors
-          if (typeof element.className === "string") {
-            element.className = element.className
-              .split(" ")
-              .filter(
-                (c) =>
-                  !c.startsWith("bg-") &&
-                  !c.startsWith("text-") &&
-                  !c.startsWith("border-") &&
-                  !c.startsWith("ring-") &&
-                  !c.startsWith("shadow")
-              )
-              .join(" ");
-          }
-
-          element.style.backgroundColor ||= "transparent";
-          element.style.borderColor ||= "transparent";
-        });
-      },
-    });
-
-    document.body.removeChild(wrapper); // clean up
-
-    const link = document.createElement("a");
-    link.download = "selections.png";
-    link.href = canvas.toDataURL("image/png");
-    link.click();
-  };
-
   if (!states.length) return null;
 
   return (
@@ -325,13 +269,6 @@ const filtered = useMemo(() => {
             placeholder="Search options…"
             className="px-3 py-2 rounded bg-neutral-900 text-gray-100 placeholder-gray-400 outline-none w-64"
           />
-
-          <button
-            onClick={exportScreenshot}
-            className="px-4 py-2 rounded bg-neutral-900 text-neutral-200 hover:bg-neutral-600 cursor-pointer"
-          >
-            Export Screenshot
-          </button>
 
           <button
             onClick={resetAll}
@@ -435,7 +372,7 @@ const filtered = useMemo(() => {
       </div>
 
       {/* EXPORT-SAFE AREA */}
-      <div ref={containerRef} style={{ backgroundColor: "#1F2023", color: "#9F86D8" }}>
+      <div style={{ backgroundColor: "#1F2023", color: "#9F86D8" }}>
         <div
                       className="
                         grid

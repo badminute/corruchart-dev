@@ -103,7 +103,7 @@ export default function TagAffinityDrilldown({
                             <div className="absolute z-50 top-full left-0 mt-2 w-64 p-3 bg-neutral-900 text-gray-200 rounded shadow-lg max-h-48 overflow-y-auto hide-scrollbar">
                                 <div className="mb-2">
                                     <div className="font-semibold mb-1" style={{ color: REACTION_COLORS[activeReaction] }}>
-                                        {activeReaction}
+                                        {activeReaction} ({buckets[activeReaction].length})
                                     </div>
                                     <ul className="space-y-0.5 pl-2">
                                         {buckets[activeReaction].map(opt => {

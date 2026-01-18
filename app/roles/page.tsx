@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import html2canvas from "html2canvas-pro";
 import Link from "next/link";
 
 import { ROLES } from "@/data/roles";
@@ -12,7 +11,6 @@ const STORAGE_KEY = "rolespage-option-color-states";
 
 export default function Page() {
     const options: Option[] = ROLES;
-    const containerRef = useRef<HTMLDivElement>(null);
 
     const [states, setStates] = useState<number[]>([]);
     const [query, setQuery] = useState("");
@@ -84,63 +82,6 @@ export default function Page() {
         }
     };
 
-    const exportScreenshot = async () => {
-        if (!containerRef.current) return;
-
-        // Create a temporary wrapper for extra padding
-        const wrapper = document.createElement("div");
-        wrapper.style.padding = "40px"; // extra padding
-        wrapper.style.backgroundColor = "#1C1E20"; // match page background
-        wrapper.style.display = "inline-block";
-        wrapper.appendChild(containerRef.current.cloneNode(true));
-
-        document.body.appendChild(wrapper); // temporarily add to DOM
-
-        const canvas = await html2canvas(wrapper, {
-            backgroundColor: "#1C1E20",
-            scale: 2,
-            onclone: (doc) => {
-                const root = doc.body;
-
-                // Keep the original text color (do not force)
-                root.querySelectorAll("*").forEach((el) => {
-                    const element = el as HTMLElement;
-
-                    // Leave SVGs alone
-                    if (el instanceof SVGElement) return;
-
-                    // Strip Tailwind classes that might override colors
-                    if (typeof element.className === "string") {
-                        element.className = element.className
-                            .split(" ")
-                            .filter(
-                                (c) =>
-                                    !c.startsWith("bg-") &&
-                                    !c.startsWith("text-") &&
-                                    !c.startsWith("border-") &&
-                                    !c.startsWith("ring-") &&
-                                    !c.startsWith("shadow")
-                            )
-                            .join(" ");
-                    }
-
-                    // Preserve existing text/background/border styles if present
-                    element.style.color ||= "inherit";
-                    element.style.backgroundColor ||= "transparent";
-                    element.style.borderColor ||= "transparent";
-                });
-            },
-        });
-
-        document.body.removeChild(wrapper); // clean up wrapper
-
-        const link = document.createElement("a");
-        link.download = "selections.png";
-        link.href = canvas.toDataURL("image/png");
-        link.click();
-    };
-      
-
     if (!states.length) return null;
 
     /** Filter options */
@@ -201,15 +142,8 @@ export default function Page() {
                     />
 
                     <button
-                        onClick={exportScreenshot}
-                        className="px-4 py-2 rounded bg-neutral-900 text-neutral-200 hover:bg-neutral-600"
-                    >
-                        Export Screenshot
-                    </button>
-
-                    <button
                         onClick={resetAll}
-                        className="px-4 py-2 rounded bg-neutral-900 text-neutral-200 hover:bg-red-900/90"
+                        className="px-4 py-2 rounded bg-neutral-900 cursor-pointer text-neutral-200 hover:bg-red-900/90"
                     >
                         Reset All
                     </button>
@@ -227,16 +161,14 @@ export default function Page() {
                 </div>
             </div>
 
-            {/* EXPORT SAFE AREA */}
             <div
-                ref={containerRef}
                 className="w-full max-w-6xl mx-auto columns-1 md:columns-2 lg:columns-3 gap-4"
                 style={{
                     gridAutoFlow: "dense",
                     backgroundColor: "#1F2023",
                     color: "#9F86D8",
                 }}
-                >
+            >
                 {categoryNames.map((category) => (
                     <div
                         key={category}

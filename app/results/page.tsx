@@ -30,6 +30,7 @@ export default function ResultsPage() {
   const [favorites, setFavorites] = useState<string[]>([]);
   const [openTagInfo, setOpenTagInfo] = useState<{ tag: string; type: "positive" | "negative" } | null>(null);
   const [openDescription, setOpenDescription] = useState<string | null>(null);
+  const clipId = useMemo(() => `wiggle-${Math.random().toString(36).slice(2)}`, []);
 
   const ROLE_SECTION_SYMBOLS: Record<
     string,
@@ -287,6 +288,13 @@ export default function ResultsPage() {
     return Math.min((scoreData.total / METER_MAX_POINTS) * 100, 100);
   }, [scoreData]);
 
+  // ----------------------------
+  // Corruption animation intensity (depends on fillPercent)
+  // ----------------------------
+  const corruption = Math.min(fillPercent / 100, 1);
+  const amplitude = 2 + corruption * 4;   // wave height
+  const speed = 5 - corruption * 2.5;     // animation speed
+
   const colorCounts = useMemo(() => {
     const counts = Array(COLOR_HEX.length).fill(0);
     scoredSelections.forEach((sel: any) => {
@@ -340,21 +348,24 @@ export default function ResultsPage() {
       className="min-h-screen text-neutral-200 px-6 py-10"
       style={{ backgroundColor: PAGE_BACKGROUND_COLOR }}
     >
-        {/* Actions */}
-        <div className="flex gap-3">
-          <button
-            onClick={exportScreenshot}
-            className="px-4 py-2 rounded bg-neutral-900 text-neutral-200 hover:bg-neutral-800 cursor-pointer"
-          >
-            Export Screenshot
-          </button>
-          <Link
-            href="/"
-            className="px-4 py-2 rounded bg-neutral-900 text-neutral-200 hover:bg-neutral-800 cursor-pointer"
-          >
-            Back
-          </Link>
-      </div><div id="results-container" className="max-w-3xl mx-auto space-y-15">
+      {/* Actions */}
+      <div className="flex gap-3 -mt-6 mb-6">
+        <button
+          type="button"
+          onClick={exportScreenshot}
+          className="px-4 py-2 rounded bg-neutral-900 text-neutral-200 hover:bg-neutral-800 cursor-pointer"
+        >
+          Export Screenshot
+        </button>
+
+        <Link
+          href="/corruchart"
+          className="px-4 py-2 rounded bg-neutral-900 text-neutral-200 hover:bg-neutral-800 cursor-pointer"
+        >
+          Back
+        </Link>
+      </div>
+<div id="results-container" className="max-w-3xl mx-auto space-y-15">
         <header className="space-y-2">
           <h1
             className="text-3xl text-center font-semibold"
@@ -370,35 +381,86 @@ export default function ResultsPage() {
 
           {/* 1️⃣ Current Threshold Message */}
           {!isTainted && (
-        <div className="text-center text-lg text-violet-500 font-semibold mb-2">
-          {(() => {
-            const reachedThresholds = THRESHOLDS.filter(
-              t => t.points > 0 && scoreData.total >= t.points
-            );
-            if (reachedThresholds.length === 0) return "";
-            const highest = reachedThresholds[reachedThresholds.length - 1];
-            return highest.description;
-          })()}
-        </div>
+            <div
+              className="text-center text-lg text-violet-500 font-semibold mb-2"
+              style={{ textShadow: "2px 2px 0px rgba(0,0,0,0.6)" }}
+            >
+              {(() => {
+                const reachedThresholds = THRESHOLDS.filter(
+                  t => t.points > 0 && scoreData.total >= t.points
+                );
+                if (reachedThresholds.length === 0) return "";
+                const highest = reachedThresholds[reachedThresholds.length - 1];
+                return highest.description;
+              })()}
+      </div>
                 )}
           {/* 2️⃣ Score Display */}
           <div className="flex justify-between text-xl text-violet-400">
-            <span style={{ textShadow: "0px 5px 3px rgba(0,0,0,0.3)" }}>Corruption</span>
-            <span style={{ textShadow: "0px 5px 3px rgba(0,0,0,0.3)" }}>
+            <span style={{ textShadow: "0px 5px 0px rgba(0,0,0,0.3)" }}>Corruption</span>
+            <span style={{ textShadow: "0px 5px 0px rgba(0,0,0,0.3)" }}>
               {scoreData.total} / {METER_MAX_POINTS}
             </span>
           </div>
 
           {/* 3️⃣ Meter Bar */}
-          <div className="w-full h-4 rounded overflow-hidden" style={{ backgroundColor: "#2c2e33" }}>
+          <div
+            className="w-full h-4 rounded overflow-hidden relative"
+            style={{ backgroundColor: "#2c2e33" }}
+          >
             <div
-              className="h-full transition-all duration-500"
-              style={{
-                width: `${fillPercent}%`,
-                backgroundColor: isTainted ? "#8b5cf6" : "#8b5cf6",
-              }}
-            />
+              className="absolute left-0 top-0 h-full"
+              style={{ width: `${fillPercent}%` }}
+            ><div
+                className="absolute inset-0"
+                style={{ backgroundColor: "#7752cd" }} // darker violet
+              />          
+              <svg
+                viewBox="0 0 100 16"
+                preserveAspectRatio="none"
+                className="w-full h-full relative z-10"
+              >
+                <defs>
+                  <clipPath id={clipId}>
+                    <path>
+                      <animate
+                        attributeName="d"
+                        dur={`${speed}s`}
+                        repeatCount="indefinite"
+                        values={`
+                        M0,6
+                        Q10,${6 - amplitude} 20,6
+                        T40,6 T60,6 T80,6 T100,6
+                        V16 H0 Z;
+
+                        M0,6
+                        Q10,${6 + amplitude} 20,6
+                        T40,6 T60,6 T80,6 T100,6
+                        V16 H0 Z;
+
+                        M0,6
+                        Q10,${6 - amplitude} 20,6
+                        T40,6 T60,6 T80,6 T100,6
+                        V16 H0 Z
+                      `}
+                      />
+
+                    </path>
+                  </clipPath>
+                </defs>
+
+                <rect
+                  x="0"
+                  y="0"
+                  width="100"
+                  height="16"
+                  fill="#8b5cf6"
+                  clipPath={`url(#${clipId})`}
+                />
+              </svg>
+            </div>
           </div>
+
 
           {/* 4️⃣ Threshold markers */}
           <div className="relative w-full h-6">
@@ -409,26 +471,19 @@ export default function ResultsPage() {
               return (
                 <div
                   key={i}
-                  className="absolute top-0 text-center group"
+                  className="absolute top-0 text-center"
                   style={{ left: `${leftPercent}%`, transform: 'translateX(-50%)' }}
                 >
                   <div
-                    className={`w-px h-4 cursor-pointer mx-auto transition-colors duration-300 ${reached ? 'bg-violet-500' : 'bg-neutral-500'
+                    className={`w-px h-4 mx-auto transition-colors duration-300 ${reached ? 'bg-violet-500' : 'bg-neutral-500'
                       }`}
                   />
                   <span
-                    className={`text-xl block mt-1 cursor-pointer transition-colors duration-300 ${reached ? 'text-violet-500' : 'text-neutral-400'
+                    className={`text-xl block mt-1 transition-colors duration-300 ${reached ? 'text-violet-500' : 'text-neutral-400'
                       }`}
                   >
                     {i + 1}
                   </span>
-                  {/* Tooltip */}
-                  <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity z-50">
-                    <div className="bg-black text-white text-m px-4 py-2 rounded shadow-lg relative inline-block whitespace-normal text-center max-w-[80vw]">
-                      {t.description}
-                      <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-2 h-2 bg-black rotate-45"></div>
-                    </div>
-                  </div>
                 </div>
               );
             })}
@@ -492,7 +547,7 @@ export default function ResultsPage() {
         <section className="mt-6">
           <h2
             className="text-xl text-center font-semibold text-yellow-400 mb-3"
-            style={{ textShadow: "0px 3px 2px rgba(0,0,0,0.6)" }}
+            style={{ textShadow: "0px 3px 0px rgba(0,0,0,0.6)" }}
           >
             Favorites
           </h2>
@@ -526,7 +581,7 @@ export default function ResultsPage() {
         {/* TAG AFFINITIES */}
         <section className="space-y-6 relative">
           <div className="flex items-center justify-center gap-2 mb-4">
-            <h3 className="text-xl font-semibold" style={{ textShadow: "0 2px 4px rgba(0,0,0,0.3)" }}>
+            <h3 className="text-xl font-semibold" style={{ textShadow: "2px 2px 0px rgba(0,0,0,0.3)" }}>
               Tag Affinities
             </h3>
             <span
