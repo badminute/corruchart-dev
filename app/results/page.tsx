@@ -3,13 +3,13 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import html2canvas from "html2canvas-pro";
-
+import type { CategoryId } from "@/data/scoring";
 import { computeTagScores, TagBreakdown } from "@/lib/tagScores";
 import { Reaction } from "@/data/scoring";
 import { OPTIONS } from "@/data/options";
 import { ROLES } from "@/data/roles";
 import { computeScore, THRESHOLDS } from "@/data/scoring";
-import { ROLE_SYMBOLS } from "@/data/roleSymbols";
+import { ROLE_SYMBOLS,  } from "@/data/roleSymbols";
 import TagAffinityDrilldown from "@/components/tags/TagAffinityDrilldown";
 
 const METER_MAX_POINTS = 3000;
@@ -163,19 +163,57 @@ export default function ResultsPage() {
   // Load selections from localStorage
   // ----------------------------
   useEffect(() => {
-    const saved = localStorage.getItem("corruchart-selections");
-    if (!saved) return;
+    const updateTagsFromStorage = () => {
+      const savedRaw = localStorage.getItem("combined-selections");
+      if (!savedRaw) return;
 
-    const userSelections: Record<string, Reaction> = JSON.parse(saved);
+      let userSelections: { id: string; tags: string[]; value: Reaction }[] = [];
 
-    // Set raw selections for scoring
-    setSelections(Object.entries(userSelections).map(([id, value]) => ({ id, value })));
+      try {
+        const parsed = JSON.parse(savedRaw);
+        if (Array.isArray(parsed)) {
+          userSelections = parsed;
+        } else if (typeof parsed === "object" && parsed !== null) {
+          userSelections = Object.entries(parsed).map(([id, value]) => ({
+            id,
+            tags: [], // fallback empty tags
+            value: value as Reaction,
+          }));
+        }
+      } catch {
+        userSelections = [];
+      }
 
-    // Compute tag breakdowns
-    const { positive, negative } = computeTagScores(userSelections);
-    setPositiveTags(positive);
-    setNegativeTags(negative);
+      setSelections(userSelections);
+
+      // Compute tag breakdown
+      const selectionsRecord: Record<string, Reaction> = {};
+      userSelections.forEach(sel => {
+        selectionsRecord[sel.id] = sel.value;
+      });
+
+      const { positive, negative } = computeTagScores(selectionsRecord);
+      setPositiveTags(positive);
+      setNegativeTags(negative);
+    };
+
+    // Initial load
+    updateTagsFromStorage();
+
+    // Listen to storage changes (other tabs/windows)
+    window.addEventListener("storage", updateTagsFromStorage);
+
+    // Poll in same tab (storage events don't fire in the same tab)
+    const interval = setInterval(updateTagsFromStorage, 500);
+
+    return () => {
+      window.removeEventListener("storage", updateTagsFromStorage);
+      clearInterval(interval);
+    };
   }, []);
+  
+  
+  
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -210,7 +248,7 @@ export default function ResultsPage() {
   // ----------------------------
   useEffect(() => {
   const handleStorage = (e: StorageEvent) => {
-    if (e.key !== "corruchart-selections" || !e.newValue) return;
+    if (e.key !== "combined-selections" || !e.newValue) return;
 
     try {
       const parsed: Record<string, Reaction> = JSON.parse(e.newValue);
@@ -231,15 +269,43 @@ export default function ResultsPage() {
 }, []);
 
   // ----------------------------
-  // Load identity / roles
+  // Load identity / roles from combined-selections
   // ----------------------------
   useEffect(() => {
-    const rolesSelections = JSON.parse(
-      localStorage.getItem("rolespage-option-color-states") ?? "[]"
-    );
-    const selectedRoles = ROLES.filter((role, idx) => rolesSelections[idx] === 1);
-    setIdentityOptions(selectedRoles);
+    const updateRolesFromStorage = () => {
+      const savedRaw = localStorage.getItem("combined-selections");
+      if (!savedRaw) return;
+
+      try {
+        const saved: Record<string, string> = JSON.parse(savedRaw);
+
+        const selectedRoles = ROLES.filter(role => {
+          const reaction = saved[role.id] ?? "indifferent";
+          return reaction !== "indifferent";
+        });
+
+        setIdentityOptions(selectedRoles);
+      } catch {
+        setIdentityOptions([]);
+      }
+    };
+
+    // Initial load
+    updateRolesFromStorage();
+
+    // Listen to storage events (other tabs/windows)
+    window.addEventListener("storage", updateRolesFromStorage);
+
+    // Optional: listen in same tab whenever combined-selections changes
+    const interval = setInterval(updateRolesFromStorage, 500); // polls every 0.5s
+
+    return () => {
+      window.removeEventListener("storage", updateRolesFromStorage);
+      clearInterval(interval);
+    };
   }, []);
+  
+  // ----------------------------
 
   const isFavorite = (id: string) => favorites.includes(id);
 
@@ -267,16 +333,21 @@ export default function ResultsPage() {
   }, [favorites]);
 
   // ----------------------------
-  // Map selections for scoring
+  // Map selections for scoring (combined-selections only)
   // ----------------------------
   const scoredSelections = useMemo(() => {
+    // selections is already loaded from combined-selections
     return selections
-      .map((sel, index) => {
-        const option = OPTIONS[index];
+      .map(sel => {
+        const option = OPTIONS.find(o => o.id === sel.id) ?? ROLES.find(r => r.id === sel.id);
         if (!option) return null;
-        return { category: option.category, value: sel.value };
+
+        return {
+          category: option.category as CategoryId,
+          value: sel.value as string,
+        };
       })
-      .filter(Boolean);
+      .filter(Boolean) as { category: CategoryId; value: string }[];
   }, [selections]);
 
   const scoreData = useMemo(() => computeScore(scoredSelections), [scoredSelections]);
@@ -409,9 +480,10 @@ export default function ResultsPage() {
             style={{ backgroundColor: "#2c2e33" }}
           >
             <div
-              className="absolute left-0 top-0 h-full"
+              className="absolute left-0 top-0 h-full transition-[width] duration-1000 ease-out"
               style={{ width: `${fillPercent}%` }}
-            ><div
+            >
+<div
                 className="absolute inset-0"
                 style={{ backgroundColor: "#7752cd" }} // darker violet
               />          
@@ -518,9 +590,8 @@ export default function ResultsPage() {
                     {section.roles.map((role) => (
                       <div
                         key={role.id}
-                        className="flex items-center gap-1 text-white text-sm bg-neutral-800 px-2 py-1 rounded shadow-sm"
+                        className="flex items-center gap-1 text-sm bg-neutral-800 px-2 py-1 rounded shadow-sm break-inside-avoid whitespace-nowrap"
                       >
-                        {/* Per-role symbol */}
                         <span
                           className="flex-shrink-0 w-6 text-center font-bold"
                           style={{
@@ -531,7 +602,12 @@ export default function ResultsPage() {
                           {ROLE_SYMBOLS[role.id]?.symbol ?? "★"}
                         </span>
 
-                        <span>{role.label}</span>
+                        <span
+                          className="flex-shrink-0 text-sm leading-tight"
+                          style={{ color: ROLE_SYMBOLS[role.id]?.color ?? "#e5e7eb" }}
+                        >
+                          {role.label}
+                        </span>
                       </div>
                     ))}
                   </div>

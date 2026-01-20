@@ -1,86 +1,88 @@
 // app/data/roleSymbols.ts
 export const ROLE_SYMBOLS: Record<string, { symbol: string; color?: string }> = {
-    "1": { symbol: "🡅", color: "#ff9933" },   // Top (Giver)
-    "2": { symbol: "🡇", color: "#3ac3fa" },   // Bottom (Receiver)
-    "3": { symbol: "⬢", color: "#a64dff" },   // Versatile (Giver and Receiver)
-    "4": { symbol: "⛓", color: "#ff9933" },   // Dominant
-    "5": { symbol: "☍", color: "#66ccff" },   // Submissive
-    "6": { symbol: "⇄", color: "#cc99ff" },   // Switch
-    "7": { symbol: "⇝", color: "#ff3300" },   // Sadist
-    "8": { symbol: "✧", color: "#3ac3fa" },   // Masochist
-    "9": { symbol: "🎭", color: "#9933ff" },   // Sadomasochist
-    "10": { symbol: "🥺", color: "#ff99cc" },  // Brat
-    "11": { symbol: "💢", color: "#ffcc66" },  // Brat Tamer
-    "12": { symbol: "🐶", color: "#996633" },  // Pet
-    "13": { symbol: "🐕‍🦺", color: "#996633" },  // Pet Owner
-    "14": { symbol: "🏧", color: "#fca7e2" },  // Paypig
-    "15": { symbol: "🧾", color: "#3cf063" },  // Findom
-    "16": { symbol: "⛓️", color: "#ff3300" },  // Slave
-    "17": { symbol: "🔑", color: "#ffd700" },  // Master
-    "18": { symbol: "🐷", color: "#ff99ff" },  // Pig
-    "19": { symbol: "🌬", color: "#cc4d2d" },  // Daddy/Mommy
-    "20": { symbol: "🌸", color: "#66ccff" },  // Little
-    "21": { symbol: "🧶", color: "#cc99ff" },   // Rope Bunny
-    "22": { symbol: "🪢", color: "#ff9933" },   // Rope Top
-    "23": { symbol: "▲", color: "#ffcc66" },   // Service Top
-    "24": { symbol: "▲", color: "#ff9933" },   // Service Dom
-    "25": { symbol: "▼", color: "#ff6600" },   // Degrader
-    "26": { symbol: "▲", color: "#66ccff" },   // Degradee
-    "27": { symbol: "⚡", color: "#ff66cc" },   // Sensation Junkie
-    "28": { symbol: "⚕️", color: "#66ccff" },   // Doctor
-    "29": { symbol: "🛌", color: "#ff9933" },   // Patient
-    "30": { symbol: "🦖", color: "#ff6600" },   // Predator (Primal)
-    "31": { symbol: "🐁", color: "#66ccff" },   // Prey (Primal)
-    "32": { symbol: "🛸", color: "#ff3300" },   // Abductor
-    "33": { symbol: "🧍", color: "#66ccff" },   // Abductee
-    "34": { symbol: "🩹", color: "#ff6600" },   // Sadistic Caregiver
-    "35": { symbol: "⛓️", color: "#ff3300" },   // Prisoner
-    "36": { symbol: "👤", color: "#ff9933" },   // Captor
-    "37": { symbol: "💺", color: "#cc99ff" },   // Furniture
-    "38": { symbol: "♛", color: "#ffcc66" },   // Goddess
-    "39": { symbol: "🪅", color: "#cc99ff" },   // Pony
-    "40": { symbol: "⚧", color: "#a578ce" },  // Androgynous
-    "41": { symbol: "♂", color: "#3399ff" },   // Masculine
-    "42": { symbol: "♀", color: "#ff66cc" },   // Feminine
-    "43": { symbol: "♂", color: "#3399ff" },   // Male
-    "44": { symbol: "♀", color: "#ff66cc" },   // Female
-    "45": { symbol: "⚥", color: "#cc99ff" },   // Intersex
-    "46": { symbol: "♂", color: "#3399ff" },   // Man (Cisgender)
-    "47": { symbol: "♀", color: "#ff99ff" },   // Woman (Cisgender)
-    "48": { symbol: "♂", color: "#6699ff" },   // Man (Transgender)
-    "49": { symbol: "♀", color: "#ff99ff" },   // Woman (Transgender)
-    "50": { symbol: "🜬", color: "#cc66ff" },   // Non-Binary (Transgender)
-    "51": { symbol: "🜜", color: "#9966ff" },   // Non-Binary Man (Transgender)
-    "52": { symbol: "🜠", color: "#a578ce" },   // Non-Binary Woman (Transgender)
-    "53": { symbol: "⚲", color: "#999999" },   // Agender (Transgender)
-    "54": { symbol: "🜡", color: "#a578ce" },   // Genderfluid (Transgender)
-    "55": { symbol: "⚴", color: "#cc3399" },   // Bigender (Transgender)
-    "56": { symbol: "🜐", color: "#cc3399" },   // Two-Spirit (Transgender)
-    "57": { symbol: "⚤", color: "#c2c2c2" },   // Heterosexual (Straight)
-    "58": { symbol: "⚣", color: "#45A893" },   // Homosexual (Gay)
-    "59": { symbol: "⚢", color: "#D262A5" },   // Homosexual (Lesbian)
-    "60": { symbol: "⚤", color: "#cc66ff" },   // Bisexual/Pansexual
-    "61": { symbol: "😌", color: "#999999" },   // Asexual
-    "62": { symbol: "🏹", color: "#ff9999" },   // Aromantic
-    "63": { symbol: "❦", color: "#ff66cc" },   // Demisexual
-    "64": { symbol: "✎", color: "#59b465" },   // 2D ONLY
-    "65": { symbol: "🍼", color: "#ffccff" },   // Adult Baby
-    "66": { symbol: "♞", color: "#b98046" },   // Bull
-    "67": { symbol: "🪑", color: "#999966" },   // Cuckold/Cuckquean
-    "68": { symbol: "🌶", color: "#ff3300" },   // Hotwife/Hothusband
-    "69": { symbol: "⇄", color: "#66ccff" },   // Swinger
-    "70": { symbol: "🦌", color: "#ff9966" },   // Stag
-    "71": { symbol: "💄", color: "#ff99ff" },   // Vixen
-    "72": { symbol: "♠︎", color: "#c2c2c2" },   // Queen of Spades
-    "73": { symbol: "❄", color: "#f8f8f8" },   // Snowbunny
-    "74": { symbol: "🤡", color: "#ff6e6e" },   // Clown
-    "75": { symbol: "🦊", color: "#cc99ff" },   // Furry
-    "76": { symbol: "🫠", color: "#ca8ae4" },   // Gooner/Goonette
-    "77": { symbol: "⋱", color: "#ffea75" },   // Toilet/Urinal
-    "78": { symbol: "🪆", color: "#ff99cc" },   // Living Doll
-    "79": { symbol: "🧑‍🔬", color: "#66ccff" },   // Scientist
-    "80": { symbol: "🧪", color: "#ff66cc" },   // Experiment
-    "81": { symbol: "💳", color: "#ff99ff" },   // Sugar Provider
-    "82": { symbol: "🦨", color: "#ffcc66" },   // Skunk
-    "83": { symbol: "🍖", color: "#ff6600" },   // Cannibal
+    "top": { symbol: "🡅", color: "#ff9933" },   // Top (Giver)
+    "bottom": { symbol: "🡇", color: "#3ac3fa" },   // Bottom (Receiver)
+    "versatile": { symbol: "⬢", color: "#a64dff" },   // Versatile (Giver and Receiver)
+    "dominant": { symbol: "⛓", color: "#ff9933" },   // Dominant
+    "submissive": { symbol: "☍", color: "#66ccff" },   // Submissive
+    "switch": { symbol: "⇄", color: "#cc99ff" },   // Switch
+    "sadist": { symbol: "⇝", color: "#ff3300" },   // Sadist
+    "masochist": { symbol: "✧", color: "#3ac3fa" },   // Masochist
+    "sadomasochist": { symbol: "🎭", color: "#33ff7e" },   // Sadomasochist
+    "brat": { symbol: "🥺", color: "#fac856" },  // Brat
+    "brat-tamer": { symbol: "💢", color: "#e64630" },  // Brat Tamer
+    "pet": { symbol: "🐶", color: "#a78564" },  // Pet
+    "pet-owner": { symbol: "🐕‍🦺", color: "#56afe6" },  // Pet Owner
+    "paypig": { symbol: "🏧", color: "#74b5fb" },  // Paypig
+    "findom": { symbol: "🧾", color: "#d9d9d9" },  // Findom
+    "slave": { symbol: "⛓️", color: "#ff3300" },  // Slave
+    "master": { symbol: "🔑", color: "#ffd700" },  // Master
+    "pig": { symbol: "🐷", color: "#FF8687" },  // Pig
+    "daddy-mommy": { symbol: "🌬", color: "#cc4d2d" },  // Daddy/Mommy
+    "little": { symbol: "🌸", color: "#f290e3" },  // Little
+    "rope-bunny": { symbol: "🧶", color: "#5993f0" },   // Rope Bunny
+    "rope-top": { symbol: "🪢", color: "#3381ff" },   // Rope Top
+    "service-top": { symbol: "▲", color: "#ffcc66" },   // Service Top
+    "service-dom": { symbol: "▼", color: "#ff6600" },   // Service Dom
+    "degrader": { symbol: "▼", color: "#ff6600" },   // Degrader
+    "degradee": { symbol: "▲", color: "#66ccff" },   // Degradee
+    "sensation-junkie": { symbol: "⚡", color: "#fb6f1e" },   // Sensation Junkie
+    "doctor": { symbol: "⚕️", color: "#66ccff" },   // Doctor
+    "patient": { symbol: "🛌", color: "#ff9933" },   // Patient
+    "predator-primal": { symbol: "🦖", color: "#45d562" },   // Predator (Primal)
+    "prey-primal": { symbol: "🐁", color: "#cacaca" },   // Prey (Primal)
+    "abductor": { symbol: "🛸", color: "#ecc432" },   // Abductor
+    "abductee": { symbol: "🧍", color: "#e8b041" },   // Abductee
+    "sadistic-caregiver": { symbol: "🩹", color: "#fdda8d" },   // Sadistic Caregiver
+    "prisoner": { symbol: "⛓️", color: "#aaaaaa" },   // Prisoner
+    "captor": { symbol: "👤", color: "#6B438B" },   // Captor
+    "furniture": { symbol: "🙇", color: "#e8b041" },   // Furniture
+    "goddess": { symbol: "♛", color: "#ffcc66" },   // Goddess
+    "pony": { symbol: "🪅", color: "#b06bec" },   // Pony
+    "androgynous-gender-exp": { symbol: "⚧", color: "#a578ce" },  // Androgynous
+    "masculine-gender-exp": { symbol: "♂", color: "#3399ff" },   // Masculine
+    "feminine-gender-exp": { symbol: "♀", color: "#ff66cc" },   // Feminine
+    "male": { symbol: "♂", color: "#3399ff" },   // Male
+    "female": { symbol: "♀", color: "#ff66cc" },   // Female
+    "intersex": { symbol: "⚥", color: "#cc99ff" },   // Intersex
+    "man-cisgender": { symbol: "♂", color: "#3399ff" },   // Man (Cisgender)
+    "woman-cisgender": { symbol: "♀", color: "#ff99ff" },   // Woman (Cisgender)
+    "man-transgender": { symbol: "♂", color: "#6699ff" },   // Man (Transgender)
+    "woman-transgender": { symbol: "♀", color: "#ff99ff" },   // Woman (Transgender)
+    "non-binary-transgender": { symbol: "🜬", color: "#cc66ff" },   // Non-Binary (Transgender)
+    "non-binary-man-transgender": { symbol: "🜜", color: "#9966ff" },   // Non-Binary Man (Transgender)
+    "non-binary-woman-transgender": { symbol: "🜠", color: "#a578ce" },   // Non-Binary Woman (Transgender)
+    "agender-transgender": { symbol: "⚲", color: "#999999" },   // Agender (Transgender)
+    "genderfluid-transgender": { symbol: "🜡", color: "#a578ce" },   // Genderfluid (Transgender)
+    "bigender-transgender": { symbol: "⚴", color: "#cc3399" },   // Bigender (Transgender)
+    "two-spirit-transgender": { symbol: "🜐", color: "#cc3399" },   // Two-Spirit (Transgender)
+    "heterosexual-straight": { symbol: "⚤", color: "#c2c2c2" },   // Heterosexual (Straight)
+    "homosexual-gay": { symbol: "⚣", color: "#45A893" },   // Homosexual (Gay)
+    "homosexual-lesbian": { symbol: "⚢", color: "#D262A5" },   // Homosexual (Lesbian)
+    "bisexual-pansexual": { symbol: "⚤", color: "#cc66ff" },   // Bisexual/Pansexual
+    "asexual": { symbol: "😌", color: "#999999" },   // Asexual
+    "aromantic": { symbol: "🏹", color: "#ff9999" },   // Aromantic
+    "demisexual": { symbol: "❦", color: "#ff66cc" },   // Demisexual
+    "2d-only": { symbol: "✎", color: "#59b465" },   // 2D ONLY
+    "adult-baby": { symbol: "🍼", color: "#FFE5D9" },   // Adult Baby
+    "bull": { symbol: "♞", color: "#b98046" },   // Bull
+    "cuckold-cuckquean": { symbol: "🪑", color: "#A56953" },   // Cuckold/Cuckquean
+    "hotwife-hothusband": { symbol: "🌶", color: "#ff3300" },   // Hotwife/Hothusband
+    "swinger": { symbol: "⇄", color: "#66ccff" },   // Swinger
+    "stag": { symbol: "🦌", color: "#ffb866" },   // Stag
+    "vixen": { symbol: "💄", color: "#f67bcf" },   // Vixen
+    "queen-of-spades": { symbol: "♠︎", color: "#c2c2c2" },   // Queen of Spades
+    "snowbunny": { symbol: "❄", color: "#f8f8f8" },   // Snowbunny
+    "clown": { symbol: "🤡", color: "#ff4242" },   // Clown
+    "furry": { symbol: "🦊", color: "#fb8740" },   // Furry
+    "gooner-goonette": { symbol: "🫠", color: "#f9d970" },   // Gooner/Goonette
+    "toilet-urinal": { symbol: "⋱", color: "#ffea75" },   // Toilet/Urinal
+    "living-doll": { symbol: "🪆", color: "#fa6d99" },   // Living Doll
+    "scientist": { symbol: "🧑‍🔬", color: "#d4d4d4" },   // Scientist
+    "experiment": { symbol: "🧪", color: "#b2f86c" },   // Experiment
+    "sugar-provider": { symbol: "💳", color: "#4ba5fa" },   // Sugar Provider
+    "skunk": { symbol: "🦨", color: "#cfcfcf" },   // Skunk
+    "cannibal": { symbol: "🍖", color: "#f04502" },   // Cannibal
 };
+
+  

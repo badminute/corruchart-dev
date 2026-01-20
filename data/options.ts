@@ -9,7 +9,6 @@ export type OptionData = {
 
 export const OPTIONS: OptionData[] = [
 { id: "24-7", label: "24/7", tags: ["bdsm"], category: 4 },
-{ id: "2d-only", label: "2D ONLY", tags: ["qualities"], category: 4 },
 { id: "3-penetration", label: "3+ PENETRATION", tags: ["acts"], category: 4 },
 { id: "3d-porn", label: "3D PORN", tags: ["porn"], category: 3 },
 { id: "abasiofilia", label: "ABASIOPHILIA", tags: ["misc"], category: 3 },

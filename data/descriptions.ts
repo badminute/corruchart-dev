@@ -10,7 +10,7 @@ export const DESCRIPTIONS: Record<string, string> = {
     "abduction-target": "Arousal from being the victim of an abduction.",
     "abortion": "Arousal from seeing abortions and/or aborted fetuses.",
     "absorption": "Arousal from seeing or being physically or mentally absorbed, typically through vore, transformation, or psychological domination.",
-    "adult-baby": "Arousal from infant-like ageplay, it doesn't inherently include diaper wear but it typically does.",
+    "adult-baby": "Infant-like ageplay, it doesn't inherently include diaper wear but it typically does.",
     "age-gap": "Attraction to significant age disparities (10+ years).",
     "age-progression": "Arousal from transformation scenarios involving age progression.",
     "age-regression": "Arousal from transformation scenarios involving age regression.",
@@ -913,4 +913,105 @@ export const DESCRIPTIONS: Record<string, string> = {
     "zettai-ryouiki": "Arousal from the area of bare skin between thigh-high socks (or stockings) and a short skirt or shorts.",
     "zoophilia": "Attraction to non-human animals.",
     "zoosadism": "Arousal from inflicting pain on animals.",
+
+    // ROLE DESCRIPTIONS:
+        // SEX ROLES
+    "top": "The active partner in sexual activities, often taking the lead in penetration or dominant roles.",
+    "bottom": "The passive partner in sexual activities, often receiving penetration or submission.",
+    "versatile": "A person who is comfortable taking on either the top or bottom role in sexual activities.",
+
+        // DOMINATION AND SUBMISSION ROLES
+    "dominant": "Someone who takes control in a sexual or power dynamic situation.",
+    "submissive": "Someone who willingly gives up control and submits to another's authority in a sexual or power dynamic situation.",
+    "switch": "Someone who is comfortable taking on either the dominant or submissive role in a sexual or power dynamic situation.",
+    "brat": "Someone who is mischievous, rebellious, and often defiant in behavior.",
+    "brat-tamer": "Someone who takes pleasure in managing or disciplining a brat.",
+    "degrader": "",
+    "degradee": "",
+    "predator-primal": "",
+    "prey-primal": "",
+    "goddess": "",
+    "findom": "Someone who derives pleasure from financially supporting others in sexual situations.",
+    "paypig": "Someone who pays for sexual services or experiences.",
+
+        // SADISM AND MASOCHISM ROLES
+    "sadist": "Someone who derives sexual pleasure from inflicting pain or humiliation on others.",
+    "masochist": "Someone who derives sexual pleasure from receiving pain or humiliation.",
+    "sadomasochist": "Someone who derives sexual pleasure from both inflicting and receiving pain or humiliation.",
+    "sadistic-caregiver": "",
+
+        // BONDAGE & DISCIPLINE ROLES
+    "rope-bunny": "",
+    "rope-top": "",
+    "prisoner": "",
+    "captor": "",
+    "abductor": "",
+    "abductee": "",
+    "furniture": "",
+    "pony": "",
+    "slave": "Someone who is sexually enslaved or dominated by another person.",
+    "master": "Someone who sexually dominates or enslaves another person.",
+    "daddy-mommy": "",
+    "little": "",
+    "service-top": "",
+    "service-dom": "",
+    "sensation-junkie": "",
+    "doctor": "",
+    "patient": "",
+    "pet": "Someone who is treated like a pet in a sexual or power dynamic situation.",
+    "pet-owner": "Someone who treats another person like a pet in a sexual or power dynamic situation.",
+
+        // GENDER EXPRESSIONS
+    "androgynous-gender-exp": "",
+    "masculine-gender-exp": "",
+    "feminine-gender-exp": "",
+
+        // SEXES
+    "male": "",
+    "female": "",
+    "intersex": "",
+
+        // GENDERS
+    "man-cisgender": "",
+    "woman-cisgender": "",
+    "man-transgender": "",
+    "woman-transgender": "",
+    "non-binary-transgender": "",
+    "non-binary-man-transgender": "",
+    "non-binary-woman-transgender": "",
+    "agender-transgender": "",
+    "genderfluid-transgender": "",
+    "bigender-transgender": "",
+    "two-spirit-transgender": "",
+
+        // SEXUAL ORIENTATIONS
+    "heterosexual-straight": "",
+    "homosexual-gay": "",
+    "homosexual-lesbian": "",
+    "bisexual-pansexual": "",
+    "asexual": "",
+    "aromantic": "",
+    "demisexual": "",
+
+        // FUN ROLES
+    "bull": "",
+    "cuckold-cuckquean": "",
+    "hotwife-hothusband": "",
+    "swinger": "",
+    "stag": "",
+    "vixen": "",
+    "queen-of-spades": "",
+    "snowbunny": "",
+    "clown": "",
+    "furry": "",
+    "gooner-goonette": "",
+    "toilet-urinal": "",
+    "living-doll": "",
+    "scientist": "",
+    "experiment": "",
+    "sugar-provider": "",
+    "skunk": "",
+    "cannibal": "",
+    "pig": "",
+
 };

@@ -39,8 +39,7 @@ const COLOR_NAMES = [
   "lust",
 ] as const;
 
-const STORAGE_KEY = "option-color-states";
-const RESULTS_KEY = "corruchart-selections";
+const RESULTS_KEY = "combined-selections";
 
 type Option = BaseOption & {
   tags: string[];
@@ -103,83 +102,112 @@ export default function Page() {
   const [showCategory6, setShowCategory6] = useState(false);
   const [openDescription, setOpenDescription] = useState<string | null>(null);
 
-  /** Load persisted numeric state */
+  /** SET ALL TO (Forbidden only) */
+  const [setAllState, setSetAllState] = useState(0);
+
+  const cycleSetAllState = () => {
+    setSetAllState((prev) => (prev + 1) % COLOR_HEX.length);
+  };
+
+  const applySetAllState = () => {
+    const colorName = COLOR_NAMES[setAllState];
+
+    if (
+      !confirm(
+        `Set ALL VISIBLE interests to "${colorName.toUpperCase()}"?\n\nThis cannot be undone.`
+      )
+    ) {
+      return;
+    }
+
+    setStates((prev) => {
+      const next = [...prev];
+
+      filtered.forEach(({ index }) => {
+        next[index] = setAllState;
+      });
+
+      return next;
+    });
+  };
+
+  // Auto-hide tooltip after 20 seconds
   useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    let loaded: number[];
+    if (openDescription) {
+      const timer = setTimeout(() => setOpenDescription(null), 7500);
+      return () => clearTimeout(timer); // cleanup if tooltip closes early
+    }
+  }, [openDescription]);
+
+  /** Load persisted numeric state from combined-selections safely */
+  useEffect(() => {
+    const savedRaw = localStorage.getItem("combined-selections");
+    if (!savedRaw) {
+      setStates(Array(options.length).fill(0));
+      return;
+    }
 
     try {
-      const parsed = saved ? JSON.parse(saved) : null;
-      loaded = Array.isArray(parsed)
-        ? parsed
-        : Array(options.length).fill(0);
+      const saved: Record<string, string> = JSON.parse(savedRaw);
+
+      const initialStates = options.map((option) => {
+        const reaction = saved[option.id] ?? "indifferent";
+
+        switch (reaction) {
+          case "disgust": return 1;
+          case "dislike": return 2;
+          case "like": return 3;
+          case "love": return 4;
+          case "lust": return 5;
+          default: return 0; // indifferent
+        }
+      });
+
+      setStates(initialStates);
     } catch {
-      loaded = Array(options.length).fill(0);
+      setStates(Array(options.length).fill(0));
     }
+  }, [options]);
+  
+  
 
-    if (loaded.length > options.length) loaded = loaded.slice(0, options.length);
-    if (loaded.length < options.length) {
-      loaded = [...loaded, ...Array(options.length - loaded.length).fill(0)];
-    }
-
-    loaded = loaded.map((v) => v % COLOR_HEX.length);
-    setStates(loaded);
-  }, [options.length]);
-
-  /** Persist numeric state + semantic reactions */
+  /** Persist numeric state safely, merging with existing selections */
   useEffect(() => {
     if (!states.length) return;
 
-    // Keep original behavior
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(states));
+    const existingRaw = localStorage.getItem(RESULTS_KEY);
+    const existing: Record<string, string> = existingRaw ? JSON.parse(existingRaw) : {};
 
-    // 🔥 NEW: semantic data for results page
-    const selectionsForResults: Record<string, string> = {};
+    const pageSelections = options.reduce((acc, option, i) => {
+      acc[option.id] = STATE_TO_VALUE[states[i]];
+      return acc;
+    }, {} as Record<string, string>);
 
-    states.forEach((stateIndex, idx) => {
-      const option = options[idx];
-      if (!option) return;
+    // Merge: existing roles + CorruChart current page
+    const merged = { ...existing, ...pageSelections };
 
-      let reaction: string;
-      switch (stateIndex) {
-        case 1:
-          reaction = "disgust";
-          break;
-        case 2:
-          reaction = "dislike";
-          break;
-        case 3:
-          reaction = "like";
-          break;
-        case 4:
-          reaction = "love";
-          break;
-        case 5:
-          reaction = "lust";
-          break;
-        default:
-          reaction = "indifferent";
-      }
-
-      selectionsForResults[option.id] = reaction;
-    });
-
-    localStorage.setItem(
-      RESULTS_KEY,
-      JSON.stringify(selectionsForResults)
-    );
+    localStorage.setItem(RESULTS_KEY, JSON.stringify(merged));
   }, [states, options]);
 
   const cycleColor = (index: number) => {
-    setStates((prev) => {
+    setStates(prev => {
       const next = [...prev];
       next[index] = (next[index] + 1) % COLOR_HEX.length;
 
-      const selections = options.map((opt, i) => ({
-        tags: opt.tags, // array of string ids
-        value: STATE_TO_VALUE[next[i]],
-      }));
-      localStorage.setItem("corruchart-selections", JSON.stringify(selections));
+      // Load existing selections from localStorage
+      const existingRaw = localStorage.getItem("combined-selections");
+      const existing: Record<string, string> = existingRaw ? JSON.parse(existingRaw) : {};
+
+      // Build current page selections
+      const pageSelections = options.reduce((acc, opt, i) => {
+        acc[opt.id] = STATE_TO_VALUE[next[i]];
+        return acc;
+      }, {} as Record<string, string>);
+
+      // Merge with existing (preserves Roles selections)
+      const merged = { ...existing, ...pageSelections };
+
+      localStorage.setItem("combined-selections", JSON.stringify(merged));
 
       return next;
     });
@@ -277,19 +305,79 @@ const filtered = useMemo(() => {
             Reset All
           </button>
 
+          <div className="flex items-center gap-2">
+              {/* Forbidden toggle */}
+              <button
+                onClick={() => setShowCategory6((prev) => !prev)}
+                className="px-4 py-2 rounded bg-neutral-900 text-neutral-400 hover:bg-neutral-800 cursor-pointer"
+              >
+                {showCategory6 ? "Forbidden Interests: ON" : "Forbidden Interests: OFF"}
+              </button>
+
+            <div
+              className="
+                flex items-center gap-1
+                px-1 py-1
+                rounded-md
+                bg-neutral-900/60
+                border border-neutral-800
+              "
+            >
+              {/* SET ALL TO star */}
+              <button
+                onClick={cycleSetAllState}
+                className="
+                  flex items-center gap-2
+                  px-3 py-2
+                  rounded-sm
+                  bg-neutral-900
+                  hover:bg-neutral-800
+                  cursor-pointer
+                "
+              >
+                <span className="text-sm font-semibold text-gray-300">
+                  SET ALL VISIBLE TO:
+                </span>
+
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill={COLOR_HEX[setAllState]}
+                  stroke="#000"
+                  strokeWidth="0.5"
+                >
+                  <path d="M12 2.5l2.9 6.1 6.7.6-5 4.4 1.5 6.5L12 16.8 5.9 20.1l1.5-6.5-5-4.4 6.7-.6L12 2.5z" />
+                </svg>
+              </button>
+
+              {/* Apply button */}
+              <button
+                onClick={applySetAllState}
+                className="
+                  px-3 py-2
+                  rounded-sm
+                  text-sm font-semibold
+                  bg-neutral-900
+                  text-neutral-300
+                  hover:bg-violet-700/50
+                  hover:text-white
+                  transition-colors
+                  cursor-pointer
+                "
+              >
+                Apply
+              </button>
+             
+            </div>
+          </div>
+
           <Link
             href="/roles"
             className="px-4 py-2 rounded bg-neutral-900 text-neutral-200 hover:bg-green-900/90 hover:text-neutral-300 cursor-pointer"
           >
             Next
           </Link>
-
-          <button
-            onClick={() => setShowCategory6((prev) => !prev)}
-            className="px-4 py-2 rounded bg-neutral-900 text-neutral-400 hover:bg-neutral-800 cursor-pointer"
-          >
-            {showCategory6 ? "Forbidden Interests: ON" : "Forbidden Interests: OFF"}
-          </button>
 
           <span className="text-gray-400">
             Showing {filtered.length} / {options.length}
@@ -454,15 +542,13 @@ const filtered = useMemo(() => {
                 {openDescription === option.id && description && (
                       <div
                         className="
-                          absolute z-10
-                          left-1 bottom-full mb-1
-                          max-w-xs
-                          p-3 rounded
-                          bg-neutral-900 text-gray-200
-                          text-sm
-                          border border-neutral-700
-                          shadow-lg
-                          text-center
+                          absolute bottom-full mb-2 left-1/2 -translate-x-1/2
+                                                    w-max max-w-xs
+                                                    rounded-md bg-neutral-800 text-gray-200 text-xs px-4 py-3
+                                                    text-center
+                                                    pointer-events-none
+                                                    transition-opacity duration-150
+                                                    z-50
                         "
                       >
                     {/* Description text */}

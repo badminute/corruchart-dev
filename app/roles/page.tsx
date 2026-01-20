@@ -5,35 +5,100 @@ import Link from "next/link";
 
 import { ROLES } from "@/data/roles";
 import type { Option } from "@/types/option";
-import { ROLE_SYMBOLS } from "@/data/roleSymbols";
-
-const STORAGE_KEY = "rolespage-option-color-states";
+import { ROLE_SYMBOLS, } from "@/data/roleSymbols"; 
+import { DESCRIPTIONS } from "@/data/descriptions";
+import type { RoleOption } from "@/data/roles";
 
 export default function Page() {
-    const options: Option[] = ROLES;
-
+    const options: RoleOption[] = ROLES;
     const [states, setStates] = useState<number[]>([]);
     const [query, setQuery] = useState("");
     const searchInputRef = useRef<HTMLInputElement>(null);
     const [colorFilter, setColorFilter] = useState<Set<number>>(new Set());
+    const [openDescription, setOpenDescription] = useState<string | null>(null);
+    const longPressTimer = useRef<number | null>(null);
+    const longPressTriggered = useRef(false);
 
-    /** Load persisted state */
+    const STATE_TO_VALUE = ["indifferent", "like"]; // for roles being off/on
+
+    const startLongPress = (optionId: string) => {
+        longPressTriggered.current = false;
+
+        longPressTimer.current = window.setTimeout(() => {
+            longPressTriggered.current = true;
+            setOpenDescription(prev =>
+                prev === optionId ? null : optionId
+            );
+        }, 450);
+    };
+
+    const cancelLongPress = () => {
+        if (longPressTimer.current) {
+            clearTimeout(longPressTimer.current);
+            longPressTimer.current = null;
+        }
+    };
+    
+
+    // Auto-hide tooltip after 20 seconds
     useEffect(() => {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        let loaded: number[] = saved
-            ? JSON.parse(saved)
-            : Array(options.length).fill(0);
+        if (openDescription) {
+            const timer = setTimeout(() => setOpenDescription(null), 7500);
+            return () => clearTimeout(timer); // cleanup if tooltip closes early
+        }
+    }, [openDescription]);
 
-        // Make sure array length matches options
-        if (loaded.length > options.length) loaded = loaded.slice(0, options.length);
-        if (loaded.length < options.length)
-            loaded = [...loaded, ...Array(options.length - loaded.length).fill(0)];
+    /** Load persisted state from combined-selections */
+    useEffect(() => {
+        const savedRaw = localStorage.getItem("combined-selections");
+        if (!savedRaw) {
+            setStates(Array(options.length).fill(0));
+            return;
+        }
 
-        // Ensure all values are 0 or 1 (untoggled/toggled)
-        loaded = loaded.map((v) => (v === 1 ? 1 : 0));
+        try {
+            const saved: Record<string, string> = JSON.parse(savedRaw);
 
-        setStates(loaded);
-    }, [options.length]);
+            const initialStates = options.map((role) => {
+                const reaction = saved[role.id] ?? "indifferent";
+
+                switch (reaction) {
+                    case "like":
+                        return 1;
+                    default:
+                        return 0; // indifferent / off
+                }
+            });
+
+            setStates(initialStates);
+        } catch {
+            setStates(Array(options.length).fill(0));
+        }
+    }, [options]);
+    
+
+    // Persist semantic selections for results page (merge with existing)
+    useEffect(() => {
+        if (!states.length) return;
+
+        const RESULTS_KEY = "combined-selections";
+
+        // Load existing combined selections
+        const existingRaw = localStorage.getItem(RESULTS_KEY);
+        const existing: Record<string, string> = existingRaw ? JSON.parse(existingRaw) : {};
+
+        // Current page selections
+        const selections = options.reduce((acc, role, i) => {
+            acc[role.id] = states[i] === 1 ? "like" : "indifferent";
+            return acc;
+        }, {} as Record<string, string>);
+
+        // Merge and save
+        const merged = { ...existing, ...selections };
+        localStorage.setItem(RESULTS_KEY, JSON.stringify(merged));
+    }, [states, options]);
+    
+
 
     useEffect(() => {
         const onKeyDown = (e: KeyboardEvent) => {
@@ -53,12 +118,28 @@ export default function Page() {
         return () => window.removeEventListener("keydown", onKeyDown);
     }, []);    
 
-    /** Persist state */
+    /** Persist semantic selections for results page (merge with existing) */
     useEffect(() => {
-        if (states.length) {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(states));
-        }
-    }, [states]);
+        if (!states.length) return;
+
+        const RESULTS_KEY = "combined-selections";
+
+        // Load existing combined selections
+        const existingRaw = localStorage.getItem(RESULTS_KEY);
+        const existing: Record<string, string> = existingRaw ? JSON.parse(existingRaw) : {};
+
+        // Current page selections (Roles only)
+        const selections = options.reduce((acc, role, i) => {
+            acc[role.id] = states[i] === 1 ? "like" : "indifferent";
+            return acc;
+        }, {} as Record<string, string>);
+
+        // Merge with existing to avoid overwriting CorruChart selections
+        const merged = { ...existing, ...selections };
+
+        localStorage.setItem(RESULTS_KEY, JSON.stringify(merged));
+    }, [states, options]);
+    
 
     /** Cycle color */
     const cycleColor = (index: number) => {
@@ -150,7 +231,7 @@ export default function Page() {
 
                     <Link
                         href="/results"
-                        className="px-4 py-2 rounded bg-neutral-900 text-neutral-200 hover:bg-green-900/90"
+                        className="px-4 py-2 rounded bg-neutral-900 text-neutral-200 hover:bg-violet-700/50"
                     >
                         Results
                     </Link>
@@ -166,7 +247,6 @@ export default function Page() {
                 style={{
                     gridAutoFlow: "dense",
                     backgroundColor: "#1F2023",
-                    color: "#9F86D8",
                 }}
             >
                 {categoryNames.map((category) => (
@@ -191,45 +271,114 @@ export default function Page() {
 
                         {/* COMPACT LIST */}
                         <div className="space-y-1">
-                            {categoriesMap[category].map(({ option, index }) => (
-                                <button
-                                    key={option.id}
-                                    onClick={() => cycleColor(index)}
-                                    className="flex items-center gap-3 px-3 py-2 w-full rounded-md cursor-pointer text-left transition hover:bg-white/5"
-                                >
-                                    {/* Role symbol */}
-                                    <span
-                                        className="flex-shrink-0 w-6 text-center font-bold"
-                                        style={{
-                                            fontSize: "18px",
+                            {categoriesMap[category].map(({ option, index }) => {
+                                const description = DESCRIPTIONS[option.id];
+                                const isTooltipVisible = openDescription === option.id;
 
-                                            // Unicode symbols: real color control
-                                            color: states[index] === 1
-                                                ? ROLE_SYMBOLS[option.id]?.color ?? "#b1b1b1"
-                                                : "#555",
+                                const startLongPress = () => {
+                                    longPressTimer.current = window.setTimeout(() => {
+                                        setOpenDescription(option.id);
+                                    }, 450);
+                                };
 
-                                            // Emojis: visual dimming
-                                            opacity: states[index] === 1 ? 1 : 0.35,
-                                            filter: states[index] === 1
-                                                ? "none"
-                                                : "grayscale(100%) brightness(70%)",
-                                        }}
+                                const cancelLongPress = () => {
+                                    if (longPressTimer.current) {
+                                        clearTimeout(longPressTimer.current);
+                                        longPressTimer.current = null;
+                                    }
+                                };
+
+                                const handleClick = () => {
+                                    // Only toggle role if tooltip wasn't triggered
+                                    if (!isTooltipVisible) cycleColor(index);
+                                    setOpenDescription(null); // hide tooltip after click
+                                };
+
+                                return (
+                                    <button
+                                        key={option.id}
+                                        onClick={handleClick}
+                                        onPointerDown={startLongPress}
+                                        onPointerUp={cancelLongPress}
+                                        onPointerLeave={cancelLongPress}
+                                        onPointerCancel={cancelLongPress}
+                                        className="group flex items-center gap-3 px-3 py-2 w-full rounded-md cursor-pointer text-left transition hover:bg-white/5 relative"
                                     >
-                                        {ROLE_SYMBOLS[option.id]?.symbol ?? "★"}
-                                    </span>
+                                        {/* Role symbol */}
+                                        <span
+                                            className="flex-shrink-0 w-6 text-center font-bold"
+                                            style={{
+                                                fontSize: "18px",
+                                                color: states[index] === 1
+                                                    ? ROLE_SYMBOLS[option.id]?.color ?? "#b1b1b1"
+                                                    : "#555",
+                                                opacity: states[index] === 1 ? 1 : 0.35,
+                                                filter: states[index] === 1
+                                                    ? "none"
+                                                    : "grayscale(100%) brightness(70%)",
+                                            }}
+                                        >
+                                            {ROLE_SYMBOLS[option.id]?.symbol ?? "★"}
+                                        </span>
 
-                                    {/* Option label (must be separate) */}
-                                    <span
-                                        className="text-sm"
-                                        style={{
-                                            textShadow: "0 1px 2px rgba(0,0,0,0.3)",
-                                            color: "#979797", // ensure visible
-                                        }}
-                                    >
-                                        {option.label}
-                                    </span>
-                                </button>
-                            ))}
+                                        {/* Label + tooltip */}
+                                        <span
+                                            className="relative text-sm pr-6 flex items-start"
+                                            style={{
+                                                color: states[index] === 1
+                                                    ? ROLE_SYMBOLS[option.id]?.color ?? "#b1b1b1" // active role color
+                                                    : "#aaa",                                     // inactive/faded
+                                                transition: "all 0.2s ease-in-out",
+                                            }}
+                                        >
+                                            {option.label}
+
+                                            {description && (
+                                                <span
+                                                    className="
+                                                    absolute top-[-0.5rem] right-1.75
+                                                    w-4 h-4
+                                                    flex items-center justify-center
+                                                    rounded-full
+                                                    text-[9px] font-bold
+                                                    bg-neutral-800 text-gray-300
+                                                    border border-neutral-600
+                                                    cursor-pointer
+                                                    opacity-0
+                                                    group-hover:opacity-100
+                                                    transition-opacity
+                                                "
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setOpenDescription(prev => prev === option.id ? null : option.id);
+                                                    }}
+                                                >
+                                                    ?
+                                                </span>
+                                            )}
+
+                                            {/* Tooltip */}
+                                            {description && (
+                                                <div
+                                                    className={`
+                                                    absolute bottom-full mb-2 left-1/2 -translate-x-0/2
+                                                    w-max max-w-xs
+                                                    rounded-md bg-neutral-800 text-gray-200 text-xs px-4 py-2
+                                                    text-center
+                                                    pointer-events-none
+                                                    transition-opacity duration-150
+                                                    z-50
+                                                    ${isTooltipVisible ? "opacity-100" : "opacity-0"}
+                                                `}
+                                                >
+                                                    {description}
+                                                </div>
+                                            )}
+                                        </span>
+
+                                    </button>
+                                );
+                            })}
                         </div>
                     </div>
                 ))}

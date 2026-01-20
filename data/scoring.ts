@@ -20,9 +20,9 @@ export const CATEGORY_POINTS: Record<
     Record<PositiveAnswer, number>
 > = {
     1: {
-        like: 2,
-        "love": 3,
-        lust: 3,
+        like: 0,
+        "love": 0,
+        lust: 1,
     },
     2: {
         like: 5,
