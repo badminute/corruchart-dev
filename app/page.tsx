@@ -23,9 +23,24 @@ export default function HomePage() {
                         {/* Page content above the background */}
                         <div className="relative z-10 flex flex-col items-center justify-center p-4 sm:p-8 min-h-screen">
                                 {/* HEADER */}
-                                <h1 className="text-4xl sm:text-6xl font-bold text-violet-400 drop-shadow-[0_4px_6px_rgba(0,0,0,0.4)] mb-6">
-                                        Corruchart
-                                </h1>
+                                <div className="relative inline-block mb-6">
+                                        <h1 className="text-4xl sm:text-6xl font-bold text-violet-400 drop-shadow-[0_4px_6px_rgba(0,0,0,0.4)]">
+                                                Corruchart
+                                        </h1>
+
+                                        {/* Version number */}
+                                        <span
+                                                className="absolute text-sm text-neutral-400 font-medium"
+                                                style={{
+                                                        top: 0,
+                                                        right: 0,
+                                                        transform: "translate(100%, -40%)", // tweak to move slightly right/above text
+                                                        textShadow: "0px 1px 0px rgba(0,0,0,0.6)",
+                                                }}
+                                        >
+                                                v0.18.0
+                                        </span>
+                                </div>
 
                                 {/* INFORMATION */}
                                 <p className="text-sm sm:text-md text-gray-300 mb-6 sm:mb-8 leading-relaxed max-w-2xl text-center drop-shadow-[0_4px_4px_rgba(0,0,0,0.3)]">

@@ -120,6 +120,43 @@ export default function ResultsPage() {
     "roles-themes"
   ]);
 
+  // Custom messages for each threshold
+  const CORRUPTION_MESSAGES: Record<number, string> = {
+    0: "You are pure and untouched by corruption.", // no thresholds reached
+    1: "A hint of corruption creeps in...",
+    2: "You've thought some perverted thoughts before. Pervert.",
+    3: "You are tainted with corruption...",
+    4: "You are very corrupt. A real pervert.",
+    5: "You are beyond corrupt.",
+    6: "You should probably be in prison.",
+  };
+
+  // Custom colors for each corruption threshold/message
+  const CORRUPTION_COLORS: Record<number, string> = {
+    0: "#fffdc7", // angle
+    1: "#cdcaff", // had sex b4
+    2: "#917fbf", // kinky
+    3: "#917fbf", // lecher
+    4: "#917fbf", // weirdo
+    5: "#7a66aa", // creeper
+    6: "#624d92", // demen
+  };
+
+
+  // Helper to pick the correct message
+  function getCorruptionMessage(total: number, category6Hit: boolean) {
+    if (category6Hit) return { key: 6, message: CORRUPTION_MESSAGES[6] };
+
+    const reached = THRESHOLDS.filter(t => t.points > 0 && total >= t.points);
+    if (reached.length === 0) return { key: 0, message: CORRUPTION_MESSAGES[0] };
+
+    const highest = reached[reached.length - 1];
+    return { key: highest.key, message: CORRUPTION_MESSAGES[highest.key] ?? highest.description };
+  }
+  
+  
+  
+
   const allTags = [...positiveTags, ...negativeTags]; // or however you combine them
 
   // filter out the hidden tags
@@ -436,145 +473,200 @@ export default function ResultsPage() {
           Back
         </Link>
       </div>
-<div id="results-container" className="max-w-3xl mx-auto space-y-15">
-        <header className="space-y-2">
-          <h1
-            className="text-3xl text-center font-semibold"
-            style={{ textShadow: "0px 5px 3px rgba(0,0,0,0.7)" }}
+      <div id="results-container" className="max-w-3xl mx-auto space-y-15">
+        <header className="space-y-2 text-center">
+          <div className="relative inline-block">
+            {/* Header text */}
+            <h1
+              className="text-3xl font-semibold text-violet-400"
+              style={{ textShadow: "0px 3px 0px rgba(0,0,0,0.7)" }}
+            >
+              Corruchart
+            </h1>
+            <h2
+              className="text-3xl font-semibold"
+              style={{ textShadow: "0px 3px 0px rgba(0,0,0,0.7)" }}
+            >
+              Results
+            </h2>
+
+            {/* Version number in top-right corner of text */}
+            <span
+              className="absolute text-sm text-neutral-400 font-medium"
+              style={{
+                top: 0,
+                right: 0,
+                transform: "translate(110%, -35%)", // adjust as needed
+                textShadow: "0px 1px 0px rgba(0,0,0,0.6)",
+              }}
+            >
+              v0.18.0
+            </span>
+          </div>
+
+          {/* Current date/time */}
+          <p
+            className="text-neutral-400"
+            style={{ textShadow: "0px 2px 0px rgba(0,0,0,0.7)" }}
           >
-            Results
-          </h1>
-          <p className="text-neutral-400 text-center">
-            These are the results of your Corruption Chart. Feel free to save them using the "Export Screenshot" button and share with your pals.
+            Taken at {new Date().toLocaleString()}
           </p>
         </header>
+
         <section className="space-y-3">
 
-          {/* 1️⃣ Current Threshold Message */}
-          {!isTainted && (
-            <div
-              className="text-center text-lg text-violet-500 font-semibold mb-2"
-              style={{ textShadow: "2px 2px 0px rgba(0,0,0,0.6)" }}
-            >
-              {(() => {
-                const reachedThresholds = THRESHOLDS.filter(
-                  t => t.points > 0 && scoreData.total >= t.points
-                );
-                if (reachedThresholds.length === 0) return "";
-                const highest = reachedThresholds[reachedThresholds.length - 1];
-                return highest.description;
-              })()}
-      </div>
-                )}
           {/* 2️⃣ Score Display */}
           <div className="flex justify-between text-xl text-violet-400">
-            <span style={{ textShadow: "0px 5px 0px rgba(0,0,0,0.3)" }}>Corruption</span>
-            <span style={{ textShadow: "0px 5px 0px rgba(0,0,0,0.3)" }}>
+            <span style={{ textShadow: "0px 4px 0px rgba(0,0,0,0.3)" }}>Corruption</span>
+            <span style={{ textShadow: "0px 4px 0px rgba(0,0,0,0.3)" }}>
               {scoreData.total} / {METER_MAX_POINTS}
             </span>
           </div>
 
-          {/* 3️⃣ Meter Bar */}
-          <div
-            className="w-full h-4 rounded overflow-hidden relative"
-            style={{ backgroundColor: "#2c2e33" }}
-          >
-            <div
-              className="absolute left-0 top-0 h-full transition-[width] duration-1000 ease-out"
-              style={{ width: `${fillPercent}%` }}
-            >
-<div
-                className="absolute inset-0"
-                style={{ backgroundColor: "#7752cd" }} // darker violet
-              />          
-              <svg
-                viewBox="0 0 100 16"
-                preserveAspectRatio="none"
-                className="w-full h-full relative z-10"
+          {/* 3️⃣ Meter Bar with left/right icons */}
+          <div className="flex items-center gap-2">
+            {/* Left icon */}
+            <img
+              src="/corruchart-dev/anglefinal.png"
+              alt="left icon"
+              className="w-10 h-10"
+              style={{ filter: "drop-shadow(1px 3px 0px rgba(0,0,0,1))" }}
+              
+            />
+
+            {/* Meter + threshold markers container */}
+            <div className="relative flex-1">
+              {/* Meter */}
+              <div
+                className="h-4 rounded overflow-hidden relative"
+                style={{ backgroundColor: "#2c2e33" }}
               >
-                <defs>
-                  <clipPath id={clipId}>
-                    <path>
-                      <animate
-                        attributeName="d"
-                        dur={`${speed}s`}
-                        repeatCount="indefinite"
-                        values={`
-                        M0,6
-                        Q10,${6 - amplitude} 20,6
-                        T40,6 T60,6 T80,6 T100,6
-                        V16 H0 Z;
-
-                        M0,6
-                        Q10,${6 + amplitude} 20,6
-                        T40,6 T60,6 T80,6 T100,6
-                        V16 H0 Z;
-
-                        M0,6
-                        Q10,${6 - amplitude} 20,6
-                        T40,6 T60,6 T80,6 T100,6
-                        V16 H0 Z
-                      `}
-                      />
-
-                    </path>
-                  </clipPath>
-                </defs>
-
-                <rect
-                  x="0"
-                  y="0"
-                  width="100"
-                  height="16"
-                  fill="#8b5cf6"
-                  clipPath={`url(#${clipId})`}
-                />
-              </svg>
-            </div>
-          </div>
-
-
-          {/* 4️⃣ Threshold markers */}
-          <div className="relative w-full h-6">
-            {THRESHOLDS.filter(t => t.points > 0).map((t, i) => {
-              const leftPercent = (t.points / METER_MAX_POINTS) * 100;
-              const reached = isTainted || scoreData.total >= t.points;
-
-              return (
                 <div
-                  key={i}
-                  className="absolute top-0 text-center"
-                  style={{ left: `${leftPercent}%`, transform: 'translateX(-50%)' }}
+                  className="absolute left-0 top-0 h-full transition-[width] duration-1000 ease-out"
+                  style={{ width: `${fillPercent}%` }}
                 >
                   <div
-                    className={`w-px h-4 mx-auto transition-colors duration-300 ${reached ? 'bg-violet-500' : 'bg-neutral-500'
-                      }`}
+                    className="absolute inset-0"
+                    style={{ backgroundColor: "#7752cd" }}
                   />
-                  <span
-                    className={`text-xl block mt-1 transition-colors duration-300 ${reached ? 'text-violet-500' : 'text-neutral-400'
-                      }`}
+                  <svg
+                    viewBox="0 0 100 16"
+                    preserveAspectRatio="none"
+                    className="w-full h-full relative z-10"
                   >
-                    {i + 1}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        </section>
+                    <defs>
+                      <clipPath id={clipId}>
+                        <path>
+                          <animate
+                            attributeName="d"
+                            dur={`${speed}s`}
+                            repeatCount="indefinite"
+                            values={`
+                    M0,6
+                    Q10,${6 - amplitude} 20,6
+                    T40,6 T60,6 T80,6 T100,6
+                    V16 H0 Z;
 
-        {/* CATEGORY 6 NOTE */}
+                    M0,6
+                    Q10,${6 + amplitude} 20,6
+                    T40,6 T60,6 T80,6 T100,6
+                    V16 H0 Z;
+
+                    M0,6
+                    Q10,${6 - amplitude} 20,6
+                    T40,6 T60,6 T80,6 T100,6
+                    V16 H0 Z
+                  `}
+                          />
+                        </path>
+                      </clipPath>
+                    </defs>
+                    <rect
+                      x="0"
+                      y="0"
+                      width="100"
+                      height="16"
+                      fill="#8b5cf6"
+                      clipPath={`url(#${clipId})`}
+                    />
+                  </svg>
+                </div>
+              </div>
+
+              {/* Threshold markers, visually above the meter */}
+              <div className="absolute top-0 left-0 w-full h-6 pointer-events-none z-20">
+                {THRESHOLDS.filter(t => t.points > 0).map((t, i) => {
+                  const leftPercent = (t.points / METER_MAX_POINTS) * 100;
+                  const reached = isTainted || scoreData.total >= t.points;
+
+                  return (
+                    <div
+                      key={i}
+                      className="absolute text-center"
+                      style={{
+                        left: `${leftPercent}%`,
+                        transform: "translateX(-50%)",
+                        top: "-0rem", // move above the bar visually
+                      }}
+                    >
+                      <div
+                        className={`w-0.75 h-4 mx-auto transition-colors duration-300 ${reached ? "bg-neutral-800" : "bg-neutral-500"
+                          }`}
+                      />
+                      <span
+                        className={`text-xl block mt-1 transition-colors duration-300 ${reached ? "text-violet-500" : "text-neutral-400"
+                          }`}
+                      >
+                        {i + 1}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Right icon */}
+            <img
+              src="/corruchart-dev/demenfinal.png"
+              alt="right icon"
+              className="w-10 h-10"
+              style={{ filter: "drop-shadow(1px 3px 0px rgba(0,0,0,1))" }}
+            />
+          </div>
+      </section>
+
+
+        {/* Main corruption message */}
+        {(() => {
+          const { key, message } = getCorruptionMessage(scoreData.total, scoreData.category6Hit);
+          const color = CORRUPTION_COLORS[key] ?? "#8b5cf6";
+
+          return (
+            <div
+              className="text-center text-lg font-semibold mb-2"
+              style={{ color, textShadow: "2px 2px 0px rgba(0,0,0,0.6)" }}
+            >
+              {message}
+            </div>
+          );
+        })()}
+
+
+        {/* CATEGORY 6 tooltip/note */}
         {scoreData.category6Hit && (
           <div
             className="p-2 rounded text-center text-xl text-violet-400 relative group cursor-pointer"
-            title={THRESHOLDS[5].description}
+            title={CORRUPTION_MESSAGES[6]}
             style={{ backgroundColor: "#2c2e33", textShadow: "0px 4px 1px rgba(0,0,0,0.7)" }}
           >
-            YOU ARE TAINTED WITH FORBIDDEN CORRUPTION.
+            {CORRUPTION_MESSAGES[6]}
             <span className="absolute bottom-full mb-1 left-1/2 transform -translate-x-1/2 bg-neutral-900 text-xs text-white px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
-              {THRESHOLDS[5].description}
+              {CORRUPTION_MESSAGES[6]}
             </span>
           </div>
         )}
+
+
 
         {/* IDENTITY & ROLES */}
         {rolesBySection.length > 0 && (

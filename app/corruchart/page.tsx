@@ -101,6 +101,15 @@ export default function Page() {
   const [groupStates, setGroupStates] = useState<Record<string, GroupState>>({});
   const [showCategory6, setShowCategory6] = useState(false);
   const [openDescription, setOpenDescription] = useState<string | null>(null);
+  type ActivePlus = { index: number; id: string; state: number }; // ✅ must include state
+  const [activePluses, setActivePluses] = useState<ActivePlus[]>([]);
+  
+  const getPlusImage = (option: Option, state: number) => {
+    if (option.category === 5 || option.category === 6) return "/corruchart-dev/corruption potion large.png";
+    if (option.category === 4) return "/corruchart-dev/corruption potion medium.png";
+    return "/corruchart-dev/corruption%20potion%20small.png";
+  };
+  
 
   /** SET ALL TO (Forbidden only) */
   const [setAllState, setSetAllState] = useState(0);
@@ -193,6 +202,16 @@ export default function Page() {
     setStates(prev => {
       const next = [...prev];
       next[index] = (next[index] + 1) % COLOR_HEX.length;
+
+      // Trigger "+" for positive states
+      if (next[index] >= 3) {
+        const id = `${index}-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+        setActivePluses(prev => [...prev, { index, id, state: next[index] }]);
+        setTimeout(() => {
+          setActivePluses(prev => prev.filter(p => p.id !== id));
+        }, 800);
+      }
+      
 
       // Load existing selections from localStorage
       const existingRaw = localStorage.getItem("combined-selections");
@@ -489,7 +508,7 @@ const filtered = useMemo(() => {
                   {/* STAR */}
                   <button
                     onClick={() => cycleColor(index)}
-                    className="flex-shrink-0 cursor-pointer"
+                    className="flex-shrink-0 cursor-pointer relative" // <-- add relative here
                   >
                     <svg
                       width="32"
@@ -501,11 +520,35 @@ const filtered = useMemo(() => {
                     >
                       <path d="M12 2.5l2.9 6.1 6.7.6-5 4.4 1.5 6.5L12 16.8 5.9 20.1l1.5-6.5-5-4.4 6.7-.6L12 2.5z" />
                     </svg>
+
+                    {/* CORRUPTION GAIN "+" */}
+                    {activePluses
+                      .filter(p => p.index === index)
+                      .map(p => (
+                        <img
+                          key={p.id}
+                          src={getPlusImage(options[index], p.state)} // ✅ pass p.state here
+                          alt="+"
+                          className={`absolute -top-6 -right-3 pointer-events-none animate-pop-plus ${getPlusImage(options[index], p.state).includes("small.png")
+                              ? "w-3"    // smaller width for small PNG
+                              : options[index].category === 6
+                                ? "w-7" // large PNG for category 6
+                                : "w-5" // medium/other PNGs
+                            }`}
+                          style={{ height: "auto" }}
+                        />
+                      ))}
+
                   </button>
 
                   {/* LABEL + QUESTION MARK OVERLAY */}
                   <span
-                    className="relative text-lg pr-4"
+                    className={`relative text-lg pr-4 ${option.category === 6
+                        ? "text-violet-400"          // category 6
+                        : option.category === 5
+                          ? "text-violet-300/65"       // category 5
+                          : ""                    // other categories
+                      }`}
                     style={{ textShadow: "0 2px 4px rgba(0,0,0,0.3)" }}
                   >
                     {option.label}
@@ -543,12 +586,12 @@ const filtered = useMemo(() => {
                       <div
                         className="
                           absolute bottom-full mb-2 left-1/2 -translate-x-1/2
-                                                    w-max max-w-xs
-                                                    rounded-md bg-neutral-800 text-gray-200 text-xs px-4 py-3
-                                                    text-center
-                                                    pointer-events-none
-                                                    transition-opacity duration-150
-                                                    z-50
+                          w-max max-w-xs
+                          rounded-md bg-neutral-800 text-gray-200 text-xs px-4 py-3
+                          text-center
+                          pointer-events-none
+                          transition-opacity duration-150
+                          z-50
                         "
                       >
                     {/* Description text */}

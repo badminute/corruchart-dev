@@ -52,12 +52,11 @@ export const CATEGORY_POINTS: Record<
 };
 
 export const THRESHOLDS = [
-    { label: "Threshold 1", points: 100, description: "You are barely corrupt." },
-    { label: "Threshold 2", points: 400, description: "You are mildly corrupt." },
-    { label: "Threshold 3", points: 900, description: "You are moderately corrupt." },
-    { label: "Threshold 4", points: 1800, description: "You are very corrupt." },
-    { label: "Threshold 5", points: 3000, description: "You are beyond corrupt. Sicko." },
-    { label: "Threshold 6", points: 0, description: "You should probably be in prison." }, // Optional
+    { points: 75, description: "Some corruption begins...", key: 1 },
+    { points: 500, description: "Corruption grows...", key: 2 },
+    { points: 1250, description: "You are tainted...", key: 3 },
+    { points: 2000, description: "Corruption surges!", key: 4 },
+    { points: 3000, description: "Dangerously corrupted!", key: 5 },
 ];
 
 export function computeScore(
