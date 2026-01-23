@@ -38,7 +38,7 @@ export default function HomePage() {
                                                         textShadow: "0px 1px 0px rgba(0,0,0,0.6)",
                                                 }}
                                         >
-                                                v0.18.0
+                                                v0.19.0
                                         </span>
                                 </div>
 
@@ -58,7 +58,7 @@ export default function HomePage() {
 
                                 {/* Disclaimer */}
                                 <p className="text-xs sm:text-md text-gray-400 mb-7 sm:mb-9 leading-relaxed max-w-2xl text-center drop-shadow-[0_4px_4px_rgba(0,0,0,0.3)] ">
-                                        Disclaimer: This tool is designed for fun and informative purposes, NONE of the interests (especially the taboo ones) are endorsed and/or condoned by the creator of this tool. The interests available are interests that real people have (even if you don't believe it). The creator assumes no responsibility for any consequences that arise from the use of this tool. Please exercise discretion when using it and sharing results.
+                                        Disclaimer: This tool is designed for fun and educational purposes, NONE of the interests (especially the taboo ones) are endorsed and/or condoned by the creator of this tool. The interests available are interests that real people have (even if you don't believe it). The creator assumes no responsibility for any consequences that arise from the use of this tool. Please exercise discretion when using it and sharing results.
                                 </p>
 
                                 {/* START Button */}
@@ -67,7 +67,7 @@ export default function HomePage() {
                                         className="
                                                 relative inline-flex items-center justify-center px-8 py-4 text-xl font-bold text-white
                                                 bg-violet-700 rounded-lg overflow-hidden
-                                                drop-shadow-[0_4px_6px_rgba(0,0,0,0.6)]
+                                                drop-shadow-[0_4px_0px_rgba(0,0,0,0.6)]
                                                 focus:outline-none
                                                 w-auto
                                                 max-w-xs sm:max-w-none

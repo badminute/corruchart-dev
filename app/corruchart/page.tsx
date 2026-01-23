@@ -10,16 +10,6 @@ import { DESCRIPTIONS } from "@/data/descriptions";
 
 type GroupState = "include" | "exclude";
 
-/** Reaction labels (UI only) */
-const STATE_TO_LABEL = [
-  "indifferent",
-  "disgust",
-  "dislike",
-  "like",
-  "love",
-  "lust",
-] as const;
-
 /** html2canvas-safe hex colors */
 const COLOR_HEX = [
   "#828282ff", // Indifferent
@@ -57,7 +47,6 @@ const STATE_TO_VALUE = [
 
 export default function Page() {
   const searchInputRef = useRef<HTMLInputElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
 
   // Progressive group filter state
   const [showAllGroups, setShowAllGroups] = useState(false);
@@ -95,14 +84,47 @@ export default function Page() {
   []
 );
 
+    type OptionSlot = {
+        slotId: string;
+        options: Option[];
+    };
+
+    const slots: OptionSlot[] = useMemo(() => {
+        const map = new Map<string, Option[]>();
+
+        options.forEach((opt) => {
+            const key = opt.variantGroup ?? opt.id;
+            if (!map.has(key)) map.set(key, []);
+            map.get(key)!.push(opt);
+        });
+
+        return Array.from(map.entries()).map(([slotId, opts]) => ({
+            slotId,
+            options: opts.sort(
+                (a, b) => (a.variantOrder ?? 0) - (b.variantOrder ?? 0)
+            ),
+        }));
+    }, [options]);
+
+
+
   const [states, setStates] = useState<number[]>([]);
   const [query, setQuery] = useState("");
   const [colorFilter, setColorFilter] = useState<Set<number>>(new Set());
   const [groupStates, setGroupStates] = useState<Record<string, GroupState>>({});
   const [showCategory6, setShowCategory6] = useState(false);
   const [openDescription, setOpenDescription] = useState<string | null>(null);
+  const [activeVariant, setActiveVariant] = useState<Record<string, number>>({});
   type ActivePlus = { index: number; id: string; state: number }; // ✅ must include state
   const [activePluses, setActivePluses] = useState<ActivePlus[]>([]);
+    const optionIndexById = useMemo(() => {
+        const map: Record<string, number> = {};
+        options.forEach((opt, i) => {
+            map[opt.id] = i;
+        });
+        return map;
+    }, [options]);
+
   
   const getPlusImage = (option: Option, state: number) => {
     if (option.category === 5 || option.category === 6) return "/corruchart-dev/corruption potion large.png";
@@ -270,37 +292,52 @@ export default function Page() {
   };
 
   /** Filtered options */
-const filtered = useMemo(() => {
-  const q = query.trim().toLowerCase();
+    const filtered = useMemo(() => {
+        const q = query.trim().toLowerCase();
 
-  return options
-    .map((option, index) => ({ option, index }))
-    .filter(({ option, index }) => {
-      const matchesText =
-        !q ||
-        option.label.toLowerCase().includes(q) ||
-        option.aka.some((alias) => alias.includes(q));
+        return slots
+            .map((slot) => {
+                const variantIndex = activeVariant[slot.slotId] ?? 0;
+                const option = slot.options[variantIndex % slot.options.length];
+                const index = optionIndexById[option.id];
 
-      const matchesColor =
-        colorFilter.size === 0 ||
-        colorFilter.has(states[index] % COLOR_HEX.length);
+                return { slot, option, index };
+            })
+            .filter(({ option, index }) => {
+                const matchesText =
+                    !q ||
+                    option.label.toLowerCase().includes(q) ||
+                    option.aka.some((a) => a.includes(q));
 
-      const matchesGroup =
-        (!Object.values(groupStates).includes("include") ||
-          option.tags.some((cat) => groupStates[cat] === "include")) &&
-        !option.tags.some((cat) => groupStates[cat] === "exclude");
+                const matchesColor =
+                    colorFilter.size === 0 ||
+                    colorFilter.has(states[index] % COLOR_HEX.length);
 
-      const matchesCategory6 =
-        showCategory6 || option.category !== 6;
+                const matchesGroup =
+                    (!Object.values(groupStates).includes("include") ||
+                        option.tags.some((cat) => groupStates[cat] === "include")) &&
+                    !option.tags.some((cat) => groupStates[cat] === "exclude");
 
-      return (
-        matchesText &&
-        matchesColor &&
-        matchesGroup &&
-        matchesCategory6
-      );
-    });
-}, [options, query, states, colorFilter, groupStates, showCategory6]);
+                const matchesCategory6 =
+                    showCategory6 || option.category !== 6;
+
+                return (
+                    matchesText &&
+                    matchesColor &&
+                    matchesGroup &&
+                    matchesCategory6
+                );
+            });
+    }, [
+        slots,
+        activeVariant,
+        optionIndexById,
+        query,
+        states,
+        colorFilter,
+        groupStates,
+        showCategory6,
+    ]);
 
   if (!states.length) return null;
 
@@ -399,7 +436,7 @@ const filtered = useMemo(() => {
           </Link>
 
           <span className="text-gray-400">
-            Showing {filtered.length} / {options.length}
+            Showing {filtered.length} / {slots.length}
           </span>
         </div>
 
@@ -491,23 +528,23 @@ const filtered = useMemo(() => {
                         xl:grid-cols-5
                       "
                     >
-          {filtered.map(({ option, index }) => {
+            {filtered.map(({ slot, option, index }) => {
             const description = DESCRIPTIONS[option.id];
 
             return (
-              <div key={option.id} className="relative">
+            <div key={slot.slotId} className="relative">
                 <div
                   className="
                         flex items-center gap-2
                         text-left p-2 rounded
-                        border border-transparent hover:border-gray-500
                         w-full
                         group
                       "
                     >
                   {/* STAR */}
                   <button
-                    onClick={() => cycleColor(index)}
+                            onClick={() => cycleColor(index)}
+
                     className="flex-shrink-0 cursor-pointer relative" // <-- add relative here
                   >
                     <svg
@@ -541,44 +578,74 @@ const filtered = useMemo(() => {
 
                   </button>
 
-                  {/* LABEL + QUESTION MARK OVERLAY */}
-                  <span
-                    className={`relative text-lg pr-4 ${option.category === 6
-                        ? "text-violet-400"          // category 6
-                        : option.category === 5
-                          ? "text-violet-300/65"       // category 5
-                          : ""                    // other categories
-                      }`}
-                    style={{ textShadow: "0 2px 4px rgba(0,0,0,0.3)" }}
-                  >
-                    {option.label}
+                            {/* LABEL + HOVER BUTTONS */}
+                            <span
+                                className={`relative inline-flex items-center text-lg group px-1 py-0.5 rounded border border-transparent hover:border-gray-500/50 ${option.category === 6
+                                        ? "text-violet-400"
+                                        : option.category === 5
+                                            ? "text-violet-300/65"
+                                            : ""
+                                    }`}
+                                style={{ textShadow: "0 2px 4px rgba(0,0,0,0.3)" }}
+                            >
+                                {option.label}
 
-                    {description && (
-                      <span
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setOpenDescription(
-                            openDescription === option.id ? null : option.id
-                          );
-                        }}
-                        className="
-                          absolute -top-1 -right-1
-                          w-4 h-4
-                          flex items-center justify-center
-                          rounded-full
-                          text-[9px] font-bold
-                          bg-neutral-800 text-gray-300
-                          border border-neutral-600
-                          cursor-pointer
-                          opacity-0
-                          group-hover:opacity-100
-                        "
-                        title="Show description"
-                      >
-                        ?
-                      </span>
-                    )}
-                  </span>
+                                {/* Hover buttons container (inside label box) */}
+                                <span className="flex gap-1 ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    {/* QUESTION MARK */}
+                                    {description && (
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setOpenDescription(openDescription === option.id ? null : option.id);
+                                            }}
+                                            className="
+                                        w-5 h-5
+                                        flex items-center justify-center
+                                        text-[9px] font-bold
+                                        bg-neutral-800 text-gray-300
+                                        border border-neutral-600
+                                        rounded-full
+                                        cursor-pointer
+                                        hover:bg-neutral-700
+                                        "
+                                            title="Show description"
+                                        >
+                                            ?
+                                        </button>
+                                    )}
+
+                                    {/* VARIANT SWAP BUTTON */}
+                                    {slot.options.length > 1 && (
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setActiveVariant((prev) => ({
+                                                    ...prev,
+                                                    [slot.slotId]:
+                                                        ((prev[slot.slotId] ?? 0) + 1) % slot.options.length,
+                                                }));
+                                            }}
+                                            className="
+                                    w-5 h-5
+                                    flex items-center justify-center
+                                    text-xs
+                                    bg-neutral-800 text-gray-300
+                                    border border-neutral-600
+                                    rounded-full
+                                    cursor-pointer
+                                    hover:bg-neutral-700
+                                    "
+                                            title="Swap variant"
+                                        >
+                                            ⇄
+                                        </button>
+                                    )}
+                                </span>
+                            </span>
+
+
+
                 </div>
 
                 {/* DESCRIPTION POPOVER */}
