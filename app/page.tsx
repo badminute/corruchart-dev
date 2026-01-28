@@ -38,7 +38,7 @@ export default function HomePage() {
                                                         textShadow: "0px 1px 0px rgba(0,0,0,0.6)",
                                                 }}
                                         >
-                                                v0.19.0
+                                                v0.21.0
                                         </span>
                                 </div>
 
@@ -46,7 +46,7 @@ export default function HomePage() {
                                 <p className="text-sm sm:text-md text-gray-300 mb-6 sm:mb-8 leading-relaxed max-w-2xl text-center drop-shadow-[0_4px_4px_rgba(0,0,0,0.3)]">
                                         Welcome to Corruchart (Corruption Chart). This interactive tool allows you to
                                         indicate your sexual interests on a large and sprawling chart to learn more about yourself and/or share with others.
-                                        There are currently hundreds of interests (
+                                        There are currently over a thousand interests (
                                         <span
                                                 className={`text-violet-400 font-semibold inline-block transform transition-all animate-text-flicker duration-700 ${animate ? "scale-100 opacity-100" : "scale-75 opacity-0"
                                                         }`}

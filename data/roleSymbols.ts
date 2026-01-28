@@ -66,18 +66,24 @@ export const ROLE_SYMBOLS: Record<string, { symbol: string; color?: string }> = 
     "2d-only": { symbol: "✎", color: "#59b465" },   // 2D ONLY
     "adult-baby": { symbol: "🍼", color: "#FFE5D9" },   // Adult Baby
     "bull": { symbol: "♞", color: "#b98046" },   // Bull
-    "cuckold-cuckquean": { symbol: "🪑", color: "#A56953" },   // Cuckold/Cuckquean
-    "hotwife-hothusband": { symbol: "🌶", color: "#ff3300" },   // Hotwife/Hothusband
+    "cuckold": { symbol: "🪑", color: "#A56953" },   // Cuckold
+    "cuckquean": { symbol: "🪑", color: "#A56953" },   // Cuckquean
+    "hotwife": { symbol: "🌶", color: "#ff3300" },   // Hotwife/Hothusband
+    "hothusband": { symbol: "🌶", color: "#ff3300" },   // Hotwife/Hothusband
     "swinger": { symbol: "⇄", color: "#66ccff" },   // Swinger
     "stag": { symbol: "🦌", color: "#ffb866" },   // Stag
     "vixen": { symbol: "💄", color: "#f67bcf" },   // Vixen
     "queen-of-spades": { symbol: "♠︎", color: "#c2c2c2" },   // Queen of Spades
+    "queen-of-hearts": { symbol: "♠︎", color: "#fa3e3e" },   // Queen of Hearts
     "snowbunny": { symbol: "❄", color: "#f8f8f8" },   // Snowbunny
     "clown": { symbol: "🤡", color: "#ff4242" },   // Clown
     "furry": { symbol: "🦊", color: "#fb8740" },   // Furry
-    "gooner-goonette": { symbol: "🫠", color: "#f9d970" },   // Gooner/Goonette
-    "toilet-urinal": { symbol: "⋱", color: "#ffea75" },   // Toilet/Urinal
+    "gooner": { symbol: "🫠", color: "#f9d970" },   // Gooner
+    "goonette": { symbol: "🫠", color: "#f9d970" },   // Goonette
+    "toilet": { symbol: "🚽", color: "#bbbbbb" },   // Toilet
+    "urinal": { symbol: "⋱", color: "#ffea75" },   // Urinal
     "living-doll": { symbol: "🪆", color: "#fa6d99" },   // Living Doll
+    "plushophile": { symbol: "🧸", color: "#c09457" },   // Plushophile
     "scientist": { symbol: "🧑‍🔬", color: "#d4d4d4" },   // Scientist
     "experiment": { symbol: "🧪", color: "#b2f86c" },   // Experiment
     "sugar-provider": { symbol: "💳", color: "#4ba5fa" },   // Sugar Provider

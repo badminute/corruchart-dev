@@ -3,10 +3,22 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 
+import type { OptionData as Option } from "@/data/options";
 import { GROUPS } from "@/data/groups";
 import { OPTIONS } from "@/data/options";
-import type { Option as BaseOption } from "@/types/option";
 import { DESCRIPTIONS } from "@/data/descriptions";
+import SettingsButton from "@/components/SettingsButton";
+import OptionsGrid from "@/components/OptionsGrid";
+
+// import base type
+import type { OptionData as BaseOption } from "@/data/options";
+
+// define extended type
+type OptionWithCategory = BaseOption & {
+    category: number;
+    tags: string[];
+    aka?: string[];
+};
 
 type GroupState = "include" | "exclude";
 
@@ -31,10 +43,6 @@ const COLOR_NAMES = [
 
 const RESULTS_KEY = "combined-selections";
 
-type Option = BaseOption & {
-  tags: string[];
-  category: number;
-};
 
 const STATE_TO_VALUE = [
   "indifferent",
@@ -70,27 +78,27 @@ export default function Page() {
 }, []);
 
   /** Normalize OPTIONS tags */
-  const options: Option[] = useMemo(
-  () =>
-    OPTIONS.map((opt) => ({
-      ...opt,
-      tags:
-        (opt.tags as (string | number)[] | undefined)?.map((tag) => {
-          if (typeof tag === "number") return GROUPS[tag - 1]?.id || "general";
-          return tag;
-        }) || ["general"],
-      aka: opt.aka?.map((a) => a.toLowerCase()) || [], // 👈 normalize once
-    })),
-  []
-);
+    const options: OptionWithCategory[] = useMemo(
+        () =>
+            OPTIONS.map((opt) => ({
+                ...opt,
+                tags:
+                    (opt.tags as (string | number)[] | undefined)?.map((tag) => {
+                        if (typeof tag === "number") return GROUPS[tag - 1]?.id || "general";
+                        return tag;
+                    }) || ["general"],
+                aka: opt.aka?.map((a) => a.toLowerCase()) || [],
+            })),
+        []
+    );
 
     type OptionSlot = {
         slotId: string;
-        options: Option[];
+        options: OptionWithCategory[];
     };
 
     const slots: OptionSlot[] = useMemo(() => {
-        const map = new Map<string, Option[]>();
+        const map = new Map<string, OptionWithCategory[]>();
 
         options.forEach((opt) => {
             const key = opt.variantGroup ?? opt.id;
@@ -107,7 +115,9 @@ export default function Page() {
     }, [options]);
 
 
-
+  const [isHolding, setIsHolding] = useState<string | null>(null);
+  const holdTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const didLongPressRef = useRef(false);
   const [states, setStates] = useState<number[]>([]);
   const [query, setQuery] = useState("");
   const [colorFilter, setColorFilter] = useState<Set<number>>(new Set());
@@ -124,13 +134,6 @@ export default function Page() {
         });
         return map;
     }, [options]);
-
-  
-  const getPlusImage = (option: Option, state: number) => {
-    if (option.category === 5 || option.category === 6) return "/corruchart-dev/corruption potion large.png";
-    if (option.category === 4) return "/corruchart-dev/corruption potion medium.png";
-    return "/corruchart-dev/corruption%20potion%20small.png";
-  };
   
 
   /** SET ALL TO (Forbidden only) */
@@ -254,6 +257,20 @@ export default function Page() {
     });
   };
 
+    // PERSIST FORBIDDEN INTERESTS TOGGLE
+    useEffect(() => {
+    if (typeof window !== "undefined") {
+        const saved = localStorage.getItem("showCategory6");
+        if (saved === "true") setShowCategory6(true);
+    }
+    }, []);
+
+    // SAVE TOGGLE
+    useEffect(() => {
+    localStorage.setItem("showCategory6", showCategory6 ? "true" : "false");
+    }, [showCategory6]);
+
+
   /** Reset all options */
   const resetAll = () => {
     if (confirm("Reset all selections to 'Indifferent'?")) {
@@ -342,7 +359,7 @@ export default function Page() {
   if (!states.length) return null;
 
   return (
-    <main className="min-h-screen px-8" style={{ backgroundColor: "#1F2023" }}>
+      <main className="min-h-screen px-8 pb-12" style={{ backgroundColor: "#1F2023" }}>
       {/* Controls */}
       <div className="py-4 space-y-3">
         <div className="flex items-center gap-4 flex-wrap">
@@ -416,7 +433,7 @@ export default function Page() {
                   text-sm font-semibold
                   bg-neutral-900
                   text-neutral-300
-                  hover:bg-violet-700/50
+                  hover:bg-neutral-700/50
                   hover:text-white
                   transition-colors
                   cursor-pointer
@@ -428,9 +445,13 @@ export default function Page() {
             </div>
           </div>
 
+                <div className="flex items-center gap-2 flex-wrap">
+                <SettingsButton />
+                </div>
+
           <Link
             href="/roles"
-            className="px-4 py-2 rounded bg-neutral-900 text-neutral-200 hover:bg-green-900/90 hover:text-neutral-300 cursor-pointer"
+            className="px-4 py-2 rounded bg-neutral-900 text-neutral-200 hover:bg-violet-900/90 hover:text-neutral-300 cursor-pointer"
           >
             Next
           </Link>
@@ -515,169 +536,21 @@ export default function Page() {
         </div>
       </div>
 
-      {/* EXPORT-SAFE AREA */}
-      <div style={{ backgroundColor: "#1F2023", color: "#9F86D8" }}>
-        <div
-                      className="
-                        grid
-                        gap-x-12 gap-y-4
-                        grid-cols-1
-                        sm:grid-cols-2
-                        md:grid-cols-3
-                        lg:grid-cols-4
-                        xl:grid-cols-5
-                      "
-                    >
-            {filtered.map(({ slot, option, index }) => {
-            const description = DESCRIPTIONS[option.id];
-
-            return (
-            <div key={slot.slotId} className="relative">
-                <div
-                  className="
-                        flex items-center gap-2
-                        text-left p-2 rounded
-                        w-full
-                        group
-                      "
-                    >
-                  {/* STAR */}
-                  <button
-                            onClick={() => cycleColor(index)}
-
-                    className="flex-shrink-0 cursor-pointer relative" // <-- add relative here
-                  >
-                    <svg
-                      width="32"
-                      height="32"
-                      viewBox="0 0 24 24"
-                      fill={COLOR_HEX[states[index] % COLOR_HEX.length]}
-                      stroke="#000"
-                      strokeWidth="0.5"
-                    >
-                      <path d="M12 2.5l2.9 6.1 6.7.6-5 4.4 1.5 6.5L12 16.8 5.9 20.1l1.5-6.5-5-4.4 6.7-.6L12 2.5z" />
-                    </svg>
-
-                    {/* CORRUPTION GAIN "+" */}
-                    {activePluses
-                      .filter(p => p.index === index)
-                      .map(p => (
-                        <img
-                          key={p.id}
-                          src={getPlusImage(options[index], p.state)} // ✅ pass p.state here
-                          alt="+"
-                          className={`absolute -top-6 -right-3 pointer-events-none animate-pop-plus ${getPlusImage(options[index], p.state).includes("small.png")
-                              ? "w-3"    // smaller width for small PNG
-                              : options[index].category === 6
-                                ? "w-7" // large PNG for category 6
-                                : "w-5" // medium/other PNGs
-                            }`}
-                          style={{ height: "auto" }}
-                        />
-                      ))}
-
-                  </button>
-
-                            {/* LABEL + HOVER BUTTONS */}
-                            <span
-                                className={`relative inline-flex items-center text-lg group px-1 py-0.5 rounded border border-transparent hover:border-gray-500/50 ${option.category === 6
-                                        ? "text-violet-400"
-                                        : option.category === 5
-                                            ? "text-violet-300/65"
-                                            : ""
-                                    }`}
-                                style={{ textShadow: "0 2px 4px rgba(0,0,0,0.3)" }}
-                            >
-                                {option.label}
-
-                                {/* Hover buttons container (inside label box) */}
-                                <span className="flex gap-1 ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    {/* QUESTION MARK */}
-                                    {description && (
-                                        <button
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                setOpenDescription(openDescription === option.id ? null : option.id);
-                                            }}
-                                            className="
-                                        w-5 h-5
-                                        flex items-center justify-center
-                                        text-[9px] font-bold
-                                        bg-neutral-800 text-gray-300
-                                        border border-neutral-600
-                                        rounded-full
-                                        cursor-pointer
-                                        hover:bg-neutral-700
-                                        "
-                                            title="Show description"
-                                        >
-                                            ?
-                                        </button>
-                                    )}
-
-                                    {/* VARIANT SWAP BUTTON */}
-                                    {slot.options.length > 1 && (
-                                        <button
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                setActiveVariant((prev) => ({
-                                                    ...prev,
-                                                    [slot.slotId]:
-                                                        ((prev[slot.slotId] ?? 0) + 1) % slot.options.length,
-                                                }));
-                                            }}
-                                            className="
-                                    w-5 h-5
-                                    flex items-center justify-center
-                                    text-xs
-                                    bg-neutral-800 text-gray-300
-                                    border border-neutral-600
-                                    rounded-full
-                                    cursor-pointer
-                                    hover:bg-neutral-700
-                                    "
-                                            title="Swap variant"
-                                        >
-                                            ⇄
-                                        </button>
-                                    )}
-                                </span>
-                            </span>
-
-
-
-                </div>
-
-                {/* DESCRIPTION POPOVER */}
-                {openDescription === option.id && description && (
-                      <div
-                        className="
-                          absolute bottom-full mb-2 left-1/2 -translate-x-1/2
-                          w-max max-w-xs
-                          rounded-md bg-neutral-800 text-gray-200 text-xs px-4 py-3
-                          text-center
-                          pointer-events-none
-                          transition-opacity duration-150
-                          z-50
-                        "
-                      >
-                    {/* Description text */}
-                    <div>{description}</div>
-
-                    {/* AKA list */}
-                    {option.aka && option.aka.length > 0 && (
-                    <div className="mt-2 pt-2 border-t border-neutral-700 text-xs text-gray-400 text-center">
-                      <span className="font-semibold text-gray-300">AKAs:</span>{" "}
-                      {option.aka.join(", ")}
-                    </div>
-                  )}
-                </div>
-              )}
-              </div>
-            );
-          })}
-        </div>
-      </div>
+          <OptionsGrid
+              filtered={filtered}
+              states={states}
+              options={options}
+              activePluses={activePluses}
+              activeVariant={activeVariant}
+              isHolding={isHolding}
+              openDescription={openDescription}
+              setOpenDescription={setOpenDescription}
+              setActiveVariant={setActiveVariant}
+              cycleColor={cycleColor}
+              holdTimerRef={holdTimerRef}
+              didLongPressRef={didLongPressRef}
+              setIsHolding={setIsHolding}
+          />
     </main>
   );
 }

@@ -4,7 +4,10 @@ import type { Option } from "@/types/option";
 // Extend Option for roles with category
 export type RoleOption = Option & {
   category: 1 | 2 | 3 | 4 | 5 | 6;
+  variantGroup?: string;
+  variantOrder?: number;
 };
+
 
 export const ROLES: RoleOption[] = [
   { id: "top", label: "Top (Giver)", aka: ["Top"], tags: ["Sex Roles"], category: 1 },
@@ -16,6 +19,7 @@ export const ROLES: RoleOption[] = [
   { id: "sadist", label: "Sadist", aka: [], tags: ["Sadism & Masochism"], category: 5 },
   { id: "masochist", label: "Masochist", aka: [], tags: ["Sadism & Masochism"], category: 4 },
   { id: "sadomasochist", label: "Sadomasochist", aka: ["S&M"], tags: ["Sadism & Masochism"], category: 5 },
+  { id: "sadistic-caregiver", label: "Sadistic Caregiver", aka: [], tags: ["Sadism & Masochism"], category: 4 },
   { id: "brat", label: "Brat", aka: [], tags: ["Domination & Submission"], category: 3 },
   { id: "brat-tamer", label: "Brat Tamer", aka: [], tags: ["Domination & Submission"], category: 3 },
   { id: "pet", label: "Pet", aka: [], tags: ["Domination & Submission"], category: 3 },
@@ -40,7 +44,6 @@ export const ROLES: RoleOption[] = [
   { id: "prey-primal", label: "Prey (Primal)", aka: [], tags: ["Domination & Submission"], category: 3 },
   { id: "abductor", label: "Abductor", aka: [], tags: ["Bondage & Discipline"], category: 5 },
   { id: "abductee", label: "Abductee", aka: [], tags: ["Bondage & Discipline"], category: 4 },
-  { id: "sadistic-caregiver", label: "Sadistic Caregiver", aka: [], tags: ["BDSM Roles Cont."], category: 4 },
   { id: "prisoner", label: "Prisoner", aka: [], tags: ["Bondage & Discipline"], category: 4 },
   { id: "captor", label: "Captor", aka: [], tags: ["Bondage & Discipline"], category: 4 },
   { id: "furniture", label: "Furniture", aka: [], tags: ["Bondage & Discipline"], category: 3 },
@@ -65,20 +68,28 @@ export const ROLES: RoleOption[] = [
   { id: "aromantic", label: "Aromantic", aka: [], tags: ["Sexual Orientation"], category: 1 },
   { id: "demisexual", label: "Demisexual", aka: ["Demi"], tags: ["Sexual Orientation"], category: 1 },
   { id: "2d-only", label: "2D ONLY", aka: [], tags: ["Fun Roles"], category: 3 },
-  { id: "adult-baby", label: "Adult Baby", aka: ["AB/DL"], tags: ["Fun Roles"], category: 3 },
-  { id: "bull", label: "Bull", aka: [], tags: ["Fun Roles"], category: 4 },
-  { id: "cuckold-cuckquean", label: "Cuckold/Cuckquean", aka: ["Cuck"], tags: ["Fun Roles"], category: 4 },
-  { id: "hotwife-hothusband", label: "Hotwife/Hothusband", aka: ["Hotwife"], tags: ["Fun Roles"], category: 4 },
+  { id: "adult-baby", label: "Adult Baby", aka: ["AB"], tags: ["Fun Roles"], category: 3, variantGroup: "abdls", variantOrder: 0 },
+  { id: "diaper-lover", label: "Diaper Lover", aka: ["DL"], tags: ["Fun Roles"], category: 3, variantGroup: "abdls", variantOrder: 1 },
+  { id: "bull", label: "Bull", aka: ["Stallion"], tags: ["Fun Roles"], category: 4, variantGroup: "thirds", variantOrder: 0 },
+  { id: "cuckcake", label: "Cuckcake", aka: [], tags: ["Fun Roles"], category: 4, variantGroup: "thirds", variantOrder: 1 },
+  { id: "cuckold", label: "Cuckold", aka: ["Cuck"], tags: ["Fun Roles"], category: 4, variantGroup: "cucks", variantOrder: 0 },
+  { id: "cuckquean", label: "Cuckquean", aka: ["Cuck"], tags: ["Fun Roles"], category: 4, variantGroup: "cucks", variantOrder: 1 },
+  { id: "hotwife", label: "Hotwife", aka: ["Hotwife"], tags: ["Fun Roles"], category: 4, variantGroup: "hotpartners", variantOrder: 0 },
+  { id: "hothusband", label: "Hothusband", aka: ["Hotwife"], tags: ["Fun Roles"], category: 4, variantGroup: "hotpartners", variantOrder: 1 },
   { id: "swinger", label: "Swinger", aka: [], tags: ["Fun Roles"], category: 4 },
-  { id: "stag", label: "Stag", aka: [], tags: ["Fun Roles"], category: 4 },
-  { id: "vixen", label: "Vixen", aka: [], tags: ["Fun Roles"], category: 4 },
-  { id: "queen-of-spades", label: "Queen of Spades", aka: ["QOS"], tags: ["Fun Roles"], category: 4 },
+  { id: "stag", label: "Stag", aka: [], tags: ["Fun Roles"], category: 4, variantGroup: "stag-vixen", variantOrder: 0 },
+  { id: "vixen", label: "Vixen", aka: [], tags: ["Fun Roles"], category: 4, variantGroup: "stag-vixen", variantOrder: 1 },
+  { id: "queen-of-spades", label: "Queen of Spades", aka: ["QOS"], tags: ["Fun Roles"], category: 4, variantGroup: "queens", variantOrder: 0 },
+  { id: "queen-of-hearts", label: "Queen of Hearts", aka: ["QOH"], tags: ["Fun Roles"], category: 4, variantGroup: "queens", variantOrder: 1 },
   { id: "snowbunny", label: "Snowbunny", aka: [], tags: ["Fun Roles"], category: 3 },
   { id: "clown", label: "Clown", aka: [], tags: ["Fun Roles"], category: 3 },
   { id: "furry", label: "Furry", aka: [], tags: ["Fun Roles"], category: 2 },
-  { id: "gooner-goonette", label: "Gooner/Goonette", aka: ["Goon"], tags: ["Fun Roles"], category: 4 },
-  { id: "toilet-urinal", label: "Toilet/Urinal", aka: [], tags: ["Fun Roles"], category: 4 },
+  { id: "gooner", label: "Gooner", aka: [], tags: ["Fun Roles"], category: 5, variantGroup: "gooners", variantOrder: 0 },
+  { id: "goonette", label: "Goonette", aka: [], tags: ["Fun Roles"], category: 5, variantGroup: "gooners", variantOrder: 1 },
+  { id: "urinal", label: "Urinal", aka: [], tags: ["Fun Roles"], category: 4, variantGroup: "toilets", variantOrder: 0 },
+  { id: "toilet", label: "Toilet", aka: [], tags: ["Fun Roles"], category: 4, variantGroup: "toilets", variantOrder: 1 },
   { id: "living-doll", label: "Living Doll", aka: [], tags: ["Fun Roles"], category: 3 },
+  { id: "plushophile", label: "Plushophile", aka: [], tags: ["Fun Roles"], category: 2 },
   { id: "scientist", label: "Scientist", aka: [], tags: ["Fun Roles"], category: 3 },
   { id: "experiment", label: "Experiment", aka: [], tags: ["Fun Roles"], category: 3 },
   { id: "sugar-provider", label: "Sugar Provider", aka: [], tags: ["Fun Roles"], category: 3 },
