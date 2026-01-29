@@ -690,7 +690,7 @@ export const OPTIONS: OptionData[] = [
 { id: "mosaic-censorship", label: "MOSAIC CENSORSHIP", tags: ["censorship"], category: 3 },
 { id: "mouse-monsterboys", label: "MOUSE MONSTERBOYS", tags: ["creatures", "monsters", "fantasy"], category: 3, variantGroup: "mice", variantOrder: 1 },
 { id: "mouse-monstergirls", label: "MOUSE MONSTERGIRLS", tags: ["creatures", "monstergirls", "fantasy"], category: 3, variantGroup: "mice", variantOrder: 0 },
-{ id: "mouth-open", label: "MOUTH (OPEN)", tags: ["upper-body", "oral"], category: 2 },
+{ id: "mouth-fetish", label: "MOUTH FETISH", tags: ["upper-body", "oral"], category: 2 },
 { id: "mucustoad-monsterboys", label: "MUCUSTOAD MONSTERBOYS", tags: ["creatures", "monsters", "fantasy"], category: 3, variantGroup: "mucustoads", variantOrder: 1 },
 { id: "mucustoad-monstergirls", label: "MUCUSTOAD MONSTERGIRLS", tags: ["creatures", "monstergirls", "fantasy"], category: 3, variantGroup: "mucustoads", variantOrder: 0 },
 { id: "multiple-3-breasts", label: "MULTIPLE (3+) BREASTS", tags: [ "upper-body", "boobies"], category: 4 },

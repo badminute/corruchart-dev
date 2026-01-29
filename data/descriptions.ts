@@ -617,7 +617,7 @@ export const DESCRIPTIONS: Record<string, string> = {
     "mom-bodytypes": "Body types that are motherly and mature.",
     "monster-transformation": "Arousal from transformations where one is turned into a monster or creature.",
     "mosaic-censorship": "Pixelation or blurring of explicit content (genitals, nudity) to comply with obscenity laws. (Leaving details to imagination).",
-    "mouth-open": "Arousal from open mouths.",
+    "mouth-fetish": "Open mouths and tongue related activities.",
     "multiple-3-breasts": "Individuals/creatures with more than two breasts.",
     "multiple-ejaculations": "Arousal from repeated or excessive ejaculations in a single session.",
     "multiple-genitals": "Attraction to individuals/creatures with more than one genitalia.",

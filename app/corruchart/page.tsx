@@ -115,17 +115,17 @@ export default function Page() {
     }, [options]);
 
 
-  const [isHolding, setIsHolding] = useState<string | null>(null);
-  const holdTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const didLongPressRef = useRef(false);
-  const [states, setStates] = useState<number[]>([]);
-  const [query, setQuery] = useState("");
-  const [colorFilter, setColorFilter] = useState<Set<number>>(new Set());
-  const [groupStates, setGroupStates] = useState<Record<string, GroupState>>({});
-  const [showCategory6, setShowCategory6] = useState(false);
-  const [openDescription, setOpenDescription] = useState<string | null>(null);
-  const [activeVariant, setActiveVariant] = useState<Record<string, number>>({});
-  type ActivePlus = { index: number; id: string; state: number }; // ✅ must include state
+    const [isHolding, setIsHolding] = useState<string | null>(null);
+    const holdTimerRef = useRef<NodeJS.Timeout | null>(null);
+    const didLongPressRef = useRef(false);
+    const [states, setStates] = useState<number[]>([]);
+    const [query, setQuery] = useState("");
+    const [colorFilter, setColorFilter] = useState<Set<number>>(new Set());
+    const [groupStates, setGroupStates] = useState<Record<string, GroupState>>({});
+    const [showCategory6, setShowCategory6] = useState(false);
+    const [openDescription, setOpenDescription] = useState<string | null>(null);
+    const [activeVariant, setActiveVariant] = useState<Record<string, number>>({});
+    type ActivePlus = { index: number; id: string; state: number }; // ✅ must include state
   const [activePluses, setActivePluses] = useState<ActivePlus[]>([]);
     const optionIndexById = useMemo(() => {
         const map: Record<string, number> = {};

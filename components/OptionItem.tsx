@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+
 type Props = {
     slot: any;
     option: any;
@@ -39,6 +41,13 @@ export default function OptionItem({
     didLongPressRef,
     setIsHolding,
 }: Props) {
+    const [flash, setFlash] = useState(false);
+
+    const triggerFlash = () => {
+        setFlash(true);
+        setTimeout(() => setFlash(false), 150);
+    };
+
     return (
         <div className="relative">
             <div className="flex items-center gap-2 p-2 rounded w-full h-full">
@@ -67,13 +76,12 @@ export default function OptionItem({
                                 />
                             ))}
 
-                        {/* Swap icon top-left, smaller, grey */}
                         {slot.options.length > 1 && (
                             <span
                                 className="absolute -top-1 -left-1 text-[12px] text-gray-400 cursor-pointer select-none z-10"
                                 title="Swap variants"
                                 onClick={(e) => {
-                                    e.stopPropagation(); // prevent tooltip opening
+                                    e.stopPropagation();
                                     setActiveVariant(prev => ({
                                         ...prev,
                                         [slot.slotId]:
@@ -87,10 +95,8 @@ export default function OptionItem({
                     </button>
                 </div>
 
-
-
                 {/* LABEL */}
-                <span
+                <button
                     onPointerDown={() => {
                         if (slot.options.length <= 1) return;
 
@@ -103,8 +109,7 @@ export default function OptionItem({
 
                             setActiveVariant(prev => ({
                                 ...prev,
-                                [slot.slotId]:
-                                    ((prev[slot.slotId] ?? 0) + 1) % slot.options.length,
+                                [slot.slotId]: ((prev[slot.slotId] ?? 0) + 1) % slot.options.length,
                             }));
                         }, 400);
                     }}
@@ -117,24 +122,58 @@ export default function OptionItem({
                         setIsHolding(null);
                     }}
                     onClick={() => {
-                        if (didLongPressRef.current || !description) return;
-                        setOpenDescription(openDescription === option.id ? null : option.id);
+                        if (didLongPressRef.current) return;
+
+                        // Show tooltip
+                        if (description) {
+                            setOpenDescription(openDescription === option.id ? null : option.id);
+                        }
+
+                        // Trigger flash using a temporary DOM element
+                        const btn = document.getElementById(`label-${slot.slotId}`);
+                        if (!btn) return;
+
+                        const flashEl = document.createElement("span");
+                        flashEl.className =
+                            "absolute inset-0 bg-violet-400/30 rounded pointer-events-none animate-flash z-20";
+
+                        btn.appendChild(flashEl);
+
+                        setTimeout(() => {
+                            flashEl.remove();
+                        }, 200); // Slightly longer than animation
                     }}
-                    className="relative text-lg px-1 py-0.5 cursor-pointer select-none"
+                    id={`label-${slot.slotId}`}
+                    className={`
+                        relative
+                        text-left
+                        text-lg px-2 py-1
+                        rounded
+                        cursor-pointer select-none
+                        transition-all duration-100
+                        ${isHolding === slot.slotId
+                            ? "bg-violet-400/20 scale-[0.97] shadow-inner"
+                            : "hover:bg-violet-400/10"}
+  `}
                 >
+                    {option.label}
+
+                    {/* LONG PRESS WIPE */}
                     <span
                         className={`absolute inset-0 bg-violet-400/20 origin-left scale-x-0 transition-transform duration-[400ms]
-              ${isHolding === slot.slotId ? "scale-x-100" : ""}
-            `}
+      ${isHolding === slot.slotId ? "scale-x-100" : ""}
+    `}
                     />
-                    {option.label}
-                </span>
+                </button>
+
             </div>
 
             {/* DESCRIPTION */}
             {openDescription === option.id && description && (
-                <div className="absolute bottom-full mb-2 left-0 right-0 flex justify-center z-50">
-                    <div className="max-w-xs bg-neutral-800 text-gray-200 px-4 py-3 rounded animate-pop-in">
+                <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 z-50 pointer-events-none">
+                    <div className="max-w-xs bg-neutral-800 text-gray-200 px-4 py-3 rounded border border-gray-500 text-center animate-pop-in pointer-events-auto"
+                    style={{ boxShadow: '0 3px 0px rgba(0,0,0,0.9)' }}
+                >
                         {description}
                     </div>
                 </div>

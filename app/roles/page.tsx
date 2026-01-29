@@ -177,61 +177,23 @@ export default function Page() {
                         const isTooltipVisible = openDescription === option.id;
 
                         return (
-                            <div key={option.id} className="relative w-full">
-                                {/* Main button */}
-                                <button
-                                    className="group flex items-center justify-between px-3 py-2 w-full rounded-md cursor-pointer text-left"
-                                    onPointerDown={() => {
-                                        longPressTriggered.current = false;
-
-                                        // 100ms delay before showing the purple hold overlay
-                                        const holdDelayTimer = window.setTimeout(() => setIsHolding(option.id), 100);
-
-                                        // 400ms long-press timer (tooltip)
-                                        const longPressTimerId = window.setTimeout(() => {
-                                            longPressTriggered.current = true;
-                                            setOpenDescription(option.id);
-                                            setIsHolding(null);
-                                        }, 400);
-
-                                        // Save both timers so we can cancel them on pointer up/leave
-                                        longPressTimer.current = holdDelayTimer;
-                                        (longPressTimer as any).longPressId = longPressTimerId;
-                                    }}
-                                    onPointerUp={() => {
-                                        clearTimeout(longPressTimer.current);
-                                        clearTimeout((longPressTimer as any).longPressId);
-                                        setIsHolding(null);
-                                    }}
-                                    onPointerLeave={() => {
-                                        clearTimeout(longPressTimer.current);
-                                        clearTimeout((longPressTimer as any).longPressId);
-                                        setIsHolding(null);
-                                    }}
-                                    onPointerCancel={() => {
-                                        clearTimeout(longPressTimer.current);
-                                        clearTimeout((longPressTimer as any).longPressId);
-                                        setIsHolding(null);
-                                    }}
-                                    onClick={(e) => {
-                                        if (longPressTriggered.current) return; // ignore if long-press just triggered
-                                        if (!(e.target as HTMLElement).closest(".description-toggle")) {
-                                            cycleColor(option);       // cycle the star
-                                            setOpenDescription(null); // close tooltip if open
-                                        }
-                                    
-                                    }}
-
-                                >
-                                    {/* Purple hold overlay */}
+                            <div className="relative w-full">
+                                <div className="group flex items-center w-full relative">
+                                    {/* Purple hold overlay — label only */}
                                     <span
-                                        className={`absolute inset-0 bg-violet-400/20 origin-left scale-x-0 transition-transform duration-[400ms] pointer-events-none ${isHolding === option.id ? "scale-x-100" : ""
+                                        className={`absolute inset-y-0 left-10 right-0 bg-violet-400/20 origin-left scale-x-0 transition-transform duration-[400ms] pointer-events-none ${isHolding === option.id ? "scale-x-100" : ""
                                             }`}
-                                    ></span>
+                                    />
 
-                                    {/* Role symbol */}
-                                    <span
-                                        className="flex-shrink-0 w-6 text-center font-bold mr-3 transition-all relative z-10"
+                                    {/* Role symbol button */}
+                                    <button
+                                        type="button"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            cycleColor(option);
+                                            setOpenDescription(null);
+                                        }}
+                                        className="flex-shrink-0 w-7 h-7 mr-3 flex items-center justify-center rounded cursor-pointer relative z-10"
                                         style={{
                                             fontSize: 18,
                                             color:
@@ -240,14 +202,78 @@ export default function Page() {
                                                     : "#777",
                                             opacity: states[actualIndex] === 1 ? 1 : 0.4,
                                             filter:
-                                                states[actualIndex] === 1 ? "none" : "grayscale(100%) brightness(65%)",
+                                                states[actualIndex] === 1
+                                                    ? "none"
+                                                    : "grayscale(100%) brightness(65%)",
                                         }}
                                     >
                                         {ROLE_SYMBOLS[option.id]?.symbol ?? "★"}
-                                    </span>
+                                    </button>
 
-                                    {/* Label + ? */}
-                                    <span className="flex items-center gap-2 flex-1 relative z-10">
+                                    {/* Label button */}
+                                    <button
+                                        type="button"
+                                        className="flex items-center cursor-pointer gap-2 flex-1 relative z-10 text-left px-3 py-2 rounded-md"
+
+                                        onPointerDown={() => {
+                                            longPressTriggered.current = false;
+
+                                            // Start wipe animation shortly after press
+                                            const holdDelayTimer = window.setTimeout(() => {
+                                                setIsHolding(option.id);
+                                            }, 100);
+
+                                            // Long press = swap variant
+                                            const swapTimer = window.setTimeout(() => {
+                                                longPressTriggered.current = true;
+                                                setIsHolding(null);
+
+                                                if (option.variantGroup) {
+                                                    const group = option.variantGroup;
+                                                    const groupOptions = variantGroups[group];
+                                                    const size = groupOptions.length;
+
+                                                    const nextIndex =
+                                                        ((activeVariant[group] ?? 0) + 1) % size;
+
+                                                    setActiveVariant(prev => ({
+                                                        ...prev,
+                                                        [group]: nextIndex,
+                                                    }));
+                                                }
+                                            }, 450);
+
+                                            longPressTimer.current = holdDelayTimer;
+                                            (longPressTimer as any).swapTimer = swapTimer;
+                                        }}
+
+                                        onPointerUp={() => {
+                                            clearTimeout(longPressTimer.current);
+                                            clearTimeout((longPressTimer as any).swapTimer);
+                                            setIsHolding(null);
+                                        }}
+
+                                        onPointerLeave={() => {
+                                            clearTimeout(longPressTimer.current);
+                                            clearTimeout((longPressTimer as any).swapTimer);
+                                            setIsHolding(null);
+                                        }}
+
+                                        onPointerCancel={() => {
+                                            clearTimeout(longPressTimer.current);
+                                            clearTimeout((longPressTimer as any).swapTimer);
+                                            setIsHolding(null);
+                                        }}
+
+                                        onClick={() => {
+                                            // Tap = tooltip
+                                            if (longPressTriggered.current) return;
+
+                                            setOpenDescription(prev =>
+                                                prev === option.id ? null : option.id
+                                            );
+                                        }}
+                                    >
                                         <span
                                             className="whitespace-nowrap"
                                             style={{
@@ -261,45 +287,37 @@ export default function Page() {
                                         >
                                             {option.label}
                                         </span>
+                                    </button>
 
-                                        {description && (
-                                            <span
+
+                                    {/* Swap button */}
+                                    {option.variantGroup &&
+                                        variantGroups[option.variantGroup]?.length > 1 && (
+                                            <button
+                                                type="button"
                                                 onClick={(e) => {
                                                     e.stopPropagation();
-                                                    setOpenDescription((prev) => (prev === option.id ? null : option.id));
+                                                    const group = option.variantGroup!;
+                                                    const groupOptions = variantGroups[group];
+                                                    const size = groupOptions.length;
+                                                    const nextIndex =
+                                                        ((activeVariant[group] ?? 0) + 1) % size;
+                                                    setActiveVariant((prev) => ({
+                                                        ...prev,
+                                                        [group]: nextIndex,
+                                                    }));
                                                 }}
-                                                className="description-toggle w-5 h-5 flex items-center justify-center text-[9px] font-bold bg-neutral-800 text-gray-300 border border-neutral-600 rounded-full cursor-pointer transition-opacity opacity-0 group-hover:opacity-100"
-                                                title="Show description"
+                                                className="absolute right-2 top-1/2 -translate-y-1/2 w-6 h-6 flex items-center justify-center text-xs bg-neutral-800 text-gray-300 border border-neutral-600 rounded-full cursor-pointer opacity-30 hover:opacity-100 transition-opacity z-10"
+                                                title="Swap variant"
                                             >
-                                                ?
-                                            </span>
+                                                ⇄
+                                            </button>
                                         )}
-                                    </span>
-                                </button>
+                                </div>
 
-                                    {/* Swap button — absolutely positioned far right (outside main button) */}
-                                    {option.variantGroup && variantGroups[option.variantGroup]?.length > 1 && (
-                                        <button
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                const group = option.variantGroup!;
-                                                const groupOptions = variantGroups[group];
-                                                const size = groupOptions.length;
-                                                const nextIndex = ((activeVariant[group] ?? 0) + 1) % size;
-                                                setActiveVariant((prev) => ({ ...prev, [group]: nextIndex }));
-                                            }}
-                                            className="absolute right-2 top-1/2 -translate-y-1/2 w-6 h-6 flex items-center justify-center text-xs bg-neutral-800 text-gray-300 border border-neutral-600 rounded-full cursor-pointer opacity-30 hover:opacity-100 transition-opacity z-10"
-                                            title="Swap variant"
-                                        >
-                                            ⇄
-                                        </button>
-                                    )}
-
-                                {/* Tooltip OUTSIDE button */}
+                                {/* Tooltip */}
                                 {isTooltipVisible && description && (
-                                    <div
-                                        className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 w-[220px] max-w-xs rounded-md bg-neutral-800 text-gray-200 text-xs px-4 py-3 text-center whitespace-normal z-50 shadow-lg"
-                                    >
+                                    <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 w-[220px] max-w-xs rounded-md bg-neutral-800 text-gray-200 text-xs px-4 py-3 text-center whitespace-normal z-50 shadow-lg">
                                         <div>{description}</div>
                                         {option.aka?.length > 0 && (
                                             <div className="mt-2 pt-2 border-t border-neutral-700 text-gray-400">
