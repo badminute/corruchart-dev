@@ -62,19 +62,21 @@ export default function Page() {
   const visibleGroups = showAllGroups ? GROUPS : GROUPS.slice(0, INITIAL_VISIBLE_GROUPS);
 
   useEffect(() => {
-  const handler = (e: KeyboardEvent) => {
-    const isMac = navigator.platform.toUpperCase().includes("MAC");
-    const modifier = isMac ? e.metaKey : e.ctrlKey;
+      const handler = (e: KeyboardEvent) => {
+          const isMac = navigator.platform.toUpperCase().includes("MAC");
+          const modifier = isMac ? e.metaKey : e.ctrlKey;
 
-    if (modifier && e.key.toLowerCase() === "f") {
-      e.preventDefault(); // stop browser find
-      searchInputRef.current?.focus();
-      searchInputRef.current?.select(); // optional: select existing text
-    }
-  };
+          if (!modifier) return;
+          if (e.key.toLowerCase() !== "f") return;
 
-  window.addEventListener("keydown", handler);
-  return () => window.removeEventListener("keydown", handler);
+          e.preventDefault(); // stop browser find
+          e.stopPropagation(); // extra safety
+          searchInputRef.current?.focus();
+          searchInputRef.current?.select();
+      };
+
+      document.addEventListener("keydown", handler);
+      return () => document.removeEventListener("keydown", handler);
 }, []);
 
   /** Normalize OPTIONS tags */
@@ -373,7 +375,7 @@ export default function Page() {
 
           <button
             onClick={resetAll}
-            className="px-4 py-2 rounded bg-neutral-900 text-neutral-200 hover:bg-red-900/90 hover:text-neutral-300 cursor-pointer"
+            className="px-4 py-2 rounded bg-neutral-900 text-neutral-200 hover:bg-red-600/30 hover:text-neutral-300 cursor-pointer"
           >
             Reset All
           </button>
@@ -413,6 +415,7 @@ export default function Page() {
                 </span>
 
                 <svg
+                  className="cursor-pointer"
                   width="20"
                   height="20"
                   viewBox="0 0 24 24"
@@ -451,7 +454,7 @@ export default function Page() {
 
           <Link
             href="/roles"
-            className="px-4 py-2 rounded bg-neutral-900 text-neutral-200 hover:bg-violet-900/90 hover:text-neutral-300 cursor-pointer"
+            className="px-4 py-2 rounded bg-neutral-900 text-neutral-200 hover:bg-violet-600/30 hover:text-neutral-300 cursor-pointer"
           >
             Next
           </Link>
@@ -542,14 +545,10 @@ export default function Page() {
               options={options}
               activePluses={activePluses}
               activeVariant={activeVariant}
-              isHolding={isHolding}
               openDescription={openDescription}
               setOpenDescription={setOpenDescription}
               setActiveVariant={setActiveVariant}
               cycleColor={cycleColor}
-              holdTimerRef={holdTimerRef}
-              didLongPressRef={didLongPressRef}
-              setIsHolding={setIsHolding}
           />
     </main>
   );

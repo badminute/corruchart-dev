@@ -271,3 +271,7 @@ body {
   transform: scale(1) !important;
   opacity: 1 !important;
 }
+
+.holding .holding\:scale-x-100 {
+    transform: scaleX(1);
+}

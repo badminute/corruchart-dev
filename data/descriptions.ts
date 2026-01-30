@@ -924,7 +924,7 @@ export const DESCRIPTIONS: Record<string, string> = {
     "vibrators": "Electronic vibrating toys for massaging and stimulating pleasure.",
     "virgin-humiliation": "Humiliation around the topic of one's virginity.",
     "virtual-reality": "Sexual activities or media taking place in virtual reality.",
-    "vomit": "Arousal from puking,and being puked on.,and sometimes smegma.",
+    "vomit": "Puke, puking and/or being puked on.",
     "voyeurism": "Arousal from watching others undress, naked, or engaging in sexual activities.",
     "vtubers": "Arousal and attraction towards VTubers, lewd actions, and depictions of them.",
     "wardrobe-malfunction": "Arousal from or seeing an accidental exposure of intimate clothing or body parts due to clothing failure, often in public or high-profile situations.",

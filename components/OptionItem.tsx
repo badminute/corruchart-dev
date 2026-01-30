@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { memo, useRef } from "react";
 
 type Props = {
     slot: any;
@@ -10,19 +10,15 @@ type Props = {
     options: any[];
     activePluses: any[];
     activeVariant: Record<string, number>;
-    isHolding: string | null;
     description?: string;
     openDescription: string | null;
     setOpenDescription: (id: string | null) => void;
     setActiveVariant: React.Dispatch<React.SetStateAction<Record<string, number>>>;
     cycleColor: (index: number) => void;
     getPlusImage: (option: any, state: number) => string;
-    holdTimerRef: React.MutableRefObject<any>;
-    didLongPressRef: React.MutableRefObject<boolean>;
-    setIsHolding: (id: string | null) => void;
 };
 
-export default function OptionItem({
+function OptionItem({
     slot,
     option,
     index,
@@ -30,23 +26,18 @@ export default function OptionItem({
     options,
     activePluses,
     activeVariant,
-    isHolding,
     description,
     openDescription,
     setOpenDescription,
     setActiveVariant,
     cycleColor,
     getPlusImage,
-    holdTimerRef,
-    didLongPressRef,
-    setIsHolding,
 }: Props) {
-    const [flash, setFlash] = useState(false);
+    const labelRef = useRef<HTMLButtonElement | null>(null);
 
-    const triggerFlash = () => {
-        setFlash(true);
-        setTimeout(() => setFlash(false), 150);
-    };
+    // ✅ LOCAL (per-item) animation refs
+    const holdTimerRef = useRef<NodeJS.Timeout | null>(null);
+    const didLongPressRef = useRef(false);
 
     return (
         <div className="relative">
@@ -79,7 +70,6 @@ export default function OptionItem({
                         {slot.options.length > 1 && (
                             <span
                                 className="absolute -top-1 -left-1 text-[12px] text-gray-400 cursor-pointer select-none z-10"
-                                title="Swap variants"
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     setActiveVariant(prev => ({
@@ -97,83 +87,82 @@ export default function OptionItem({
 
                 {/* LABEL */}
                 <button
+                    ref={labelRef}
+                    id={`label-${slot.slotId}`}
                     onPointerDown={() => {
                         if (slot.options.length <= 1) return;
 
                         didLongPressRef.current = false;
-                        setIsHolding(slot.slotId);
+                        labelRef.current?.classList.add("holding");
 
                         holdTimerRef.current = setTimeout(() => {
                             didLongPressRef.current = true;
-                            setIsHolding(null);
+                            labelRef.current?.classList.remove("holding");
 
                             setActiveVariant(prev => ({
                                 ...prev,
-                                [slot.slotId]: ((prev[slot.slotId] ?? 0) + 1) % slot.options.length,
+                                [slot.slotId]:
+                                    ((prev[slot.slotId] ?? 0) + 1) % slot.options.length,
                             }));
                         }, 400);
                     }}
                     onPointerUp={() => {
-                        clearTimeout(holdTimerRef.current);
-                        setIsHolding(null);
+                        clearTimeout(holdTimerRef.current!);
+                        labelRef.current?.classList.remove("holding");
                     }}
                     onPointerLeave={() => {
-                        clearTimeout(holdTimerRef.current);
-                        setIsHolding(null);
+                        clearTimeout(holdTimerRef.current!);
+                        labelRef.current?.classList.remove("holding");
                     }}
                     onClick={() => {
                         if (didLongPressRef.current) return;
 
-                        // Show tooltip
                         if (description) {
                             setOpenDescription(openDescription === option.id ? null : option.id);
                         }
-
-                        // Trigger flash using a temporary DOM element
-                        const btn = document.getElementById(`label-${slot.slotId}`);
-                        if (!btn) return;
 
                         const flashEl = document.createElement("span");
                         flashEl.className =
                             "absolute inset-0 bg-violet-400/30 rounded pointer-events-none animate-flash z-20";
 
-                        btn.appendChild(flashEl);
-
-                        setTimeout(() => {
-                            flashEl.remove();
-                        }, 200); // Slightly longer than animation
+                        labelRef.current?.appendChild(flashEl);
+                        setTimeout(() => flashEl.remove(), 200);
                     }}
-                    id={`label-${slot.slotId}`}
                     className={`
-                        relative
-                        text-left
-                        text-lg px-2 py-1
-                        rounded
-                        cursor-pointer select-none
-                        transition-all duration-100
-                        ${isHolding === slot.slotId
-                            ? "bg-violet-400/20 scale-[0.97] shadow-inner"
-                            : "hover:bg-violet-400/10"}
-  `}
+                        group
+                        relative text-left text-lg px-2 py-1 rounded
+                        cursor-pointer select-none transition-all duration-100
+                        hover:bg-violet-400/10
+                        ${option.category === 5 ? "text-purple-300/60" : ""}
+                        ${option.category === 6 ? "text-indigo-300/60" : ""}
+                    `}
                 >
                     {option.label}
 
                     {/* LONG PRESS WIPE */}
                     <span
-                        className={`absolute inset-0 bg-violet-400/20 origin-left scale-x-0 transition-transform duration-[400ms]
-      ${isHolding === slot.slotId ? "scale-x-100" : ""}
-    `}
+                        className="
+                        absolute inset-0
+                        bg-violet-400/20
+                        origin-left
+                        scale-x-0
+                        duration-[400ms] ease-in
+                        delay-[150ms]        /* <-- start delay */
+                        pointer-events-none
+                        group-[.holding]:scale-x-100
+                    "
                     />
-                </button>
 
+                </button>
             </div>
 
             {/* DESCRIPTION */}
             {openDescription === option.id && description && (
-                <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 z-50 pointer-events-none">
-                    <div className="max-w-xs bg-neutral-800 text-gray-200 px-4 py-3 rounded border border-gray-500 text-center animate-pop-in pointer-events-auto"
-                    style={{ boxShadow: '0 3px 0px rgba(0,0,0,0.9)' }}
-                >
+                <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 z-50">
+                    <div
+                        className="max-w-xs bg-neutral-800 text-gray-200 px-4 py-3 rounded border border-gray-500 text-center animate-pop-in"
+                        style={{ boxShadow: "0 3px 0 rgba(0,0,0,0.9)" }}
+                    >
                         {description}
                     </div>
                 </div>
@@ -181,3 +170,17 @@ export default function OptionItem({
         </div>
     );
 }
+
+/* 🔒 MEMO COMPARATOR (unchanged, still valid) */
+function areEqual(prev: Props, next: Props) {
+    return (
+        prev.option.id === next.option.id &&
+        prev.index === next.index &&
+        prev.state === next.state &&
+        prev.openDescription === next.openDescription &&
+        prev.activePluses === next.activePluses &&
+        prev.activeVariant === next.activeVariant
+    );
+}
+
+export default memo(OptionItem, areEqual);
