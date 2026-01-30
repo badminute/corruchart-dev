@@ -18,6 +18,42 @@ const MAX_FAVORITES = 25;
 const FAVORITES_KEY = "corruchart-favorites";
 const HIDDEN_TAGS = new Set<string>(["upper-body", "dynamics", "qualities", "acts", "lower-body", "misc", "roles-themes"]);
 
+const LABEL_GRADIENTS: Record<string, string> = {
+    "man-transgender": "linear-gradient(90deg, #5BCEFA, #F5A9B8, #FFFFFF, #F5A9B8, #5BCEFA)",
+    "woman-transgender": "linear-gradient(90deg, #5BCEFA, #F5A9B8, #FFFFFF, #F5A9B8, #5BCEFA)",
+    "non-binary-transgender": "linear-gradient(90deg, #FFF430 0% 33%, #FFFFFF 33% 66%, #9C59D1 66% 99%)",
+    "gay": "linear-gradient(90deg, #2db99b 0% 33%, #d3d3d3 33% 66%, #6491c1 66% 99%)",
+    "lesbian": "linear-gradient(90deg, #D62E00 0% 33%, #FF9A56 33% 66%, #D462A6 66% 99%)",
+    "asexual": "linear-gradient(90deg, #646464 0% 33%, #A4A4A4 33% 66%, #810081 66% 99%)",
+    "aromantic": "linear-gradient(90deg, #3DA63D 0% 33%, #B5E2B5 33% 66%, #646464 66% 99%)",
+    "bisexual": "linear-gradient(90deg, #D60270 0% 33%, #9B4F96 33% 66%, #0038A8 66% 99%)",
+    "pansexual": "linear-gradient(90deg, #FF218C 0% 33%, #FFD800 33% 66%, #21B1FF 66% 99%)",
+    "queen-of-spades": "linear-gradient(90deg, #c2c2c2",
+    "demisexual": "linear-gradient(90deg, #c2c2c2, #8f078f",
+    "queen-of-hearts": "linear-gradient(90deg, #fa3e3e",
+    "sadomasochist": "linear-gradient(90deg, #3399ff 0% 33%, #fcac34 33% 100%)",
+    "pony": "linear-gradient(90deg, #FF3B3B , #FFE066 , #4D96FF )",
+    "pet-owner": "linear-gradient(90deg, #ba955d 0% 33%, #55a4f4 33% 100%)",
+};
+
+
+const SYMBOL_GRADIENTS: Record<string, string> = {
+        "man-transgender": "linear-gradient(90deg, #5BCEFA 0% 33%, #F5A9B8 33% 66%, #5BCEFA 66% 99%)",
+        "woman-transgender": "linear-gradient(90deg, #5BCEFA 0% 33%, #F5A9B8 33% 66%, #5BCEFA 66% 99%)",
+        "non-binary-transgender": "linear-gradient(180deg, #d5d038 50%, #9C59D1 50%)",
+        "non-binary": "linear-gradient(90deg, #FFF430 0% 33%, #FFFFFF 33% 66%, #9C59D1 66% 99%)",
+        "lesbian": "linear-gradient(90deg, #D62E00 0% 33%, #FF9A56 33% 66%, #D462A6 66% 99%)",
+        "gay": "linear-gradient(90deg, #2db99b 0% 33%, #d3d3d3 33% 66%, #6491c1 66% 99%)",
+        "asexual": "linear-gradient(90deg, #8b8b8b 0% 33%, #bfbfbf 33% 66%, #8f078f 66% 99%)",
+        "aromantic": "linear-gradient(90deg, #3DA63D 0% 33%, #B5E2B5 33% 66%, #646464 66% 99%)",
+        "bisexual": "linear-gradient(90deg, #D60270 0% 33%, #9B4F96 33% 66%, #0038A8 66% 99%)",
+        "pansexual": "linear-gradient(90deg, #FF218C 0% 33%, #FFD800 33% 66%, #21B1FF 66% 99%)",
+        "demisexual": "linear-gradient(90deg, #c2c2c2, #8f078f",
+        "queen-of-spades": "linear-gradient(90deg, #c2c2c2",
+        "queen-of-hearts": "linear-gradient(90deg, #fa3e3e",
+};
+
+
 export default function ResultsPage() {
   // ----------------------------
   // STATE
@@ -500,7 +536,7 @@ export default function ResultsPage() {
                 textShadow: "0px 1px 0px rgba(0,0,0,0.6)",
               }}
             >
-              v0.23.0
+              v0.24.0
             </span>
           </div>
 
@@ -684,22 +720,71 @@ export default function ResultsPage() {
                         key={role.id}
                         className="flex items-center gap-1 text-sm bg-neutral-800 px-2 py-1 rounded shadow-sm break-inside-avoid whitespace-nowrap"
                       >
-                        <span
-                          className="flex-shrink-0 w-6 text-center font-bold"
-                          style={{
-                            color: ROLE_SYMBOLS[role.id]?.color ?? "#fff",
-                            fontSize: "18px",
-                          }}
-                        >
-                          {ROLE_SYMBOLS[role.id]?.symbol ?? "★"}
-                        </span>
+                            <span
+                                className="flex-shrink-0 w-6 text-center font-bold"
+                                style={{
+                                    fontSize: "18px",
 
-                        <span
-                          className="flex-shrink-0 text-sm leading-tight"
-                          style={{ color: ROLE_SYMBOLS[role.id]?.color ?? "#e5e7eb" }}
-                        >
-                          {role.label}
-                        </span>
+                                    /* 🔑 decide whether to use gradient or plain color */
+                                    ...(["🐕‍🦺", "🎭", "🪅"].includes(ROLE_SYMBOLS[role.id]?.symbol ?? "")
+                                        ? {
+                                            /* skip gradient, use symbol color */
+                                            color: ROLE_SYMBOLS[role.id]?.color ?? "#e5e7eb",
+                                            WebkitTextFillColor: undefined,
+                                            WebkitBackgroundClip: undefined,
+                                            background: undefined,
+                                        }
+                                        : SYMBOL_GRADIENTS[role.id]
+                                            ? {
+                                                /* use gradient if defined */
+                                                background: SYMBOL_GRADIENTS[role.id],
+                                                WebkitBackgroundClip: "text",
+                                                WebkitTextFillColor: "transparent",
+                                                color: undefined,
+                                            }
+                                            : {
+                                                /* fallback: gradient missing, use role color */
+                                                color: ROLE_SYMBOLS[role.id]?.color ?? "#e5e7eb",
+                                                WebkitTextFillColor: undefined,
+                                                WebkitBackgroundClip: undefined,
+                                                background: undefined,
+                                            }
+                                    ),
+
+                                    /* 🔑 force glyph repaint */
+                                    display: "inline-block",
+                                    backgroundColor: "transparent",
+                                    lineHeight: "1.25em",
+                                    paddingBottom: "0.1em",
+                                }}
+                            >
+                                {ROLE_SYMBOLS[role.id]?.symbol ?? "★"}
+                            </span>
+
+
+
+
+
+                            <span
+                                className="flex-shrink-0 text-sm leading-tight"
+                                style={{
+                                    background: LABEL_GRADIENTS[role.id] ?? undefined,
+                                    WebkitBackgroundClip: LABEL_GRADIENTS[role.id] ? "text" : undefined,
+                                    WebkitTextFillColor: LABEL_GRADIENTS[role.id] ? "transparent" : undefined,
+
+                                    color: LABEL_GRADIENTS[role.id]
+                                        ? undefined
+                                        : ROLE_SYMBOLS[role.id]?.color ?? "#e5e7eb",
+
+                                    /* 🔑 match roles page */
+                                    display: "inline-block",
+                                    backgroundColor: "transparent",
+                                    whiteSpace: "nowrap",
+                                }}
+                            >
+
+                                {role.label}
+                            </span>
                       </div>
                     ))}
                   </div>

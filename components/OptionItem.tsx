@@ -39,6 +39,24 @@ function OptionItem({
     const holdTimerRef = useRef<NodeJS.Timeout | null>(null);
     const didLongPressRef = useRef(false);
 
+    const customColor: Record<string, string> = {
+        "fire-pyrolagnia": "#f87171", // red
+        "optionB": "#34d399",         // green
+    };
+
+    const customGradients: Record<string, string> = {
+        "transgender-admiration": "linear-gradient(90deg, #5BCEFA, #F5A9B8, #FFFFFF, #F5A9B8, #5BCEFA)", // red → orange
+        "optionB": "linear-gradient(90deg, #34d399, #3b82f6)", // green → blue
+    };
+
+    // Pick gradient or fallback color
+    const gradient = customGradients[option.id];
+    const solid = customColor[option.id] ?? (
+        option.category === 5 ? "#a56ddd" :
+            option.category === 6 ? "#6770c2" :
+                "#9F86D8"
+    );
+
     return (
         <div className="relative">
             <div className="flex items-center gap-2 p-2 rounded w-full h-full">
@@ -89,6 +107,15 @@ function OptionItem({
                 <button
                     ref={labelRef}
                     id={`label-${slot.slotId}`}
+                    style={
+                        gradient
+                            ? {
+                                background: gradient,
+                                WebkitBackgroundClip: "text",
+                                WebkitTextFillColor: "transparent",
+                            }
+                            : { color: solid }
+                    }
                     onPointerDown={() => {
                         if (slot.options.length <= 1) return;
 
