@@ -18,7 +18,8 @@ export const ROLE_SYMBOLS: Record<string, { symbol: string; color?: string }> = 
     "slave": { symbol: "⛓️", color: "#ff3300" },  // Slave
     "master": { symbol: "🔑", color: "#ffd700" },  // Master
     "pig": { symbol: "🐷", color: "#FF8687" },  // Pig
-    "daddy-mommy": { symbol: "🌬", color: "#cc4d2d" },  // Daddy/Mommy
+    "mommy": { symbol: "👩‍🍼", color: "#cc4d2d" },  // Mommy
+    "daddy": { symbol: "👨‍🍼", color: "#cc4d2d" },  // Daddy
     "little": { symbol: "🌸", color: "#f290e3" },  // Little
     "rope-bunny": { symbol: "🧶", color: "#5993f0" },   // Rope Bunny
     "rope-top": { symbol: "🪢", color: "#3381ff" },   // Rope Top
@@ -76,10 +77,11 @@ export const ROLE_SYMBOLS: Record<string, { symbol: string; color?: string }> = 
     "stag": { symbol: "🦌", color: "#ffb866" },   // Stag
     "vixen": { symbol: "💄", color: "#f67bcf" },   // Vixen
     "queen-of-spades": { symbol: "♠️", color: "#c2c2c2" },   // Queen of Spades
-    "queen-of-hearts": { symbol: "♠️", color: "#fa3e3e" },   // Queen of Hearts
+    "queen-of-hearts": { symbol: "❤️", color: "#fa3e3e" },   // Queen of Hearts
     "snowbunny": { symbol: "❄", color: "#f8f8f8" },   // Snowbunny
     "clown": { symbol: "🤡", color: "#ff4242" },   // Clown
     "furry": { symbol: "🦊", color: "#fb8740" },   // Furry
+    "scalie": { symbol: "🐊", color: "#fb8740" },   // Scalie
     "gooner": { symbol: "🫠", color: "#f9d970" },   // Gooner
     "goonette": { symbol: "🫠", color: "#f9d970" },   // Goonette
     "toilet": { symbol: "🚽", color: "#bbbbbb" },   // Toilet

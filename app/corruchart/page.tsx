@@ -56,10 +56,17 @@ const STATE_TO_VALUE = [
 export default function Page() {
   const searchInputRef = useRef<HTMLInputElement>(null);
 
-  // Progressive group filter state
-  const [showAllGroups, setShowAllGroups] = useState(false);
-  const INITIAL_VISIBLE_GROUPS = 6;
-  const visibleGroups = showAllGroups ? GROUPS : GROUPS.slice(0, INITIAL_VISIBLE_GROUPS);
+
+    const broadGroups = useMemo(
+    () => GROUPS.filter(g => g.scope === "broad"),
+    []
+    );
+
+    const narrowGroups = useMemo(
+    () => GROUPS.filter(g => g.scope === "narrow"),
+    []
+    );
+
 
   useEffect(() => {
       const handler = (e: KeyboardEvent) => {
@@ -116,7 +123,7 @@ export default function Page() {
         }));
     }, [options]);
 
-
+    const [showNarrowGroups, setShowNarrowGroups] = useState(false);
     const [isHolding, setIsHolding] = useState<string | null>(null);
     const holdTimerRef = useRef<NodeJS.Timeout | null>(null);
     const didLongPressRef = useRef(false);
@@ -128,7 +135,7 @@ export default function Page() {
     const [openDescription, setOpenDescription] = useState<string | null>(null);
     const [activeVariant, setActiveVariant] = useState<Record<string, number>>({});
     type ActivePlus = { index: number; id: string; state: number }; // ✅ must include state
-  const [activePluses, setActivePluses] = useState<ActivePlus[]>([]);
+    const [activePluses, setActivePluses] = useState<ActivePlus[]>([]);
     const optionIndexById = useMemo(() => {
         const map: Record<string, number> = {};
         options.forEach((opt, i) => {
@@ -291,6 +298,22 @@ export default function Page() {
     });
   };
 
+useEffect(() => {
+  const missing = options.filter(
+    opt => !DESCRIPTIONS[opt.id]
+  );
+
+  if (missing.length) {
+    console.group("❌ Options missing descriptions");
+    missing.forEach(opt => {
+      console.log(opt.id, opt.label);
+    });
+    console.groupEnd();
+  } else {
+    console.log("✅ All options have descriptions");
+  }
+}, [options]);
+
   const toggleGroup = (groupId: string) => {
     setGroupStates((prev) => {
       const next = { ...prev };
@@ -311,51 +334,83 @@ export default function Page() {
   };
 
   /** Filtered options */
-    const filtered = useMemo(() => {
-        const q = query.trim().toLowerCase();
+        const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    const hasActiveFilters =
+        q ||
+        colorFilter.size > 0 ||
+        Object.keys(groupStates).length > 0 ||
+        !showCategory6;
 
-        return slots
-            .map((slot) => {
-                const variantIndex = activeVariant[slot.slotId] ?? 0;
-                const option = slot.options[variantIndex % slot.options.length];
-                const index = optionIndexById[option.id];
+    return slots.flatMap((slot) => {
+        // Step 1: find ALL variants in this slot that match filters
+        const matchingVariants = slot.options.filter((option) => {
+        const index = optionIndexById[option.id];
 
-                return { slot, option, index };
-            })
-            .filter(({ option, index }) => {
-                const matchesText =
-                    !q ||
-                    option.label.toLowerCase().includes(q) ||
-                    option.aka.some((a) => a.includes(q));
+        const matchesText =
+            !q ||
+            option.label.toLowerCase().includes(q) ||
+            option.aka.some((a) => a.includes(q));
 
-                const matchesColor =
-                    colorFilter.size === 0 ||
-                    colorFilter.has(states[index] % COLOR_HEX.length);
+        const matchesColor =
+            colorFilter.size === 0 ||
+            colorFilter.has(states[index] % COLOR_HEX.length);
 
-                const matchesGroup =
-                    (!Object.values(groupStates).includes("include") ||
-                        option.tags.some((cat) => groupStates[cat] === "include")) &&
-                    !option.tags.some((cat) => groupStates[cat] === "exclude");
+        const matchesGroup =
+            (!Object.values(groupStates).includes("include") ||
+            option.tags.some((cat) => groupStates[cat] === "include")) &&
+            !option.tags.some((cat) => groupStates[cat] === "exclude");
 
-                const matchesCategory6 =
-                    showCategory6 || option.category !== 6;
+        const matchesCategory6 =
+            showCategory6 || option.category !== 6;
 
-                return (
-                    matchesText &&
-                    matchesColor &&
-                    matchesGroup &&
-                    matchesCategory6
-                );
-            });
+        return (
+            matchesText &&
+            matchesColor &&
+            matchesGroup &&
+            matchesCategory6
+        );
+        });
+
+        // Step 2: if filters are active and nothing matched, hide slot
+        if (hasActiveFilters && matchingVariants.length === 0) {
+        return [];
+        }
+
+        // Step 3: decide which variant to show
+        let optionToShow: OptionWithCategory;
+
+        if (matchingVariants.length > 0) {
+        // Prefer the currently active variant if it matches
+        const activeIndex = activeVariant[slot.slotId] ?? 0;
+        const active = slot.options[activeIndex % slot.options.length];
+
+        optionToShow = matchingVariants.includes(active)
+            ? active
+            : matchingVariants[0];
+        } else {
+        // No filters → normal behavior
+        const activeIndex = activeVariant[slot.slotId] ?? 0;
+        optionToShow = slot.options[activeIndex % slot.options.length];
+        }
+
+        return [
+        {
+            slot,
+            option: optionToShow,
+            index: optionIndexById[optionToShow.id],
+        },
+        ];
+    });
     }, [
-        slots,
-        activeVariant,
-        optionIndexById,
-        query,
-        states,
-        colorFilter,
-        groupStates,
-        showCategory6,
+    slots,
+    activeVariant,
+    optionIndexById,
+    query,
+    states,
+    colorFilter,
+    groupStates,
+    showCategory6,
     ]);
 
   if (!states.length) return null;
@@ -464,51 +519,73 @@ export default function Page() {
           </span>
         </div>
 
-        {/* Group (category) filter */}
-        <div className="flex items-center gap-1 py-1 flex-wrap">
-          <span className="text-gray-400 mr-2 flex-shrink-0">Filter by Group:</span>
+        {/* Broad group filter */}
+        <div className="flex items-center gap-1 py-0 flex-wrap">
+        <span className="text-gray-400 mr-2">Broad Tags:</span>
 
-          {/* "All" button */}
-          <button
-            onClick={() => setGroupStates({})}
-            className={`flex-shrink-0 px-3 py-1 cursor-pointer rounded font-medium transition ${Object.keys(groupStates).length === 0
-                ? "bg-neutral-700 text-gray-100"
-                : "bg-neutral-900 text-gray-400 hover:bg-neutral-800"
-              }`}
-          >
-            All
-          </button>
+  {broadGroups.map(group => {
+    const state = groupStates[group.id];
 
-          {/* Visible group buttons */}
-          {visibleGroups.map((group) => {
+    return (
+      <button
+        key={group.id}
+        onClick={() => toggleGroup(group.id)}
+        className={`px-3 py-1 rounded font-medium transition cursor-pointer ${
+          state === "include"
+            ? "bg-green-700 text-green-100"
+            : state === "exclude"
+            ? "bg-red-700 text-red-100 line-through"
+            : "bg-neutral-900 text-gray-400 hover:bg-neutral-800"
+        }`}
+      >
+        {group.name}
+      </button>
+    );
+  })}
+
+  {/* Show / Hide Narrow Tags button */}
+  <button
+    onClick={() => setShowNarrowGroups(v => !v)}
+    className="
+      ml-2
+      px-3 py-1
+      rounded
+      bg-neutral-800
+      text-gray-300
+      hover:bg-neutral-700
+      transition
+      cursor-pointer
+      whitespace-nowrap
+    "
+  >
+    {showNarrowGroups ? "Hide Narrow Tags" : "Show Narrow Tags"}
+  </button>
+</div>
+
+        {showNarrowGroups && (
+        <div className="flex items-center gap-1 py-0 flex-wrap">
+
+            {narrowGroups.map(group => {
             const state = groupStates[group.id];
 
             return (
-              <button
+                <button
                 key={group.id}
                 onClick={() => toggleGroup(group.id)}
-                className={`flex-shrink-0 px-3 py-1 rounded whitespace-nowrap font-medium transition cursor-pointer ${state === "include"
+                className={`px-3 py-1 rounded font-medium transition cursor-pointer ${
+                    state === "include"
                     ? "bg-green-700 text-green-100"
                     : state === "exclude"
-                      ? "bg-red-700 text-red-100 line-through"
-                      : "bg-neutral-900 text-gray-400 hover:bg-neutral-800"
-                  }`}
-              >
+                    ? "bg-red-700 text-red-100 line-through"
+                    : "bg-neutral-900 text-gray-400 hover:bg-neutral-800"
+                }`}
+                >
                 {group.name}
-              </button>
+                </button>
             );
-          })}
-
-          {/* Show More / Show Less button */}
-          {GROUPS.length > INITIAL_VISIBLE_GROUPS && (
-            <button
-              onClick={() => setShowAllGroups((prev) => !prev)}
-              className="flex-shrink-0 px-3 py-1 rounded bg-neutral-800 text-gray-300 hover:bg-neutral-700 transition cursor-pointer"
-            >
-              {showAllGroups ? "Show Less" : "Show More"}
-            </button>
-          )}
+            })}
         </div>
+        )}
 
         {/* Color filter */}
         <div className="flex items-center gap-1 flex-wrap">

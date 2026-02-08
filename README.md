@@ -3,7 +3,7 @@
 Corruchart is a robust, fun, and interactive chart made for sexual beings of all kinds to discover, fill in, and share with others! Humans have long had a very large diversity of identities, sexual interests, preferences, and paraphilias. This chart intends to cover the plethora of everything under that umbrella and intends to evolve and expand with the suggestions of others.
 
 <p align="center">
-    <img src="corrucloud.png" width="500" height="500">
+    <img src="public/corruchart-dev/corrucloud.png" width="500" height="500">
 </p>
 
 ## Explanation and How to Use

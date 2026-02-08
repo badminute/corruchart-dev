@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import Link from "next/link";
 import html2canvas from "html2canvas-pro";
 import type { CategoryId } from "@/data/scoring";
@@ -11,12 +11,17 @@ import { ROLES } from "@/data/roles";
 import { computeScore, THRESHOLDS } from "@/data/scoring";
 import { ROLE_SYMBOLS,  } from "@/data/roleSymbols";
 import TagAffinityDrilldown from "@/components/tags/TagAffinityDrilldown";
+import { narrowTagsCheck } from "@/lib/utils";
+import { NARROW_TAGS } from "@/data/narrowTags";
 
+const broadOnlyIds = narrowTagsCheck(OPTIONS, NARROW_TAGS);
 const METER_MAX_POINTS = 3000;
 const PAGE_BACKGROUND_COLOR = "#1F2023";
 const MAX_FAVORITES = 25;
 const FAVORITES_KEY = "corruchart-favorites";
-const HIDDEN_TAGS = new Set<string>(["upper-body", "dynamics", "qualities", "acts", "lower-body", "misc", "roles-themes"]);
+const HIDDEN_TAGS = new Set<string>(["upper-body", "dynamics", "qualities", "acts", "lower-body", "themes", "dynamics"]);
+
+console.log("Broad-only option IDs:", broadOnlyIds);
 
 const LABEL_GRADIENTS: Record<string, string> = {
     "man-transgender": "linear-gradient(90deg, #5BCEFA, #F5A9B8, #FFFFFF, #F5A9B8, #5BCEFA)",
@@ -28,9 +33,9 @@ const LABEL_GRADIENTS: Record<string, string> = {
     "aromantic": "linear-gradient(90deg, #3DA63D 0% 33%, #B5E2B5 33% 66%, #646464 66% 99%)",
     "bisexual": "linear-gradient(90deg, #D60270 0% 33%, #9B4F96 33% 66%, #0038A8 66% 99%)",
     "pansexual": "linear-gradient(90deg, #FF218C 0% 33%, #FFD800 33% 66%, #21B1FF 66% 99%)",
-    "queen-of-spades": "linear-gradient(90deg, #c2c2c2",
-    "demisexual": "linear-gradient(90deg, #c2c2c2, #8f078f",
-    "queen-of-hearts": "linear-gradient(90deg, #fa3e3e",
+    "queen-of-spades": "linear-gradient(90deg, #c2c2c2, #c2c2c2)",
+    "demisexual": "linear-gradient(90deg, #c2c2c2, #8f078f)",
+    "queen-of-hearts": "linear-gradient(90deg, #fa3e3e, #fa3e3e)",
     "sadomasochist": "linear-gradient(90deg, #3399ff 0% 33%, #fcac34 33% 100%)",
     "pony": "linear-gradient(90deg, #FF3B3B , #FFE066 , #4D96FF )",
     "pet-owner": "linear-gradient(90deg, #ba955d 0% 33%, #55a4f4 33% 100%)",
@@ -65,8 +70,22 @@ export default function ResultsPage() {
   const [openTag, setOpenTag] = useState<string | null>(null);
   const [favorites, setFavorites] = useState<string[]>([]);
   const [openTagInfo, setOpenTagInfo] = useState<{ tag: string; type: "positive" | "negative" } | null>(null);
+const warnedOptionsRef = useRef<Set<string>>(new Set());
   const [openDescription, setOpenDescription] = useState<string | null>(null);
-  const clipId = useMemo(() => `wiggle-${Math.random().toString(36).slice(2)}`, []);
+  const clipIdRef = useRef(`wiggle-${Math.random().toString(36).slice(2)}`);
+const [clipId, setClipId] = useState<string | null>(null);
+
+useEffect(() => {
+  setClipId(`wiggle-${Math.random().toString(36).slice(2)}`);
+}, []);
+const [renderedAt, setRenderedAt] = useState<string>("");
+
+useEffect(() => {
+  setRenderedAt(new Date().toLocaleString());
+}, []);
+
+
+
 
   const ROLE_SECTION_SYMBOLS: Record<
     string,
@@ -142,9 +161,6 @@ export default function ResultsPage() {
     "lust",
   ];
 
-  const METER_MAX_POINTS = 3000;
-  const PAGE_BACKGROUND_COLOR = "#1F2023";
-
   // === Tags you want to hide from results ===
   const HIDDEN_TAGS = new Set<string>([
     "upper-body",
@@ -190,10 +206,7 @@ export default function ResultsPage() {
     return { key: highest.key, message: CORRUPTION_MESSAGES[highest.key] ?? highest.description };
   }
   
-  
-  
-
-  const allTags = [...positiveTags, ...negativeTags]; // or however you combine them
+  const allTags = [...positiveTags, ...negativeTags];
 
   // filter out the hidden tags
   const visibleTags = allTags.filter(tag => !HIDDEN_TAGS.has(tag.tag));
@@ -484,6 +497,47 @@ export default function ResultsPage() {
     return Array.from(new Map(combined.map(t => [t.tag, t])).values());
   }, [visiblePositiveTags, visibleNegativeTags]);
 
+   // ----------------------------
+// DEV CHECK: positive options whose tags never appear in Tag Affinities
+// ----------------------------
+useEffect(() => {
+  if (process.env.NODE_ENV !== "development") return;
+
+  // Tags that actually made it into the Tag Affinities section
+  const visibleTagSet = new Set(
+    allVisibleTags.map(t => t.tag)
+  );
+
+  // Positively reacted options
+  const positiveOptions = selections.filter(sel => {
+    const idx = COLOR_NAMES.indexOf(sel.value);
+    return idx >= 3; // like / love / lust
+  });
+
+  positiveOptions.forEach(sel => {
+    const option = OPTIONS.find(o => o.id === sel.id);
+    if (!option) return;
+
+    const optionTags = option.tags ?? [];
+
+    const hasVisibleTag = optionTags.some(tag =>
+      visibleTagSet.has(tag)
+    );
+
+    if (!hasVisibleTag && !warnedOptionsRef.current.has(option.id)) {
+  warnedOptionsRef.current.add(option.id);
+
+    console.warn(
+        "⚠️ Positive option contributes NO tags to Tag Affinities:",
+        option.id,
+        optionTags
+    );
+    }
+  });
+}, [selections, allVisibleTags]);
+
+
+
   // ----------------------------
   // RENDER
   // ----------------------------
@@ -536,17 +590,14 @@ export default function ResultsPage() {
                 textShadow: "0px 1px 0px rgba(0,0,0,0.6)",
               }}
             >
-              v0.24.0
+              v0.25.0
             </span>
           </div>
 
           {/* Current date/time */}
-          <p
-            className="text-neutral-400"
-            style={{ textShadow: "0px 2px 0px rgba(0,0,0,0.7)" }}
-          >
-            Taken at {new Date().toLocaleString()}
-          </p>
+            <p className="text-neutral-400" style={{ textShadow: "0px 2px 0px rgba(0,0,0,0.7)" }}>
+            {renderedAt && `Taken at ${renderedAt}`}
+            </p>
         </header>
 
         <section className="space-y-3">
@@ -577,56 +628,52 @@ export default function ResultsPage() {
                 className="h-4 rounded overflow-hidden relative"
                 style={{ backgroundColor: "#2c2e33" }}
               >
-                <div
-                  className="absolute left-0 top-0 h-full transition-[width] duration-1000 ease-out"
-                  style={{ width: `${fillPercent}%` }}
-                >
-                  <div
-                    className="absolute inset-0"
-                    style={{ backgroundColor: "#7752cd" }}
-                  />
-                  <svg
+                {clipId && (
+                <div className="absolute left-0 top-0 h-full transition-[width] duration-1000 ease-out" style={{ width: `${fillPercent}%` }}>
+                    <div className="absolute inset-0" style={{ backgroundColor: "#7752cd" }} />
+                    <svg
                     viewBox="0 0 100 16"
                     preserveAspectRatio="none"
                     className="w-full h-full relative z-10"
-                  >
+                    >
                     <defs>
-                      <clipPath id={clipId}>
+                        <clipPath id={clipIdRef.current}>
                         <path>
-                          <animate
+                            <animate
                             attributeName="d"
                             dur={`${speed}s`}
                             repeatCount="indefinite"
                             values={`
-                    M0,6
-                    Q10,${6 - amplitude} 20,6
-                    T40,6 T60,6 T80,6 T100,6
-                    V16 H0 Z;
+                                M0,6
+                                Q10,${6 - amplitude} 20,6
+                                T40,6 T60,6 T80,6 T100,6
+                                V16 H0 Z;
 
-                    M0,6
-                    Q10,${6 + amplitude} 20,6
-                    T40,6 T60,6 T80,6 T100,6
-                    V16 H0 Z;
+                                M0,6
+                                Q10,${6 + amplitude} 20,6
+                                T40,6 T60,6 T80,6 T100,6
+                                V16 H0 Z;
 
-                    M0,6
-                    Q10,${6 - amplitude} 20,6
-                    T40,6 T60,6 T80,6 T100,6
-                    V16 H0 Z
-                  `}
-                          />
+                                M0,6
+                                Q10,${6 - amplitude} 20,6
+                                T40,6 T60,6 T80,6 T100,6
+                                V16 H0 Z
+                            `}
+                            />
                         </path>
-                      </clipPath>
+                        </clipPath>
                     </defs>
                     <rect
-                      x="0"
-                      y="0"
-                      width="100"
-                      height="16"
-                      fill="#8b5cf6"
-                      clipPath={`url(#${clipId})`}
+                        x="0"
+                        y="0"
+                        width="100"
+                        height="16"
+                        fill="#8b5cf6"
+                        clipPath={`url(#${clipIdRef.current})`}
                     />
-                  </svg>
+                    </svg>
                 </div>
+                )}
               </div>
 
               {/* Threshold markers, visually above the meter */}

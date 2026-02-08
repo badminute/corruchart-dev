@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useRef } from "react";
+import { memo, useRef, useState, useLayoutEffect } from "react";
 
 type Props = {
     slot: any;
@@ -38,14 +38,46 @@ function OptionItem({
     // ✅ LOCAL (per-item) animation refs
     const holdTimerRef = useRef<NodeJS.Timeout | null>(null);
     const didLongPressRef = useRef(false);
+    const [tooltipPlacement, setTooltipPlacement] = useState<"top" | "bottom">("top");
+    const [tooltipOffsetX, setTooltipOffsetX] = useState(0);
+    const tooltipRef = useRef<HTMLDivElement | null>(null);
+
+    useLayoutEffect(() => {
+        if (openDescription !== option.id) return;
+        if (!tooltipRef.current) return;
+
+        // defer until next paint so Tailwind width/line wraps are applied
+        requestAnimationFrame(() => {
+            const rect = tooltipRef.current!.getBoundingClientRect();
+            const padding = 8;
+
+            // ---- Vertical clamp ----
+            if (rect.top < padding) {
+                setTooltipPlacement("bottom");
+            } else if (rect.bottom > window.innerHeight - padding) {
+                setTooltipPlacement("top");
+            }
+
+            // ---- Horizontal clamp ----
+            let offsetX = 0;
+            if (rect.left < padding) {
+                offsetX = padding - rect.left;
+            } else if (rect.right > window.innerWidth - padding) {
+                offsetX = (window.innerWidth - padding) - rect.right;
+            }
+
+            setTooltipOffsetX(offsetX);
+        });
+    }, [openDescription, option.id]);
+
 
     const customColor: Record<string, string> = {
-        "fire-pyrolagnia": "#f87171", // red
+        "scat": "#785023", // red
         "optionB": "#34d399",         // green
     };
 
     const customGradients: Record<string, string> = {
-        "transgender-admiration": "linear-gradient(90deg, #5BCEFA, #F5A9B8, #FFFFFF, #F5A9B8, #5BCEFA)", // red → orange
+        "trans-porn": "linear-gradient(90deg, #5BCEFA, #F5A9B8, #FFFFFF, #F5A9B8, #5BCEFA)", // red → orange
         "optionB": "linear-gradient(90deg, #34d399, #3b82f6)", // green → blue
     };
 
@@ -141,20 +173,28 @@ function OptionItem({
                         clearTimeout(holdTimerRef.current!);
                         labelRef.current?.classList.remove("holding");
                     }}
-                    onClick={() => {
-                        if (didLongPressRef.current) return;
+                onClick={() => {
+                    if (didLongPressRef.current) return;
 
-                        if (description) {
-                            setOpenDescription(openDescription === option.id ? null : option.id);
-                        }
+                    const isOpening = openDescription !== option.id;
 
-                        const flashEl = document.createElement("span");
-                        flashEl.className =
-                            "absolute inset-0 bg-violet-400/30 rounded pointer-events-none animate-flash z-20";
+                    if (!isOpening) {
+                        // Reset tooltip state when closing
+                        setTooltipPlacement("top");
+                        setTooltipOffsetX(0);
+                    }
 
-                        labelRef.current?.appendChild(flashEl);
-                        setTimeout(() => flashEl.remove(), 200);
-                    }}
+                    setOpenDescription(isOpening ? option.id : null);
+
+                    const flashEl = document.createElement("span");
+                    flashEl.className =
+                        "absolute inset-0 bg-violet-400/30 rounded pointer-events-none animate-flash z-20";
+
+                    labelRef.current?.appendChild(flashEl);
+                    setTimeout(() => flashEl.remove(), 200);
+                }}
+
+
                     className={`
                         group
                         relative text-left text-lg px-2 py-1 rounded
@@ -185,9 +225,35 @@ function OptionItem({
 
             {/* DESCRIPTION */}
             {openDescription === option.id && description && (
-                <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 z-50">
+                <div
+                    ref={tooltipRef}
+                    className={`
+                        absolute
+                        ${tooltipPlacement === "top"
+                            ? "bottom-full mb-2"
+                            : "top-full mt-2"}
+                        left-1/2 -translate-x-1/2
+                        z-50
+                    `}
+                    style={{
+                        transform: `translateX(calc(-50% + ${tooltipOffsetX}px))`,
+                    }}
+                >
+
                     <div
-                        className="max-w-xs bg-neutral-800 text-gray-200 px-4 py-3 rounded border border-gray-500 text-center animate-pop-in"
+                        className="
+                                w-max
+                                max-w-[90vw]
+                                sm:max-w-md
+                                md:max-w-lg
+                                bg-neutral-800
+                                text-gray-200
+                                px-4 py-3
+                                rounded
+                                border border-gray-500
+                                text-center
+                                animate-pop-in
+                            "
                         style={{ boxShadow: "0 3px 0 rgba(0,0,0,0.9)" }}
                     >
                         {description}
