@@ -181,7 +181,7 @@ export default function Page() {
                         className="px-3 py-2 rounded bg-neutral-900 text-gray-100 placeholder-gray-400 outline-none w-64"
                     />
                     <button onClick={resetAll} className="px-4 py-2 rounded bg-neutral-900 cursor-pointer text-neutral-200 hover:bg-red-900/90">Reset All</button>
-                    <Link href="/results" className="px-4 py-2 rounded bg-neutral-900 text-neutral-200 hover:bg-violet-600/30">Results</Link>
+                    <Link href="/results" className="px-4 py-2 rounded bg-neutral-900 text-neutral-200 hover:bg-violet-500/30">Results</Link>
                     <span className="text-gray-400">Showing {filtered.length} / {options.length}</span>
                 </div>
             </div>

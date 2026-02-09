@@ -18,6 +18,15 @@ type Props = {
     getPlusImage: (option: any, state: number) => string;
 };
 
+// Haptic feedback helper with pattern support
+function triggerHaptic(pattern: number | number[] = 50) {
+    if (typeof navigator !== "undefined" && "vibrate" in navigator) {
+        navigator.vibrate(pattern);
+    } else {
+        console.log("Haptic triggered:", pattern); // for desktop testing
+    }
+}
+
 function OptionItem({
     slot,
     option,
@@ -41,6 +50,14 @@ function OptionItem({
     const [tooltipPlacement, setTooltipPlacement] = useState<"top" | "bottom">("top");
     const [tooltipOffsetX, setTooltipOffsetX] = useState(0);
     const tooltipRef = useRef<HTMLDivElement | null>(null);
+
+    // Customize potion widths and heights here
+    const potionSizes: Record<number, { width: string; height: string }> = {
+        5: { width: "35px", height: "35px" }, // large
+        6: { width: "35px", height: "35px" }, // large
+        4: { width: "20px", height: "30px" }, // medium
+        0: { width: "12px", height: "28px" }, // small (default category)
+    };
 
     useLayoutEffect(() => {
         if (openDescription !== option.id) return;
@@ -72,13 +89,13 @@ function OptionItem({
 
 
     const customColor: Record<string, string> = {
-        "scat": "#785023", // red
-        "optionB": "#34d399",         // green
+        "scat": "#785023", // poo poo
+        // "optionB": "#34d399", // 
     };
 
     const customGradients: Record<string, string> = {
-        "trans-porn": "linear-gradient(90deg, #5BCEFA, #F5A9B8, #FFFFFF, #F5A9B8, #5BCEFA)", // red → orange
-        "optionB": "linear-gradient(90deg, #34d399, #3b82f6)", // green → blue
+        "trans-porn": "linear-gradient(90deg, #5BCEFA, #F5A9B8, #FFFFFF, #F5A9B8, #5BCEFA)", // trans porn
+        // "optionB": "linear-gradient(90deg, #34d399, #3b82f6)", //
     };
 
     // Pick gradient or fallback color
@@ -109,24 +126,35 @@ function OptionItem({
 
                         {activePluses
                             .filter(p => p.index === index)
-                            .map(p => (
-                                <img
-                                    key={p.id}
-                                    src={getPlusImage(option, p.state)}
-                                    className="absolute -top-6 -right-3 pointer-events-none animate-pop-plus w-5"
-                                />
-                            ))}
+                            .map(p => {
+                                const size = potionSizes[option.category] || potionSizes[0]; // fallback to small
+                                return (
+                                    <img
+                                        key={p.id}
+                                        src={getPlusImage(option, p.state)}
+                                        className="absolute -top-6 -right-3 pointer-events-none animate-pop-plus"
+                                        style={{
+                                            width: size.width,
+                                            height: size.height,
+                                        }}
+                                    />
+                                );
+                            })}
+
 
                         {slot.options.length > 1 && (
                             <span
                                 className="absolute -top-1 -left-1 text-[12px] text-gray-400 cursor-pointer select-none z-10"
                                 onClick={(e) => {
                                     e.stopPropagation();
-                                    setActiveVariant(prev => ({
-                                        ...prev,
-                                        [slot.slotId]:
-                                            ((prev[slot.slotId] ?? 0) + 1) % slot.options.length,
-                                    }));
+                                    setActiveVariant(prev => {
+                                        const updated = {
+                                            ...prev,
+                                            [slot.slotId]: ((prev[slot.slotId] ?? 0) + 1) % slot.options.length,
+                                        };
+                                        triggerHaptic([30, 20, 30]); // long press pattern
+                                        return updated;
+                                    });
                                 }}
                             >
                                 ⇄
@@ -158,11 +186,14 @@ function OptionItem({
                             didLongPressRef.current = true;
                             labelRef.current?.classList.remove("holding");
 
-                            setActiveVariant(prev => ({
-                                ...prev,
-                                [slot.slotId]:
-                                    ((prev[slot.slotId] ?? 0) + 1) % slot.options.length,
-                            }));
+                            setActiveVariant(prev => {
+                                const updated = {
+                                    ...prev,
+                                    [slot.slotId]: ((prev[slot.slotId] ?? 0) + 1) % slot.options.length,
+                                };
+                                triggerHaptic(50); // short click vibration
+                                return updated;
+                            });
                         }, 400);
                     }}
                     onPointerUp={() => {

@@ -70,10 +70,10 @@ export default function ResultsPage() {
   const [openTag, setOpenTag] = useState<string | null>(null);
   const [favorites, setFavorites] = useState<string[]>([]);
   const [openTagInfo, setOpenTagInfo] = useState<{ tag: string; type: "positive" | "negative" } | null>(null);
-const warnedOptionsRef = useRef<Set<string>>(new Set());
+  const warnedOptionsRef = useRef<Set<string>>(new Set());
   const [openDescription, setOpenDescription] = useState<string | null>(null);
   const clipIdRef = useRef(`wiggle-${Math.random().toString(36).slice(2)}`);
-const [clipId, setClipId] = useState<string | null>(null);
+  const [clipId, setClipId] = useState<string | null>(null);
 
 useEffect(() => {
   setClipId(`wiggle-${Math.random().toString(36).slice(2)}`);
@@ -83,8 +83,6 @@ const [renderedAt, setRenderedAt] = useState<string>("");
 useEffect(() => {
   setRenderedAt(new Date().toLocaleString());
 }, []);
-
-
 
 
   const ROLE_SECTION_SYMBOLS: Record<
@@ -546,23 +544,34 @@ useEffect(() => {
       className="min-h-screen text-neutral-200 px-6 py-10"
       style={{ backgroundColor: PAGE_BACKGROUND_COLOR }}
     >
-      {/* Actions */}
-      <div className="flex gap-3 -mt-6 mb-6">
-        <button
-          type="button"
-          onClick={exportScreenshot}
-          className="px-4 py-2 rounded bg-neutral-900 text-neutral-200 hover:bg-neutral-800 cursor-pointer"
-        >
-          Export Screenshot
-        </button>
+{/* Actions */}
+<div className="flex gap-2 -mt-6 mb-6 items-center">
+  <button
+    type="button"
+    onClick={exportScreenshot}
+    className="px-3 py-1 rounded bg-neutral-900 text-neutral-200 text-sm hover:bg-neutral-800 cursor-pointer flex items-center justify-center h-8"
+  >
+    Export Screenshot
+  </button>
 
-        <Link
-          href="/corruchart"
-          className="px-4 py-2 rounded bg-neutral-900 text-neutral-200 hover:bg-neutral-800 cursor-pointer"
-        >
-          Back
-        </Link>
-      </div>
+  <Link
+    href="/corruchart"
+    className="px-3 py-1 rounded bg-neutral-900 text-neutral-200 text-sm hover:bg-neutral-800 cursor-pointer flex items-center justify-center h-8"
+  >
+    Back
+  </Link>
+
+  {/* Mini Ko-fi button */}
+  <a
+    href="https://ko-fi.com/badminute"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="px-3 py-1 rounded bg-neutral-900 text-neutral-200 font-semibold text-sm shadow hover:bg-violet-500/30 transition-colors cursor-pointer flex items-center justify-center h-8"
+  >
+    ˗ˋˏ$ˎˊ˗
+  </a>
+</div>
+
       <div id="results-container" className="max-w-3xl mx-auto space-y-15">
         <header className="space-y-2 text-center">
           <div className="relative inline-block">
@@ -614,7 +623,7 @@ useEffect(() => {
           <div className="flex items-center gap-2">
             {/* Left icon */}
             <img
-              src="/corruchart-dev/anglefinal.png"
+              src="/corruchart-dev/images/anglefinal.png"
               alt="left icon"
               className="w-10 h-10"
               style={{ filter: "drop-shadow(1px 3px 0px rgba(0,0,0,1))" }}
@@ -710,7 +719,7 @@ useEffect(() => {
 
             {/* Right icon */}
             <img
-              src="/corruchart-dev/demenfinal.png"
+              src="/corruchart-dev/images/demenfinal.png"
               alt="right icon"
               className="w-10 h-10"
               style={{ filter: "drop-shadow(1px 3px 0px rgba(0,0,0,1))" }}

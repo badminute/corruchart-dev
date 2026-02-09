@@ -42,10 +42,10 @@ export default function OptionsGrid({
     const getPlusImage = useCallback(
         (option: OptionWithCategory, state: number) => {
             if (option.category === 5 || option.category === 6)
-                return "/corruchart-dev/corruption potion large.png";
+                return "/corruchart-dev/images/corruption-potion-large.png";
             if (option.category === 4)
-                return "/corruchart-dev/corruption potion medium.png";
-            return "/corruchart-dev/corruption%20potion%20small.png";
+                return "/corruchart-dev/images/corruption-potion-medium.png";
+            return "/corruchart-dev/images/corruption-potion-small.png";
         },
         []
     );
