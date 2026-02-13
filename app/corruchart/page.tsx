@@ -232,10 +232,11 @@ export default function Page() {
     localStorage.setItem(RESULTS_KEY, JSON.stringify(merged));
   }, [states, options]);
 
-  const cycleColor = (index: number) => {
+  const cycleColor = (index: number, dir: 1 | -1 = 1) => {
     setStates(prev => {
       const next = [...prev];
-      next[index] = (next[index] + 1) % COLOR_HEX.length;
+      next[index] =
+        (next[index] + dir + COLOR_HEX.length) % COLOR_HEX.length;
 
       // Trigger "+" for positive states
       if (next[index] >= 3) {

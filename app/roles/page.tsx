@@ -19,7 +19,7 @@ export default function Page() {
     const longPressTriggered = useRef(false);
     const [activeVariant, setActiveVariant] = useState<Record<string, number>>({});
     const [isHolding, setIsHolding] = useState<string | null>(null);
-
+    const EXCLUSIVE_CATEGORIES = ["Sex Experience", "Sexual Orientation", "Body Count", "Hentai Doujinshi Read", "Hentai Anime Watched", "Hentai Games Played", "Porn Stash", "Porn Experience", "Gender", "Erotic Novels Read", "Sex", "Sex Roles", "Gender Expression"];
     const customColor: Record<string, string> = {
         "fire-pyrolagnia": "#f87171",
         "optionB": "#34d399",
@@ -107,14 +107,33 @@ export default function Page() {
     }, [openDescription]);
 
     const cycleColor = (option: RoleOption) => {
-        const actualIndex = options.findIndex(r => r.id === option.id);
-        if (actualIndex === -1) return;
-        setStates(prev => {
-            const next = [...prev];
-            next[actualIndex] = next[actualIndex] === 1 ? 0 : 1;
-            return next;
-        });
-    };
+    const actualIndex = options.findIndex(r => r.id === option.id);
+    if (actualIndex === -1) return;
+
+    setStates(prev => {
+        const next = [...prev];
+        const isCurrentlyActive = next[actualIndex] === 1;
+
+        // Check if this option belongs to an exclusive category
+        const exclusiveTag = option.tags.find(tag => EXCLUSIVE_CATEGORIES.includes(tag));
+
+        if (exclusiveTag && !isCurrentlyActive) {
+            // Find all other options that share this specific exclusive tag
+            options.forEach((otherOption, idx) => {
+                if (otherOption.tags.includes(exclusiveTag)) {
+                    next[idx] = 0; // Turn everyone else off
+                }
+            });
+            // Turn the clicked one on
+            next[actualIndex] = 1;
+        } else {
+            // Standard toggle behavior for normal categories
+            next[actualIndex] = isCurrentlyActive ? 0 : 1;
+        }
+
+        return next;
+    });
+};
 
     const resetAll = () => {
         if (confirm("Reset all selections to 'I do not identify as'?")) {
@@ -158,7 +177,7 @@ export default function Page() {
         });
     });
 
-    const categoryOrder = ["Sex Role", "BDSM Role", "Sexual Orientation", "Sex"];
+    const categoryOrder = ["Sex", "Sex Roles", "Gender", "Sexual Orientation", "Gender Expression", "Domination & Submission", "Bondage & Discipline", "Fun Roles", "BDSM Roles Cont.", "Sex Experience", "Body Count",];
     const categoryNames = Object.keys(categoriesMap).sort((a, b) => {
         const ia = categoryOrder.indexOf(a);
         const ib = categoryOrder.indexOf(b);
@@ -230,51 +249,53 @@ export default function Page() {
                                             </button>
 
                                             {/* Label */}
-                                            <button
-                                                type="button"
-                                                className="flex items-center cursor-pointer gap-2 flex-1 relative z-10 text-left px-3 py-2 rounded-md"
-                                                onPointerDown={() => {
-                                                    longPressTriggered.current = false;
-                                                    const holdDelayTimer = window.setTimeout(() => setIsHolding(option.id), 100);
-                                                    const swapTimer = window.setTimeout(() => {
-                                                        longPressTriggered.current = true;
-                                                        setIsHolding(null);
-                                                        if (option.variantGroup) {
-                                                            const group = option.variantGroup;
-                                                            const groupOptions = variantGroups[group];
-                                                            const nextIndex = ((activeVariant[group] ?? 0) + 1) % groupOptions.length;
-                                                            setActiveVariant(prev => ({ ...prev, [group]: nextIndex }));
-                                                        }
-                                                    }, 450);
-                                                    longPressTimer.current = holdDelayTimer;
-                                                    (longPressTimer as any).swapTimer = swapTimer;
-                                                }}
-                                                onPointerUp={() => { clearTimeout(longPressTimer.current); clearTimeout((longPressTimer as any).swapTimer); setIsHolding(null); }}
-                                                onPointerLeave={() => { clearTimeout(longPressTimer.current); clearTimeout((longPressTimer as any).swapTimer); setIsHolding(null); }}
-                                                onPointerCancel={() => { clearTimeout(longPressTimer.current); clearTimeout((longPressTimer as any).swapTimer); setIsHolding(null); }}
-                                                onClick={() => {
-                                                    if (longPressTriggered.current) return;
-                                                    setOpenDescription(prev => prev === option.id ? null : option.id);
+                                        <button
+                                            type="button"
+                                            /* Added: overflow-hidden and min-w-0 to allow shrinking */
+                                            className="flex items-center cursor-pointer gap-2 flex-1 relative z-10 text-left px-3 py-2 rounded-md overflow-hidden min-w-0"
+                                            onPointerDown={() => {
+                                                longPressTriggered.current = false;
+                                                const holdDelayTimer = window.setTimeout(() => setIsHolding(option.id), 100);
+                                                const swapTimer = window.setTimeout(() => {
+                                                    longPressTriggered.current = true;
+                                                    setIsHolding(null);
+                                                    if (option.variantGroup) {
+                                                        const group = option.variantGroup;
+                                                        const groupOptions = variantGroups[group];
+                                                        const nextIndex = ((activeVariant[group] ?? 0) + 1) % groupOptions.length;
+                                                        setActiveVariant(prev => ({ ...prev, [group]: nextIndex }));
+                                                    }
+                                                }, 450);
+                                                longPressTimer.current = holdDelayTimer;
+                                                (longPressTimer as any).swapTimer = swapTimer;
+                                            }}
+                                            onPointerUp={() => { clearTimeout(longPressTimer.current); clearTimeout((longPressTimer as any).swapTimer); setIsHolding(null); }}
+                                            onPointerLeave={() => { clearTimeout(longPressTimer.current); clearTimeout((longPressTimer as any).swapTimer); setIsHolding(null); }}
+                                            onPointerCancel={() => { clearTimeout(longPressTimer.current); clearTimeout((longPressTimer as any).swapTimer); setIsHolding(null); }}
+                                            onClick={() => {
+                                                if (longPressTriggered.current) return;
+                                                setOpenDescription(prev => prev === option.id ? null : option.id);
+                                            }}
+                                        >
+                                            <span
+                                                /* Changed: whitespace-nowrap -> truncate to keep it one line but add "..." */
+                                                className="truncate block w-full"
+                                                style={{
+                                                    background: customGradients[option.id] ?? undefined,
+                                                    WebkitBackgroundClip: customGradients[option.id] ? "text" : undefined,
+                                                    WebkitTextFillColor: customGradients[option.id] ? "transparent" : undefined,
+                                                    color: !customGradients[option.id]
+                                                        ? customColor[option.id] ?? (states[actualIndex] === 1 ? ROLE_SYMBOLS[option.id]?.color ?? "#b1b1b1" : "#aaa")
+                                                        : undefined,
+                                                    opacity: states[actualIndex] === 1 ? 1 : 0.55,
+                                                    filter: states[actualIndex] === 1 ? "none" : "grayscale(100%) brightness(60%)",
+                                                    textShadow: "0 2px 4px rgba(0,0,0,0.3)",
+                                                    display: "inline-block" 
                                                 }}
                                             >
-                                                <span
-                                                    className="whitespace-nowrap"
-                                                    style={{
-                                                        background: customGradients[option.id] ?? undefined,
-                                                        WebkitBackgroundClip: customGradients[option.id] ? "text" : undefined,
-                                                        WebkitTextFillColor: customGradients[option.id] ? "transparent" : undefined,
-                                                        color: !customGradients[option.id]
-                                                            ? customColor[option.id] ?? (states[actualIndex] === 1 ? ROLE_SYMBOLS[option.id]?.color ?? "#b1b1b1" : "#aaa")
-                                                            : undefined,
-                                                        opacity: states[actualIndex] === 1 ? 1 : 0.55,
-                                                        filter: states[actualIndex] === 1 ? "none" : "grayscale(100%) brightness(60%)",
-                                                        textShadow: "0 2px 4px rgba(0,0,0,0.3)",
-                                                        display: "inline-block" // triggers reflow for gradient repaint
-                                                    }}
-                                                >
-                                                    {option.label}
-                                                </span>
-                                            </button>
+                                                {option.label}
+                                            </span>
+                                        </button>
 
                                             {/* Swap button */}
                                             {option.variantGroup && variantGroups[option.variantGroup]?.length > 1 && (
@@ -294,19 +315,37 @@ export default function Page() {
                                                 </button>
                                             )}
                                         </div>
-
-                                        {/* Tooltip */}
-                                        {isTooltipVisible && description && (
-                                            <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 w-[220px] max-w-xs rounded-md bg-neutral-800 text-gray-200 text-xs px-4 py-3 text-center whitespace-normal z-50 shadow-lg">
-                                                <div>{description}</div>
-                                                {option.aka?.length > 0 && (
-                                                    <div className="mt-2 pt-2 border-t border-neutral-700 text-gray-400">
-                                                        <span className="font-semibold text-gray-300">AKAs:</span>{" "}
-                                                        {option.aka.join(", ")}
-                                                    </div>
-                                                )}
-                                            </div>
-                                        )}
+                                {/* Tooltip */}
+                                {isTooltipVisible && description && (
+                                <div 
+                                    className="absolute bottom-full mb-2 left-3/4 -translate-x-1/2 w-[220px] max-w-xs rounded-md bg-neutral-800 text-gray-200 text-xs px-4 py-3 text-center z-50 shadow-md break-inside-avoid border border-neutral-600"
+                                    style={{ 
+                                    display: 'table',
+                                    breakInside: 'avoid',
+                                    transform: 'translateX(-50%) translateZ(10px)', 
+                                    backfaceVisibility: 'hidden',
+                                    isolation: 'isolate',
+                                    whiteSpace: 'normal',
+                                    } as any}
+                                >
+                                    <div style={{ display: 'block' }}>
+                                    <div>{description}</div>
+                                    {option.aka && option.aka.length > 0 && (
+                                        <div className="mt-2 pt-2 border-t border-neutral-700 text-gray-400">
+                                        <span className="font-semibold text-gray-300">AKAs:</span>{" "}
+                                        {option.aka.join(", ")}
+                                        </div>
+                                    )}
+                                    </div>
+                                    
+                                    {/* Arrow Container */}
+                                    <div className="absolute top-full left-1/8 -translate-x-1/2">
+                                    {/* This creates the "border" effect for the arrow */}
+                                    {/* This is the inner part of the arrow */}
+                                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px] border-t-neutral-800" />
+                                    </div>
+                                </div>
+                                )}
                                     </div>
                                 );
                             })}

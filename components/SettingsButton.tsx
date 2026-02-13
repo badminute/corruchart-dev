@@ -59,7 +59,7 @@ useEffect(() => {
             <button
               onClick={() => setReducedMotion((prev) => !prev)}
               className={`
-                w-full text-left px-3 py-2 rounded
+                w-full text-left cursor-pointer px-3 py-2 rounded
                 font-medium transition
                 ${reducedMotion
                   ? "bg-neutral-900 text-gray-100 hover:bg-neutral-800"

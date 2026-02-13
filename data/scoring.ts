@@ -52,11 +52,11 @@ export const CATEGORY_POINTS: Record<
 };
 
 export const THRESHOLDS = [
-    { points: 75, description: "Some corruption begins...", key: 1 },
-    { points: 500, description: "Corruption grows...", key: 2 },
-    { points: 1250, description: "You are tainted...", key: 3 },
-    { points: 2000, description: "Corruption surges!", key: 4 },
-    { points: 3000, description: "Dangerously corrupted!", key: 5 },
+    { points: 75, key: 1 },
+    { points: 750, key: 2 },
+    { points: 1750, key: 3 },
+    { points: 3000, key: 4 },
+    { points: 5000, key: 5 },
 ];
 
 export function computeScore(

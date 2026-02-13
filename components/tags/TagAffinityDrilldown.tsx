@@ -69,8 +69,8 @@ export default function TagAffinityDrilldown({
                         key={tag.tag}
                         className="relative group w-full"
                         ref={el => {
-  tagRefs.current[tag.tag] = el;
-}}
+                                tagRefs.current[tag.tag] = el;
+                                }}
                     >
                         <div
                             className={`flex items-center h-4 w-full`}
@@ -120,7 +120,7 @@ export default function TagAffinityDrilldown({
                         {/* Drilldown */}
                         {openTag === tag.tag && activeReaction && buckets[activeReaction].length > 0 && (
                             <div
-                                className="absolute z-50 left-0 w-64 p-3 bg-neutral-900 text-gray-200 rounded shadow-lg max-h-48 overflow-y-auto hide-scrollbar transition-all"
+                                className="absolute z-50 left-0 w-64 p-3 bg-neutral-900 text-gray-200 rounded shadow-lg max-h-48 overflow-y-auto hide-scrollbar transition-all border border-neutral-600"
                                 style={{
                                     top: flipUpMap[tag.tag] ? undefined : "100%",
                                     bottom: flipUpMap[tag.tag] ? "100%" : undefined,
@@ -129,12 +129,15 @@ export default function TagAffinityDrilldown({
                                 }}
                             >
                                 <div className="mb-2">
-                                    <div
-                                        className="font-semibold mb-1"
-                                        style={{ color: REACTION_COLORS[activeReaction] }}
-                                    >
-                                        {activeReaction} ({buckets[activeReaction].length})
+                                    {/* Contextual Title: Tag - Reaction (Count) */}
+                                    <div className="font-semibold mb-1 flex items-center gap-1.5 whitespace-nowrap">
+                                        <span className="text-gray-400 capitalize">{tag.tag}</span>
+                                        <span className="text-neutral-600">—</span>
+                                        <span style={{ color: REACTION_COLORS[activeReaction] }} className="capitalize">
+                                            {activeReaction} ({buckets[activeReaction].length})
+                                        </span>
                                     </div>
+
                                     <ul className="space-y-0.5 pl-2">
                                         {buckets[activeReaction].map(opt => {
                                             const showStar = ["like", "love", "lust"].includes(activeReaction);
@@ -143,14 +146,14 @@ export default function TagAffinityDrilldown({
                                                     key={opt.id}
                                                     className="flex justify-between items-center text-neutral-300"
                                                 >
-                                                    {opt.label}
+                                                    <span className="truncate pr-2">{opt.label}</span>
                                                     {showStar && (
                                                         <button
                                                             onClick={() => toggleFavorite(opt.id)}
                                                             className={
                                                                 isFavorite(opt.id)
-                                                                    ? "text-yellow-400 cursor-pointer"
-                                                                    : "text-neutral-500 cursor-pointer"
+                                                                    ? "text-yellow-400 cursor-pointer shrink-0"
+                                                                    : "text-neutral-500 cursor-pointer shrink-0"
                                                             }
                                                         >
                                                             ★

@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useRef, useState, useLayoutEffect } from "react";
+import { memo, useRef, useState, useLayoutEffect, useEffect } from "react";
 
 type Props = {
     slot: any;
@@ -14,7 +14,7 @@ type Props = {
     openDescription: string | null;
     setOpenDescription: (id: string | null) => void;
     setActiveVariant: React.Dispatch<React.SetStateAction<Record<string, number>>>;
-    cycleColor: (index: number) => void;
+    cycleColor: (index: number, dir?: 1 | -1) => void;
     getPlusImage: (option: any, state: number) => string;
 };
 
@@ -105,13 +105,56 @@ function OptionItem({
             option.category === 6 ? "#6770c2" :
                 "#9F86D8"
     );
+    const lastWheelRef = useRef(0);
+    const starRef = useRef<HTMLDivElement | null>(null);
+        useEffect(() => {
+            const el = starRef.current;
+            if (!el) return;
+
+            const onWheel = (e: WheelEvent) => {
+                // Ignore horizontal scrolling
+                if (Math.abs(e.deltaY) < Math.abs(e.deltaX)) return;
+
+                e.preventDefault();
+                e.stopPropagation();
+
+                const now = Date.now();
+                if (now - lastWheelRef.current < 80) return;
+                lastWheelRef.current = now;
+
+                const dir = e.deltaY > 0 ? -1 : 1;
+                cycleColor(index, dir);
+                triggerHaptic(15);
+            };
+
+            el.addEventListener("wheel", onWheel, { passive: false });
+
+            return () => {
+                el.removeEventListener("wheel", onWheel);
+            };
+        }, [index, cycleColor]);
 
     return (
         <div className="relative">
             <div className="flex items-center gap-2 p-2 rounded w-full h-full">
-                {/* STAR */}
-                <div className="relative flex justify-center items-center">
-                    <button onClick={() => cycleColor(index)} className="relative">
+                    {/* STAR */}
+                    <div
+                        ref={starRef}
+                        className="relative flex justify-center items-center"
+                        style={{ overscrollBehavior: "contain" }}
+                    >
+
+
+                        <button
+                        className="relative"
+                        onClick={() => cycleColor(index)}
+                        onContextMenu={(e) => {
+                            e.preventDefault();
+                            cycleColor(index, -1);
+                            triggerHaptic([20, 20]);
+                        }}
+                        >
+
                         <svg
                             className="cursor-pointer"
                             width="32"

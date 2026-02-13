@@ -1,6 +1,6 @@
 export const NARROW_TAGS = [
   "anal","age","audio","anthro","apparel","ass","balls","beast","bdsm","blood",
-  "bodymods","bodytypes","bondage","boobies","cannibalism","censorship","cnc",
+  "bodymods","bodytypes","bondage","tits","cannibalism","censorship","cnc",
   "confinement","cocks","crawlies","cum","danger","devices & toys","dignity","dolls","disabilities",
   "D/s","drugs","physiological","emotions", "exhibitionism",
   "fandoms","fantasy","feet","footwear","free use","futanari","furry","gender fun",

@@ -9,10 +9,9 @@ export const DESCRIPTIONS: Record<string, string> = {
     "abduction-target": "Arousal from being the victim of an abduction.",
     "abortion": "Arousal from seeing abortions and/or aborted fetuses.",
     "absorption": "Being physically or mentally absorbed, typically through vore, transformation, or psychological domination.",
-    "adult-baby": "Infant-like ageplay, it doesn't inherently include diaper wear but it typically does.",
-    "age-gap": "Attraction to significant age disparities (10+ years).",
-    "age-gaps-large": "Very significant age disparities (20+ years).",
-    "age-gaps": "Age disparities (less than 20 years).",
+    "adult-baby-option": "Infant-like ageplay, it doesn't inherently include diaper wear but it typically does.",
+    "age-gaps-large": "Very significant age disparities (15+ years).",
+    "age-gaps": "Significant age disparities (10-15 years).",
     "age-progression": "Transformation scenarios involving age progression.",
     "age-regression": "Transformation scenarios involving age regression.",
     "ageplay": "All kinds of age roleplay (ex: DDLG, MDLB, CGLRE, ABDL, etc.).",
@@ -85,8 +84,7 @@ export const DESCRIPTIONS: Record<string, string> = {
     "babysitters": "Attraction to babysitters either roleplay (sometimes ageplay) or actual babysitters.",
     "back-dimples": "Small indentations on the lower back.",
     "back-spine": "The spine or back line.",
-    "bad-endings": "Scenarios with negative or tragic outcomes, usually involves non-consensual sexual acts.",
-    "bad-ends": "Arousal from 'bad end' scenarios such as permanent enslavement, noncon transformation, etc.",
+    "bad-ends": "Scenarios with negative or tragic outcomes, usually involves non-consensual sexual acts.",
     "bad-hygiene": "Arousal from one's own or other's bad hygiene and sexual scenarios involving that.",
     "bald-shaved-heads": "Hairless heads or closely shaved scalps.",
     "ball-busting": "Arousal from being busting balls, or being ball-busted, which is the act of striking the balls with hands, feet, or other objects like boots.",
@@ -110,7 +108,6 @@ export const DESCRIPTIONS: Record<string, string> = {
     "belly-sex": "A sexual act where the penis is thrust between or against a person's belly.",
     "bestiality-2d": "Sex involving non-human animals in drawings or animations.",
     "bestiality-real": "Sex involving non-human animals.",
-    "bestiality": "Sexual acts with non-human animals.",
     "big-asses": "Large, full-sized, or exaggeratedly large buttocks.",
     "big-clits": "Arousal from clitorises that are twice the size of average clitorises.",
     "big-hands": "Large, full-sized hands.",
@@ -161,13 +158,12 @@ export const DESCRIPTIONS: Record<string, string> = {
     "branding": "Marking a submissive (via hot/cold branding, tattoos, or symbolic marks) to signify ownership.",
     "brat-taming": "A flavour of dominant that enjoys taming a brat (defiant submissive) with punishments for defiant behaviour.",
     "bratting": "A flavour of submissive that is defiant and talks back to their dominant (the brat tamer), leading to punishment (taming).",
-    "breast-feeding": "The act of drinking milk directly from the nipples of a woman or having one's breasts drank from.",
     "breast-growth": "Arousal from the fantasy or simulation of enlarging breasts.",
     "breast-milk": "Arousal from breast milk, lactation, scenarios involving it, and even consuming it.",
     "breast-smothering": "Arousal from being smothered by breasts.",
     "breast-vore": "Arousal from being swallowed or enveloped by breasts.",
     "breast-worship": "The act of worshiping breasts by sucking, touching, kissing, licking, praising, etc.",
-    "breastfeeding": "Arousal from the act of breastfeeding.",
+    "breastfeeding": "The act of drinking milk directly from the nipples of a woman or having one's breasts drank from.",
     "breasts-big": "Larger than average sized breasts.",
     "breasts-flat": "Little to no visible breast tissue.",
     "breasts-huge": "Larger breasts than big, think H+ cups.",
@@ -287,7 +283,7 @@ export const DESCRIPTIONS: Record<string, string> = {
     "cum-into-food-drinks-nc": "Ejaculation into or onto food which is then consumed unknowingly and without consent.",
     "cum-into-food-drinks": "Ejaculation into or onto food which is typically then consumed.",
     "cum-on-clothes": "Ejaculations onto clothing, especially erotic or kinky clothing.",
-    "cum-sharking": "The criminal activity of ejaculating on strangers in public typically in a stealthy way.",
+    "cum-sharking": "The criminal activity of ejaculating on strangers in public typically in a stealthy way, sometimes steathily pulling up clothes before doing so.",
     "cum-swapping": "The activity of swapping semen from one mouth to another, usually through kissing or spitting into an open mouth.",
     "cum-tributes": "The activity of cumming on an image of a person, hentai, celebrity, etc. to 'sexually tribute' it.",
     "cumwalking": "The act of walking in public with ejaculate visibly on the face or body.",
@@ -368,7 +364,9 @@ export const DESCRIPTIONS: Record<string, string> = {
     "encasement": "Arousal from scenarios involving total enclosure in general.",
     "enemas": "Arousal from the injection of fluids into the rectum.",
     "equine-anthros": "Anthropomorphic equine characters.",
-    "erotic-literature-visual-novels": "Written or interactive stories with explicit sexual content, ranging from romance to extreme fetishes.",
+    "erotic-novels": "Text only written stories with explicit sexual content.",
+    "visual-novels": "Text and visual, interactive stories with explicit sexual content, often referred to as games with minimal gameplay.",
+    "imagination": "Using one's brain to conjure arousing imagery, sometimes just using a prompt.",
     "erotic-roleplay": "Text-based roleplaying with sexual themes.",
     "evil-transformation": "The transformation of a person into a morally evil person.",
     "excessive-cum": "Abnormally large volumes of semen, often exaggerated beyond biological limits for erotic effect.",
@@ -390,7 +388,7 @@ export const DESCRIPTIONS: Record<string, string> = {
     "fae-monstergirls": "Tiny magical humanoids with wings, mischievous and childish. They are 6 inches tall (15 cm), in this corrupted form, their tiny bodies are adapted for sex with regular sized humans.",
     "fan-appreciation": "Performers, content creators, or adult industry professionals showing gratitude to their fans through sex.",
     "fangs": "Long pointy teeth associated with vampires, animals, and some anime characters.",
-    "fannypacking": "Carrying someone around the body like a fanny pack.",
+    "fannypacking": "Carrying someone around the body like a fanny pack, involving penetration.",
     "fantasy-theme": "Arousal from typical 'fantasy' scenarios and themes (e.g. heroes, dragons, pseudo-medieval, magic, etc.).",
     "farting": "Arousal from farts, either ones own or someone elses, things like the smell, sound, or act.",
     "fat-mlp": "Overweight ponies from My Little Pony.",
@@ -400,7 +398,7 @@ export const DESCRIPTIONS: Record<string, string> = {
     "feet": "Arousal from feet and various aspects of feet: toes, soles, shape, size, appearance, etc.",
     "felching": "The act of eating semen out of a person's anus.",
     "female-anthros": "Anthropomorphic female characters.",
-    "female-assisted-rape": "Arousal from scenarios where a woman facilitates assault.",
+    "female-assisted-rape": "Arousal from scenarios where a woman facilitates sexual assault.",
     "female-fatfurs": "Overweight female anthropomorphic furries.",
     "female-orgasms": "Female climaxes.",
     "femboy-doms": "Femboys that are dominant.",
@@ -492,8 +490,8 @@ export const DESCRIPTIONS: Record<string, string> = {
     "goblins": "Small, cunning, greedy, green demihumans that attack travelers usually in packs.",
     "golem-monsterboys": "Clay servants that are usually programmed to gather essence and deliver it to their creators.",
     "golem-monstergirls": "Clay servants that are usually programmed to gather essence and deliver it to their creators.",
-    "gooners": "Male gooners, men that masturbate themselves into a trance-like state through extended edging with an obsessive focus on porn and stimulation.",
-    "goonettes": "Female gooners, women that masturbate themselves into a trance-like state through extended edging with an obsessive focus on porn and stimulation.",
+    "gooners": "People that masturbate themselves into a trance-like state through extended edging with an obsessive focus on porn and stimulation.",
+    "goonettes": "Women that masturbate themselves into a trance-like state through extended edging with an obsessive focus on porn and stimulation.",
     "gooning": "The act of being in a trance-like state through extended edging with an obsessive focus on porn and stimulation.",
     "gore-impalement": "Arousal from depicted or real instances of gore or impalement.",
     "grooming": "The act of building a relationship with a typically vulnerable person (due to age, experience, etc.) to gain their trust in order to sexually abuse them.",
@@ -657,13 +655,13 @@ export const DESCRIPTIONS: Record<string, string> = {
     "lost-bets-ntr": "Scenarios where a bet is lost and as a result a person's partner has to do something sexual for the winner.",
     "lost-bets": "Scenarios where a bet is lost and as a result a person has to do something sexual.",
     "lust-murder": "Arousal from committing or fantasizing about murder.",
-    "macro-asses": "Arousal from giant asses, exaggerated to massive proportions.",
-    "macro-balls": "Arousal from giant testicles, exaggerated to massive proportions.",
-    "macro-breasts": "Arousal from giant breasts, exaggerated to massive proportions.",
-    "macro-cocks": "Arousal from giant cocks, exaggerated to massive proportions.",
-    "macro-tails": "Arousal from giant tails, exaggerated to massive proportions.",
-    "macro-vore": "Arousal from vore that involves giants swallowing (typically non-fatally) hundreds, if not thousands, and buildings whole.",
-    "macrophilia": "Arousal from extreme size disparities. (e.g. giant and tiny dynamics)",
+    "macro-asses": "Giant asses, exaggerated to massive proportions. Typically drawn.",
+    "macro-balls": "Giant testicles, exaggerated to massive proportions. Typically drawn.",
+    "macro-breasts": "Giant breasts, exaggerated to massive proportions. Typically drawn.",
+    "macro-cocks": "Giant cocks, exaggerated to massive proportions. Typically drawn.",
+    "macro-tails": "Giant tails, exaggerated to massive proportions. Typically drawn.",
+    "macro-vore": "Vore that involves giants swallowing (typically non-fatally) hundreds, if not thousands, and buildings whole.",
+    "macrophilia": "Arousal from extreme size disparities. (ex: giant and tiny dynamics)",
     "maebari": "A small cloth that covers just the vagina and sometimes asshole.",
     "maggots": "Small wriggly, crawling creatures, typically associated with decaying materials.",
     "magical-girls": "Girls with transformation sequences, powers, and cute costumes.",
@@ -1135,7 +1133,16 @@ export const DESCRIPTIONS: Record<string, string> = {
     "zoosadism": "Arousal from inflicting pain on non-human animals.",
     "zootopia": "Porn involving the characters of 'Zootopia'.",
 
+    "dungeon-theme": "Scenarios and erotic events that take place in dungeons.",
+    "cum-slut": "A person who loves semen, on them, in them, and lots of things to do with it.",
+    "grool": "The clear 'precum' produced by pussy when wet and aroused.",
+    "accidental-penetration": "When an oriface is penetrated by accident, 'slipping in'.",
+    "accidental-penetration-nc": "When an oriface is penetrated by ''accident'' according to the penetrator.",
+    "brown-tan-skin": "Brown and tan skin with some notable melanin.",
+    "brown-nipples": "Nipples that are brown in colour.",
+    "pink-nipples": "Nipples that are pink in colour.",
 
+    //--------------------------------------
     //--------------------------------------
 
     // ROLE DESCRIPTIONS:
@@ -1144,7 +1151,7 @@ export const DESCRIPTIONS: Record<string, string> = {
     "bottom": "The passive partner in sexual activities, often receiving penetration or submission.",
     "versatile": "A person who is comfortable taking on either the top or bottom role in sexual activities.",
 
-        // DOMINATION AND SUBMISSION ROLES
+        // DOMINATION AND SUBMISSION
     "brat-tamer": "Someone who takes pleasure in managing or disciplining a brat.",
     "brat": "Someone who is mischievous, rebellious, and often defiant in behavior.",
     "degradee": "Someone who receives verbal and physical degradation",
@@ -1168,10 +1175,11 @@ export const DESCRIPTIONS: Record<string, string> = {
     "abductee": "Someone who enjoys being abducted.",
     "abductor": "Someone who enjoys abducting another.",
     "captor": "A dominant role for the one who confines their prisoner.",
-    "daddy-mommy": "A dominant role who has authority over their little, giving guidance and protection.",
+    "daddy": "A dominant paternal role for a person with authority over their little, giving guidance and protection.",
+    "mommy": "A dominant paternal role for a person with authority over their little, giving guidance and protection.",
     "doctor": "A dominant who administers on patients.",
     "furniture": "Someone who enjoys being treated like furniture by their dominant.",
-    "little": "Someone who enjoys being childlike, especially in regard to their daddy/mommy.",
+    "little": "Someone who enjoys being childlike, especially in regard to their daddy and/or mommy.",
     "master": "Someone who dominates and/or enslaves another person.",
     "patient": "Someone who enjoys being a patient at the mercy of a medical professional.",
     "pet-owner": "Someone who treats another person like a pet in a sexual or power dynamic situation.",
@@ -1185,15 +1193,90 @@ export const DESCRIPTIONS: Record<string, string> = {
     "service-top": "Someone who tops, but services the other person, putting their pleasure first.",
     "slave": "Someone who is sexually enslaved or dominated by another person.",
 
+
         // GENDER EXPRESSIONS
     "androgynous-gender-exp": "A gender expression blending traditionally masculine and feminine traits.",
     "feminine-gender-exp": "A gender expression aligned with culturally feminine traits or aesthetics.",
     "masculine-gender-exp": "A gender expression aligned with culturally masculine traits or aesthetics.",
 
+
         // SEXES
     "male": "A sex classification typically associated with male biological traits.",
     "female": "A sex classification typically associated with female biological traits.",
     "intersex": "A sex classification describing natural variations in biological sex characteristics.",
+
+
+        // SEX EXPERIENCE
+    "virgin": "Never had sex before.",
+    "sex-had": "Can count the number of times you've had sex on your fingers.",
+    "sex-haver": "Has had sex dozens, maybe, hundreds of times.",
+    "sex-adept": "Has had sex thousands of times.",
+    "sex-expert": "Has had sex several thousands of times.",
+    "sex-god": "Has experienced countless worldly pleasures that can be offered in this world.",
+
+
+        // BODYCOUNT
+    "single-digit": "Has had sex with a handful of people.",
+    "gets-around": "Has had sex with a dozen or more people.",
+    "promiscuous": "Has had sex with a few dozen or more people.",
+    "flesh-enjoyer": "Has had sex with fifty to a hundred people.",
+    "village-bicycle": "Has had sex with up to a hundred people.",
+    "city-trolley": "Has had sex with hundreds of people.",
+    "well-traveled": "Has lost count, but has probably had sex with over a thousand people.",
+
+
+        // PORN STASH
+    "handful-of-favourites": "Has a handful of favourites saved on their device.",
+    "the-novice-stasher": "A budding porn stasher, it's gone past the point of a handful of favourites now.",
+    "the-stasher": "A notable porn stasher, a drive just for porn begins to make sense.",
+    "the-bunker": "A respectable porn stasher, definitely some rares in there.",
+    "the-archivist": "The benevolent archivist, they can be relied on when the great porn cleansing happens.",
+
+
+        // EROTIC NOVELS READ
+    "50-shades": "Has read some of the starter books.",
+    "milking-minotaurs": "Has read or is relunctant to read the best seller yet, 'Morning Glory Milking Farm'.",
+    "smut-sommelier": "A person with refined taste in erotic literature.",
+    "erotica-expert": "An expert on erotic literature.",
+    "smut-librarian": "Can recommend a person several erotic books and likely knows any book you'll bring up.",
+
+
+        // HENTAI DOUJINSHI READ
+    "nhentai-tourist": "Has heard about that website with hentai manga on it.",
+    "177013-initiate": "Has read or knows about 177013.",
+    "has-favourites": "Has several favourite doujins.",
+    "for-the-plot": "Has spent time reading for the plot.",
+    "rereader": "A person who has read so many doujins that they feel the need to reread their favourites because new stuff rarely delivers like they do.",
+    "sad-panda": "The final stage of a doujinshi reader, reading things on ExHentai, the largest collection of Doujinshi on the internet.",
+
+
+        // HENTAI ANIME WATCHED
+    "tentacle": "Has watched some hentai before, saw the tentacles do that to the defenseless anime girl.",
+    "deflowered": "Has seen some deflowering that was mosaically censored.",
+    "kuroinu": "A cultured viewer of hentai from here to there.",
+    "get-pregnant": "Has likely told a sock to 'take responsibility'.",
+    "mind-broken": "Has seen terrible things happen to anime girls.",
+    "watched-everything": "There is a lot of hentai anime, but this person has seen it all.",
+
+
+        // HENTAI GAMES PLAYED
+    "meet-n-fuck-racer": "Has played some hentai flash games like Jungle Girl, or Meet 'N' Fuck Racer.",
+    "rpg-maker": "Has gone through some rigamarole with shit RPGMaker games, needlessly tedious grinds, changing locale, and MTL.",
+    "slop-sifter": "A real slop sifter, knows their way from recycled garbage and a real gem made with love.",
+    "gallery-grinder": "Grinds the galleries faithfully for the love of the game.",
+    "fluent-in-mtl": "MTL Poetry is a real language and they know how to speak it.",
+    "waiting-on-devs": "It's either been played, completed, or not interesting and they're just waiting on developers to make them games now.",
+
+
+        // PORN EXPERIENCE
+    "naughty-video": "Naughty naughty. Doing this with God watching? Have you no shame?",
+    "doomscrolled-porn": "Guilty of elapsed hours of doomscrolling for 'the one' to finish with.",
+    "the-watcher": "Porn watching can become a routine at this point.",
+    "refined-taste": "Knows what they like and likely has a playlist or collection.",
+    "seen-things": "The point at which a person has watched enough porn to know of fetishes beyond their interests.",
+    "strong-arm": "A true coomer, has watched a lot of porn.",
+    "page-24732": "A person who has trawled the ends of the internet for the best porn ever made. Searching for the One Porn.",
+
 
         // GENDERS
     "man-cisgender": "A man whose gender identity aligns with his sex assigned at birth.",
@@ -1208,35 +1291,44 @@ export const DESCRIPTIONS: Record<string, string> = {
     "bigender-transgender": "A transgender identity involving two genders, either simultaneously or alternately.",
     "two-spirit-transgender": "An Indigenous gender identity encompassing both masculine and feminine spirits, culturally specific.",
 
+
         // SEXUAL ORIENTATIONS
-    "heterosexual-straight": "Sexual attraction primarily toward a different gender.",
-    "homosexual-gay": "Sexual attraction primarily toward the same gender, commonly used for men.",
-    "homosexual-lesbian": "Sexual attraction primarily toward the same gender, commonly used for women.",
-    "bisexual-pansexual": "Sexual attraction toward multiple or all genders.",
+    "straight": "Sexual attraction primarily toward a different gender.",
+    "gay": "Sexual attraction primarily toward the same gender, commonly used for men.",
+    "lesbian": "Sexual attraction primarily toward the same gender, commonly used for women.",
+    "bisexual": "Sexual attraction toward multiple or all genders.",
+    "pansexual": "Sexual attraction toward multiple or all genders.",
     "asexual": "Experiencing little or no sexual attraction.",
     "aromantic": "Experiencing little or no romantic attraction.",
     "demisexual": "Sexual attraction that develops only after a strong emotional bond.",
 
+
         // FUN ROLES
-    "bull": "A dominant who has relations with the cuck's partner",
+    "bull": "A man (typically dominant) who has sex with the cuck's partner",
     "cannibal": "Someone who enjoys the flesh of other humans.",
     "clown": "Someone who enjoys clowning around.",
-    "cuckold-cuckquean": "A submissive that willingly observes their partner engaging with others, typically enjoying it in a humiliating way.",
+    "cuckold": "A submissive that willingly observes their partner engaging with others, typically enjoying it in a humiliating way.",
+    "cuckcake": "A woman (typically dominant) who has sex with the cuck's partner.",
+    "cuckquean": "A submissive that willingly observes their partner engaging with others, typically enjoying it in a humiliating way.",
     "experiment": "Someone who enjoys being experimented on.",
     "furry": "Someone who identifies as a furry.",
-    "gooner": "Someone who enjoys being completely at the mercy of their never ending porn lust, prolonging their masturbation by edging and ending up in goonspace.",
-    "goonette": "Someone who enjoys being completely at the mercy of their never ending porn lust, prolonging their masturbation by edging and ending up in goonspace.",
-    "hotwife-hothusband": "A married person that has sex with other people.",
+    "gooner": "A person that masturbates themselves into a trance-like state through extended edging with an obsessive focus on porn and stimulation.",
+    "goonette": "A woman that masturbates herself into a trance-like state through extended edging with an obsessive focus on porn and stimulation.",
+    "hotwife": "A married woman that has sex with other people.",
+    "hothusband": "A married man that has sex with other people.",
     "living-doll": "Someone who enjoys being a 'living doll' for their maker to play with.",
     "pig": "A submissive who enjoys the humiliating and degrading position of a pig.",
     "queen-of-spades": "A non-black woman with an explicit sexual preference for black men.",
+    "queen-of-hearts": "A non-white woman with an explicit sexual preference for white men.",
     "scientist": "Someone who enjoys experimenting on others.",
     "skunk": "Someone who enjoys roleplaying as a skunk with their farts and such.",
     "snowbunny": "A white woman who is explicitly only interested in black men.",
     "stag": "A dominant who encourages his woman to have sex with others, without any element of humiliation.",
     "sugar-provider": "Someone who enjoys showering someone in money as a small form of domination and control.",
     "swinger": "Someone who enjoys partner-swapping.",
-    "toilet-urinal": "Someone who enjoys being pissed on and/or pooped on.",
+    "urinal": "Someone who enjoys being pissed on.",
+    "toilet": "Someone who enjoys being pooped on.",
     "vixen": "A submissive who has sex with others with her partners support.",
+    "hucow": "You are a cow to be milked.",
 
 };

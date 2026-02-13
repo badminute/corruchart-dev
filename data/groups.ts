@@ -24,7 +24,7 @@ export const GROUPS: Group[] = [
   { id: "bodymods", name: "Body Modifications & Cosmetics", scope: "narrow" },
   { id: "bodytypes", name: "Bodytypes", scope: "narrow" },
   { id: "bondage", name: "Bondage", scope: "narrow" },
-  { id: "boobies", name: "Boobies", scope: "narrow" },
+  { id: "tits", name: "Tits", scope: "narrow" },
   { id: "cannibalism", name: "Cannibalism", scope: "narrow" },
   { id: "censorship", name: "Censorship", scope: "narrow" },
   { id: "cnc", name: "CNC", scope: "narrow" },

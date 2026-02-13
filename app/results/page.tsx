@@ -15,7 +15,7 @@ import { narrowTagsCheck } from "@/lib/utils";
 import { NARROW_TAGS } from "@/data/narrowTags";
 
 const broadOnlyIds = narrowTagsCheck(OPTIONS, NARROW_TAGS);
-const METER_MAX_POINTS = 3000;
+const METER_MAX_POINTS = 5000;
 const PAGE_BACKGROUND_COLOR = "#1F2023";
 const MAX_FAVORITES = 25;
 const FAVORITES_KEY = "corruchart-favorites";
@@ -74,6 +74,23 @@ export default function ResultsPage() {
   const [openDescription, setOpenDescription] = useState<string | null>(null);
   const clipIdRef = useRef(`wiggle-${Math.random().toString(36).slice(2)}`);
   const [clipId, setClipId] = useState<string | null>(null);
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
+  const [popupPos, setPopupPos] = useState<{ x: number; y: number } | null>(null);
+  const dragStartRef = useRef<{ x: number; y: number; mouseX: number; mouseY: number } | null>(null);
+
+const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+const startPress = (id: string) => {
+  timerRef.current = setTimeout(() => {
+    toggleRedact(id);
+    // Optional: vibrate mobile devices for feedback
+    if (window.navigator.vibrate) window.navigator.vibrate(50);
+  }, 600); // 600ms = length of the hold
+};
+
+const cancelPress = () => {
+  if (timerRef.current) clearTimeout(timerRef.current);
+};
 
 useEffect(() => {
   setClipId(`wiggle-${Math.random().toString(36).slice(2)}`);
@@ -84,6 +101,16 @@ useEffect(() => {
   setRenderedAt(new Date().toLocaleString());
 }, []);
 
+const [redactedIds, setRedactedIds] = useState<Set<string>>(new Set());
+
+const toggleRedact = (id: string) => {
+  setRedactedIds(prev => {
+    const next = new Set(prev);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    return next;
+  });
+};
 
   const ROLE_SECTION_SYMBOLS: Record<
     string,
@@ -114,7 +141,7 @@ useEffect(() => {
   }[] = [
       {
         key: "identity",
-        title: "Identities",
+        title: "Identities & Orientations",
         tags: [
           "Sex",
           "Gender",
@@ -131,6 +158,26 @@ useEffect(() => {
           "Domination & Submission",
           "BDSM Roles Cont.",
           "Sadism & Masochism",
+        ],
+      },
+      {
+        key: "experience",
+        title: "Sex Experience",
+        tags: [
+        "Sex Experience",
+        "Body Count",
+        ],
+      },
+      {
+        key: "porn",
+        title: "Porn Experience",
+        tags: [
+        "Porn Experience",
+        "Porn Stash",
+        "Erotic Novels Read",
+        "Hentai Games Played",
+        "Hentai Anime Watched",
+        "Hentai Doujinshi Read",
         ],
       },
       {
@@ -184,11 +231,11 @@ useEffect(() => {
   // Custom colors for each corruption threshold/message
   const CORRUPTION_COLORS: Record<number, string> = {
     0: "#fffdc7", // angle
-    1: "#cdcaff", // had sex b4
-    2: "#917fbf", // kinky
-    3: "#917fbf", // lecher
-    4: "#917fbf", // weirdo
-    5: "#7a66aa", // creeper
+    1: "#cdcaff", //
+    2: "#917fbf", // 
+    3: "#917fbf", // 
+    4: "#917fbf", // 
+    5: "#7a66aa", // 
     6: "#624d92", // demen
   };
 
@@ -201,7 +248,7 @@ useEffect(() => {
     if (reached.length === 0) return { key: 0, message: CORRUPTION_MESSAGES[0] };
 
     const highest = reached[reached.length - 1];
-    return { key: highest.key, message: CORRUPTION_MESSAGES[highest.key] ?? highest.description };
+    return { key: highest.key, message: CORRUPTION_MESSAGES[highest.key] }
   }
   
   const allTags = [...positiveTags, ...negativeTags];
@@ -297,7 +344,36 @@ useEffect(() => {
   }, []);
   
   
-  
+// ----------------------------
+// Form submission handler (FormSubmit.co implementation)
+// ----------------------------
+const submitForm = async (event: React.FormEvent<HTMLFormElement>) => {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const formData = new FormData(form);
+
+  try {
+    const response = await fetch("https://formsubmit.co/ajax/badminute@protonmail.com", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (response.ok) {
+      alert("Feedback sent! Thank you.");
+      form.reset();
+      setFeedbackOpen(false); // Closes the popup on success
+    } else {
+      alert("Error submitting form.");
+    }
+  } catch (err) {
+    console.error("Network error:", err);
+    alert("Network error. Please try again.");
+  }
+};
+
+
+
+
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -495,6 +571,37 @@ useEffect(() => {
     return Array.from(new Map(combined.map(t => [t.tag, t])).values());
   }, [visiblePositiveTags, visibleNegativeTags]);
 
+// ----------------------------
+  // Drag & Drop Handlers
+  // ----------------------------
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    // Save the index of the item being dragged
+    e.dataTransfer.setData("dragIndex", index.toString());
+    e.dataTransfer.effectAllowed = "move";
+  };
+
+  const handleDrop = (e: React.DragEvent, dropIndex: number) => {
+    e.preventDefault();
+    const dragIndex = Number(e.dataTransfer.getData("dragIndex"));
+    
+    // Don't do anything if dropped on itself
+    if (dragIndex === dropIndex) return;
+
+    // Reorder array
+    const updated = [...favorites];
+    const [movedItem] = updated.splice(dragIndex, 1);
+    updated.splice(dropIndex, 0, movedItem);
+
+    // Save state and localStorage
+    setFavorites(updated);
+    localStorage.setItem(FAVORITES_KEY, JSON.stringify(updated));
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    // Strictly necessary to allow dropping
+    e.preventDefault();
+  };
+
    // ----------------------------
 // DEV CHECK: positive options whose tags never appear in Tag Affinities
 // ----------------------------
@@ -536,41 +643,136 @@ useEffect(() => {
 
 
 
-  // ----------------------------
-  // RENDER
-  // ----------------------------
-  return (
-    <main
-      className="min-h-screen text-neutral-200 px-6 py-10"
-      style={{ backgroundColor: PAGE_BACKGROUND_COLOR }}
-    >
-{/* Actions */}
-<div className="flex gap-2 -mt-6 mb-6 items-center">
-  <button
-    type="button"
-    onClick={exportScreenshot}
-    className="px-3 py-1 rounded bg-neutral-900 text-neutral-200 text-sm hover:bg-neutral-800 cursor-pointer flex items-center justify-center h-8"
-  >
-    Export Screenshot
-  </button>
+            // ----------------------------
+            // RENDER
+            // ----------------------------
+            return (
+                <main
+                className="min-h-screen text-neutral-200 px-6 py-10"
+                style={{ backgroundColor: PAGE_BACKGROUND_COLOR }}
+                >
+            {/* Actions */}
+            <div className="flex gap-2 -mt-6 mb-6 items-center flex-wrap relative">
+            {/* Export Screenshot */}
+            <button
+                type="button"
+                onClick={exportScreenshot}
+                className="px-3 py-1 rounded bg-neutral-900 text-neutral-200 text-sm hover:bg-neutral-800 cursor-pointer flex items-center justify-center h-8"
+            >
+                Export Screenshot
+            </button>
 
-  <Link
-    href="/corruchart"
-    className="px-3 py-1 rounded bg-neutral-900 text-neutral-200 text-sm hover:bg-neutral-800 cursor-pointer flex items-center justify-center h-8"
-  >
-    Back
-  </Link>
+            {/* Back Button */}
+            <Link
+                href="/corruchart"
+                className="px-3 py-1 rounded bg-neutral-900 text-neutral-200 text-sm hover:bg-neutral-800 cursor-pointer flex items-center justify-center h-8"
+            >
+                Back
+            </Link>
 
-  {/* Mini Ko-fi button */}
-  <a
-    href="https://ko-fi.com/badminute"
-    target="_blank"
-    rel="noopener noreferrer"
-    className="px-3 py-1 rounded bg-neutral-900 text-neutral-200 font-semibold text-sm shadow hover:bg-violet-500/30 transition-colors cursor-pointer flex items-center justify-center h-8"
-  >
-    ˗ˋˏ$ˎˊ˗
-  </a>
-</div>
+            {/* Mini Ko-fi button */}
+            <a
+                href="https://ko-fi.com/badminute"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-3 py-1 rounded bg-neutral-900 text-neutral-200 font-semibold text-sm shadow hover:bg-violet-500/30 transition-colors cursor-pointer flex items-center justify-center h-8"
+            >
+                ˗ˋˏ$ˎˊ˗
+            </a>
+
+            {/* Feedback button */}
+            <button
+                type="button"
+                onClick={() => setFeedbackOpen(prev => !prev)}
+                className="px-2 py-1 rounded bg-neutral-900 text-white text-sm hover:bg-neutral-500 transition-colors cursor-pointer flex items-center justify-center h-8"
+            >
+                Feedback
+            </button>
+
+            {/* Feedback Form Popup */}
+            {feedbackOpen && (
+            <div
+                className="absolute z-50 max-w-md w-full max-h-[80vh] overflow-y-auto p-4 bg-neutral-900 border border-neutral-700 rounded shadow-lg"
+                style={{
+                top: popupPos?.y ?? window.innerHeight / 2, // center vertically
+                left: popupPos?.x ?? window.innerWidth / 2,  // center horizontally
+                transform: popupPos ? "translate(0,0)" : "translate(-50%, -50%)",
+                }}
+            >
+            {/* Draggable header */}
+            <div
+                className="cursor-move mb-2 text-center text-white font-semibold"
+                onPointerDown={(e) => {
+                e.preventDefault();
+                dragStartRef.current = {
+                    x: popupPos?.x ?? e.currentTarget.parentElement!.getBoundingClientRect().left,
+                    y: popupPos?.y ?? e.currentTarget.parentElement!.getBoundingClientRect().top,
+                    mouseX: e.clientX,
+                    mouseY: e.clientY,
+                };
+                e.currentTarget.setPointerCapture(e.pointerId);
+                }}
+                onPointerMove={(e) => {
+                if (!dragStartRef.current) return;
+                const dx = e.clientX - dragStartRef.current.mouseX;
+                const dy = e.clientY - dragStartRef.current.mouseY;
+                setPopupPos({
+                    x: dragStartRef.current.x + dx,
+                    y: dragStartRef.current.y + dy,
+                });
+                }}
+                onPointerUp={(e) => {
+                dragStartRef.current = null;
+                e.currentTarget.releasePointerCapture(e.pointerId);
+                }}
+            >
+                Anonymous Feedback
+            </div>
+
+            {/* Feedback form */}
+            <form
+                id="contactForm"
+                onSubmit={submitForm}
+                action="https://formsubmit.co/badminute@protonmail.com"
+                method="POST"
+                className="flex flex-col gap-2"
+            >
+                {/* FormSubmit Configuration */}
+                <input type="hidden" name="_subject" value="New Corruchart Feedback!" />
+                <input type="hidden" name="_captcha" value="false" />
+                <input type="hidden" name="_template" value="table" />
+
+                <input type="text" name="name" placeholder="Name" className="px-2 py-1 rounded text-white" required />
+                <input type="email" name="email" placeholder="Email" className="px-2 py-1 rounded text-white" required />
+                <input type="text" name="honeypot" style={{ display: "none" }} />
+                <textarea
+                    name="message"
+                    placeholder="Your message"
+                    className="px-2 py-1 rounded text-white resize-y min-h-[5rem] max-h-64 overflow-y-auto"
+                    required
+                />
+
+                <div className="flex justify-between items-center">
+                    <button
+                    type="button"
+                    onClick={() => setFeedbackOpen(false)}
+                    className="px-3 py-1 rounded cursor-pointer bg-neutral-800 text-white hover:bg-red-700 transition-colors text-sm"
+                    >
+                    Close
+                    </button>
+                    <button
+                    type="submit"
+                    className="px-3 py-1 rounded cursor-pointer bg-green-800 text-white hover:bg-green-600 transition-colors text-sm"
+                    >
+                    Submit
+                    </button>
+                </div>
+                </form>
+            </div>
+
+)}
+
+            </div>
 
       <div id="results-container" className="max-w-3xl mx-auto space-y-15">
         <header className="space-y-2 text-center">
@@ -727,7 +929,6 @@ useEffect(() => {
           </div>
       </section>
 
-
         {/* Main corruption message */}
         {(() => {
           const { key, message } = getCorruptionMessage(scoreData.total, scoreData.category6Hit);
@@ -736,27 +937,15 @@ useEffect(() => {
           return (
             <div
               className="text-center text-lg font-semibold mb-2"
-              style={{ color, textShadow: "2px 2px 0px rgba(0,0,0,0.6)" }}
+              style={{ 
+                color, 
+                textShadow: "2px 2px 0px rgba(0,0,0,0.6)" 
+              }}
             >
               {message}
             </div>
           );
         })()}
-
-
-        {/* CATEGORY 6 tooltip/note */}
-        {scoreData.category6Hit && (
-          <div
-            className="p-2 rounded text-center text-xl text-violet-400 relative group cursor-pointer"
-            title={CORRUPTION_MESSAGES[6]}
-            style={{ backgroundColor: "#2c2e33", textShadow: "0px 4px 1px rgba(0,0,0,0.7)" }}
-          >
-            {CORRUPTION_MESSAGES[6]}
-            <span className="absolute bottom-full mb-1 left-1/2 transform -translate-x-1/2 bg-neutral-900 text-xs text-white px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
-              {CORRUPTION_MESSAGES[6]}
-            </span>
-          </div>
-        )}
 
 
 
@@ -771,78 +960,82 @@ useEffect(() => {
                   </h3>
 
                   <div className="flex flex-wrap gap-2 justify-center">
-                    {section.roles.map((role) => (
-                      <div
-                        key={role.id}
-                        className="flex items-center gap-1 text-sm bg-neutral-800 px-2 py-1 rounded shadow-sm break-inside-avoid whitespace-nowrap"
-                      >
-                            <span
-                                className="flex-shrink-0 w-6 text-center font-bold"
-                                style={{
-                                    fontSize: "18px",
+                    {section.roles.map((role) => {
+                const isRedacted = redactedIds.has(role.id);
+                return (
+                    <div
+                    key={role.id}
+                    // Replaced onDoubleClick with Hold triggers
+                    onPointerDown={() => startPress(role.id)}
+                    onPointerUp={cancelPress}
+                    onPointerLeave={cancelPress}
+                    className="flex items-center gap-1.5 text-sm bg-neutral-800 px-3 py-1 rounded border border-neutral-700 shadow-sm break-inside-avoid whitespace-nowrap cursor-pointer hover:brightness-110 transition-all select-none"
+                    >
+                    {/* Symbol / Emoji Logic */}
+                    <span
+                        className="flex-shrink-0 w-6 text-center font-bold"
+                        style={{
+                        fontSize: "18px",
+                        display: "inline-block",
+                        backgroundColor: "transparent",
+                        lineHeight: "1.25em",
+                        paddingBottom: "0.1em",
 
-                                    /* 🔑 decide whether to use gradient or plain color */
-                                    ...(["🐕‍🦺", "🎭", "🪅"].includes(ROLE_SYMBOLS[role.id]?.symbol ?? "")
-                                        ? {
-                                            /* skip gradient, use symbol color */
-                                            color: ROLE_SYMBOLS[role.id]?.color ?? "#e5e7eb",
-                                            WebkitTextFillColor: undefined,
-                                            WebkitBackgroundClip: undefined,
-                                            background: undefined,
-                                        }
-                                        : SYMBOL_GRADIENTS[role.id]
-                                            ? {
-                                                /* use gradient if defined */
-                                                background: SYMBOL_GRADIENTS[role.id],
-                                                WebkitBackgroundClip: "text",
-                                                WebkitTextFillColor: "transparent",
-                                                color: undefined,
-                                            }
-                                            : {
-                                                /* fallback: gradient missing, use role color */
-                                                color: ROLE_SYMBOLS[role.id]?.color ?? "#e5e7eb",
-                                                WebkitTextFillColor: undefined,
-                                                WebkitBackgroundClip: undefined,
-                                                background: undefined,
-                                            }
-                                    ),
+                        /* Redaction override: if redacted, hide colors and show block */
+                        ...(isRedacted
+                            ? { color: "#525252", background: "none", WebkitTextFillColor: "initial" }
+                            : ["🐕‍🦺", "🎭", "🪅"].includes(ROLE_SYMBOLS[role.id]?.symbol ?? "")
+                            ? {
+                                color: ROLE_SYMBOLS[role.id]?.color ?? "#e5e7eb",
+                                WebkitTextFillColor: undefined,
+                                WebkitBackgroundClip: undefined,
+                                background: undefined,
+                            }
+                            : SYMBOL_GRADIENTS[role.id]
+                            ? {
+                                background: SYMBOL_GRADIENTS[role.id],
+                                WebkitBackgroundClip: "text",
+                                WebkitTextFillColor: "transparent",
+                                color: undefined,
+                            }
+                            : {
+                                color: ROLE_SYMBOLS[role.id]?.color ?? "#e5e7eb",
+                                WebkitTextFillColor: undefined,
+                                WebkitBackgroundClip: undefined,
+                                background: undefined,
+                            }),
+                        }}
+                    >
+                        {isRedacted ? "█" : (ROLE_SYMBOLS[role.id]?.symbol ?? "★")}
 
-                                    /* 🔑 force glyph repaint */
-                                    display: "inline-block",
-                                    backgroundColor: "transparent",
-                                    lineHeight: "1.25em",
-                                    paddingBottom: "0.1em",
-                                }}
-                            >
-                                {ROLE_SYMBOLS[role.id]?.symbol ?? "★"}
                             </span>
 
-
-
-
-
+                            {/* Label Text Logic */}
                             <span
                                 className="flex-shrink-0 text-sm leading-tight"
                                 style={{
-                                    background: LABEL_GRADIENTS[role.id] ?? undefined,
-                                    WebkitBackgroundClip: LABEL_GRADIENTS[role.id] ? "text" : undefined,
-                                    WebkitTextFillColor: LABEL_GRADIENTS[role.id] ? "transparent" : undefined,
-
-                                    color: LABEL_GRADIENTS[role.id]
-                                        ? undefined
-                                        : ROLE_SYMBOLS[role.id]?.color ?? "#e5e7eb",
-
-                                    /* 🔑 match roles page */
                                     display: "inline-block",
                                     backgroundColor: "transparent",
                                     whiteSpace: "nowrap",
+
+                                    /* Redaction override for text */
+                                    ...(isRedacted 
+                                      ? { color: "#525252", background: "none", WebkitTextFillColor: "initial" }
+                                      : {
+                                        background: LABEL_GRADIENTS[role.id] ?? undefined,
+                                        WebkitBackgroundClip: LABEL_GRADIENTS[role.id] ? "text" : undefined,
+                                        WebkitTextFillColor: LABEL_GRADIENTS[role.id] ? "transparent" : undefined,
+                                        color: LABEL_GRADIENTS[role.id]
+                                            ? undefined
+                                            : ROLE_SYMBOLS[role.id]?.color ?? "#e5e7eb",
+                                      })
                                 }}
                             >
-
-                                {role.label}
+                                {isRedacted ? "█████" : role.label}
                             </span>
-                      </div>
-                    ))}
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               ))}
@@ -852,73 +1045,121 @@ useEffect(() => {
 
 
 
-        {/* FAVORITE OPTIONS */}
-        <section className="mt-6">
-          <h2
-            className="text-xl text-center font-semibold text-yellow-400 mb-3"
-            style={{ textShadow: "0px 3px 0px rgba(0,0,0,0.6)" }}
-          >
-            Favorites
-          </h2>
-
-          {favoriteOptions.length === 0 ? (
-            <p className="text-neutral-400 text-center">
-              No favorites selected. 
-            </p>
-          ) : (
-            <div className="flex flex-wrap gap-2 justify-center">
-              {favoriteOptions.map(opt => (
-                <div
-                  key={opt!.id}
-                  className="flex items-center gap-1 bg-neutral-800 text-sm text-white px-2 py-1 rounded shadow-sm"
-                >
-                  <span>{opt!.label}</span>
-                  <button
-                    onClick={() => toggleFavorite(opt!.id)}
-                    className="text-yellow-400 text-sm ml-1 cursor-pointer hover:text-yellow-300 transition-colors"
-                    title="Remove favorite"
-                  >
-                    ★
-                  </button>
-                </div>
-              ))}
+    {/* FAVORITE OPTIONS */}
+        {favorites.length > 0 && (
+          <section className="mt-8 relative">
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <h3 className="text-xl font-semibold text-neutral-300" style={{ textShadow: "2px 2px 0px rgba(0,0,0,0.3)" }}>
+                Favourites
+              </h3>
+              <span
+                onClick={() =>
+                  setOpenTagInfo(prev =>
+                    prev?.tag === "__fav_help" ? null : { tag: "__fav_help", type: "positive" }
+                  )
+                }
+                className="w-4 h-4 flex items-center justify-center rounded-full text-[9px] font-bold bg-neutral-800 text-gray-300 border border-neutral-600 cursor-pointer"
+                title="How to manage favourites"
+              >
+                ?
+              </span>
             </div>
-          )}
-        </section>
 
+            {openTagInfo?.tag === "__fav_help" && (
+              <div className="absolute -top-32 left-1/2 transform -translate-x-1/2 z-50 w-64 p-3 bg-neutral-900 text-gray-200 rounded shadow-lg text-center text-sm border border-neutral-700">
+                Click and drag labels left or right to reorder them. <br/> 
+                Double-click a label to remove it from your favourites. Click and hold a label to redact it.
+              </div>
+            )}
 
-        {/* TAG AFFINITIES */}
-        <section className="space-y-6 relative">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <h3 className="text-xl font-semibold" style={{ textShadow: "2px 2px 0px rgba(0,0,0,0.3)" }}>
-              Tag Affinities
-            </h3>
-            <span
-              onClick={() =>
-                setOpenTagInfo(prev =>
-                  prev?.tag === "__positive_help" ? null : { tag: "__positive_help", type: "positive" }
-                )
-              }
-              className="w-4 h-4 flex items-center justify-center rounded-full text-[9px] font-bold bg-neutral-800 text-gray-300 border border-neutral-600 cursor-pointer"
-              title="Show help for positive tags"
-            >
-              ?
-            </span>
-          </div>
+            <div className="flex flex-wrap gap-3 justify-center">
+              {favoriteOptions.map((option, index) => {
+                const isGradient = LABEL_GRADIENTS[option.id];
+                const style = isGradient
+                  ? { background: LABEL_GRADIENTS[option.id], color: "#000", border: "none" }
+                  : { backgroundColor: "#262626", color: "#e5e5e5", border: "1px solid #404040" };
 
-          {openTagInfo?.tag === "__positive_help" && (
-            <div className="absolute -top-32 left-1/2 transform -translate-x-1/2 z-50 w-64 p-3 bg-neutral-900 text-gray-200 rounded shadow-lg text-center">
-              These are the tags you reacted most positively to. From here you can add and remove up to 25 interests to your favorites.
+                return (
+                    <div
+                        key={option.id}
+                        draggable
+                        onDragStart={(e) => handleDragStart(e, index)}
+                        onDragOver={handleDragOver}
+                        onDrop={(e) => handleDrop(e, index)}
+                        onClick={() => setOpenDescription(option.id)}
+                        onDoubleClick={() => toggleFavorite(option.id)}
+                        onPointerDown={() => startPress(option.id)}
+                        onPointerUp={cancelPress}
+                        onPointerLeave={cancelPress}
+                        className={`px-3 py-1 rounded cursor-move select-none shadow-sm text-sm font-medium transition-transform active:scale-95 active:opacity-75 hover:brightness-110 flex items-center gap-2 ${
+                        redactedIds.has(option.id) ? "bg-black border-black shadow-none" : ""
+                        }`}
+                        style={style}
+                        title="Drag to reorder • Double-click to remove • Hold to redact"
+                    >
+
+                        {/* Label Text Logic */}
+                        <span
+                        className="flex-shrink-0 text-sm leading-tight"
+                        style={{
+                            display: "inline-block",
+                            backgroundColor: "transparent",
+                            whiteSpace: "nowrap",
+                            /* Redaction override for text */
+                            ...(redactedIds.has(option.id)
+                            ? { color: "#525252", background: "none", WebkitTextFillColor: "initial" }
+                            : {
+                                background: LABEL_GRADIENTS[option.id] ?? undefined,
+                                WebkitBackgroundClip: LABEL_GRADIENTS[option.id] ? "text" : undefined,
+                                WebkitTextFillColor: LABEL_GRADIENTS[option.id] ? "transparent" : undefined,
+                                color: LABEL_GRADIENTS[option.id]
+                                    ? undefined
+                                    : ROLE_SYMBOLS[option.id]?.color ?? "#e5e7eb",
+                                }),
+                        }}
+                        >
+                        {redactedIds.has(option.id) ? "█████" : option.label}
+                        </span>
+                    </div>
+                    );
+              })}
             </div>
-          )}
+          </section>
+        )}
 
-          {/* ✅ Replaced old Positive/Negative tags section with TagAffinityDrilldown */}
-          <TagAffinityDrilldown
-            tags={allVisibleTags}
-            favorites={favorites}
-            toggleFavorite={toggleFavorite}
-          />
-        </section>
+
+       {/* TAG AFFINITIES */}
+          <section className="space-y-6 relative">
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <h3 className="text-xl font-semibold" style={{ textShadow: "2px 2px 0px rgba(0,0,0,0.3)" }}>
+                Tag Affinities
+              </h3>
+              <span
+                onClick={() =>
+                  setOpenTagInfo(prev =>
+                    prev?.tag === "__positive_help" ? null : { tag: "__positive_help", type: "positive" }
+                  )
+                }
+                className="w-4 h-4 flex items-center justify-center rounded-full text-[9px] font-bold bg-neutral-800 text-gray-300 border border-neutral-600 cursor-pointer"
+                title="Show help for positive tags"
+              >
+                ?
+              </span>
+            </div>
+
+            {openTagInfo?.tag === "__positive_help" && (
+              <div className="absolute -top-32 left-1/2 transform -translate-x-1/2 z-50 w-64 p-3 bg-neutral-900 text-gray-200 rounded shadow-lg text-center text-sm border border-neutral-700">
+                These are the tags you reacted most positively to. From here you can add and remove up to 25 interests to your favorites.
+              </div>
+            )}
+
+            {/* TagAffinityDrilldown */}
+            <TagAffinityDrilldown
+              tags={allVisibleTags}
+              favorites={favorites}
+              toggleFavorite={toggleFavorite}
+            />
+          </section>
       </div>
     </main>
   );

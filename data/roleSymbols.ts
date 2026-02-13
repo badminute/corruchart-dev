@@ -1,8 +1,12 @@
 // app/data/roleSymbols.ts
 export const ROLE_SYMBOLS: Record<string, { symbol: string; color?: string }> = {
+        // SEX ROLES
     "top": { symbol: "🡅", color: "#ff9933" },   // Top (Giver)
     "bottom": { symbol: "🡇", color: "#3ac3fa" },   // Bottom (Receiver)
     "versatile": { symbol: "⬢", color: "#a64dff" },   // Versatile (Giver and Receiver)
+
+
+        // DOMINATION AND SUBMISSION
     "dominant": { symbol: "⛓", color: "#ff9933" },   // Dominant
     "submissive": { symbol: "☍", color: "#66ccff" },   // Submissive
     "switch": { symbol: "⇄", color: "#cc99ff" },   // Switch
@@ -40,9 +44,15 @@ export const ROLE_SYMBOLS: Record<string, { symbol: string; color?: string }> = 
     "furniture": { symbol: "🙇", color: "#e8b041" },   // Furniture
     "goddess": { symbol: "♛", color: "#ffcc66" },   // Goddess
     "pony": { symbol: "🪅", color: "#b06bec" },   // Pony
+
+
+        // GENDER EXPRESSION
     "androgynous-gender-exp": { symbol: "⚧", color: "#a578ce" },  // Androgynous
     "masculine-gender-exp": { symbol: "♂", color: "#61a8ee" },   // Masculine
     "feminine-gender-exp": { symbol: "♀", color: "#d792d7" },   // Feminine
+
+
+        // GENDERS
     "male": { symbol: "♂", color: "#3399ff" },   // Male
     "female": { symbol: "♀", color: "#c855a2" },   // Female
     "intersex": { symbol: "⚥", color: "#cc99ff" },   // Intersex
@@ -57,6 +67,9 @@ export const ROLE_SYMBOLS: Record<string, { symbol: string; color?: string }> = 
     "genderfluid-transgender": { symbol: "🜡", color: "#a578ce" },   // Genderfluid (Transgender)
     "bigender-transgender": { symbol: "⚴", color: "#cc3399" },   // Bigender (Transgender)
     "two-spirit-transgender": { symbol: "🜐", color: "#cc3399" },   // Two-Spirit (Transgender)
+
+
+        // SEXUAL ORIENTATIONS
     "straight": { symbol: "⚤", color: "#c2c2c2" },   // Heterosexual (Straight)
     "gay": { symbol: "⚣", color: "#45A893" },   // Homosexual (Gay)
     "lesbian": { symbol: "⚢", color: "#D262A5" },   // Homosexual (Lesbian)
@@ -66,7 +79,82 @@ export const ROLE_SYMBOLS: Record<string, { symbol: string; color?: string }> = 
     "aromantic": { symbol: "🏹", color: "#ff9999" },   // Aromantic
     "demisexual": { symbol: "❦", color: "#ff66cc" },   // Demisexual
     "2d-only": { symbol: "✎", color: "#59b465" },   // 2D ONLY
-    "adult-baby": { symbol: "🍼", color: "#FFE5D9" },   // Adult Baby
+    "adult-baby-option": { symbol: "🍼", color: "#FFE5D9" },   // Adult Baby
+    "diaper-lover": { symbol: "🚼", color: "#48a6f2" },   // Adult Baby
+
+    
+        // EROTIC NOVELS READ
+    "50-shades": { symbol: "📖", color: "#959595" },   // 50 Shades (1-15 Read)
+    "milking-minotaurs": { symbol: "🐂", color: "#86675a" },   // Milking Minotaurs (15-50 Read)
+    "smut-sommelier": { symbol: "🍷", color: "#eb6584" },   // Smut Sommelier (51-100 Read)
+    "erotica-expert": { symbol: "🍹", color: "#fcaf74" },   // Erotica Expert (101-200 Read)
+    "smut-librarian": { symbol: "🏫", color: "#e3cd7d" },   // Smut Librarian (201+ Read)
+
+
+        // HENTAI DOUJINSHI READ
+    "nhentai-tourist": { symbol: "🗾", color: "#65cb7e" },   // Nhentai Tourist (1-50 Read)
+    "177013-initiate": { symbol: "👀", color: "#bebebe" },   // 177013 Initiate (51-150 Read)
+    "has-favourites": { symbol: "🖼️", color: "#89ca73" },   // Has Favourites (151-400 Read)
+    "for-the-plot": { symbol: "🐻‍❄️", color: "#cac8c9" },   // ExHentai Explorer (401-800 Read)
+    "rereader": { symbol: "📕", color: "#e66198" },   // Rereader (801-1,500 Read)
+    "sad-panda": { symbol: "🐼", color: "#c4ccce" },   // Sad Panda (1,501+ Read)
+
+
+        // HENTAI ANIME WATCHED
+    "tentacle": { symbol: "🐙", color: "#ea7f54" },   // Seen a Tentacle (1-25 Watched)
+    "deflowered": { symbol: "🌸", color: "#e7a5e7" },   // Deflowered (26-75 Watched)
+    "kuroinu": { symbol: "🧝🏽‍♀️", color: "#975ba3" },   // Kuroinu (76-150 Watched)
+    "get-pregnant": { symbol: "🤰", color: "#51b4e6" },   // Get Pregnant (151-300 Watched)
+    "mind-broken": { symbol: "😵‍💫", color: "#f3ae47" },   // Mind Broken (301-600 Watched)
+    "watched-everything": { symbol: "🚫", color: "#aeaeae" },   // Watched Everythig (601+ Watched)
+
+
+        // HENTAI GAMES PLAYED
+    "meet-n-fuck-racer": { symbol: "👯", color: "#fde19f" },   // Meet'N'Fuck Street Racer (1-25 Played)
+    "bad-ends": { symbol: "💀", color: "#c9c9c9" },   // Got Some Bad Ends (26-100 Played)
+    "slop-sifter": { symbol: "🥱", color: "#ebc16e" },   // NTR Slop Sifter (101-250 Played)
+    "gallery-grinder": { symbol: "🖼️", color: "#3cb371" },   // Gallery Grinder (251-500 Played)
+    "fluent-in-mtl": { symbol: "🤖", color: "#b6b6b6" },   // Fluent in MTL (501-1,000 Played)
+    "waiting-for-devs": { symbol: "⌛", color: "#ecd979" },   // Waiting for Developers (1,001+ Played)
+
+
+        // SEX EXPERIENCE
+    "virgin": { symbol: "🍒", color: "#f04502" },   // Virgin
+    "sex-had": { symbol: "🍆", color: "#aa45c1" },   // Sex Had (~1-10 Sex)
+    "sex-haver": { symbol: "😏", color: "#ffb6c1" },   // Sex Haver (~10-1000 Sex)
+    "sex-adept": { symbol: "🐇", color: "#e8e8e8" },   // Sex Adept (~1000-5000 Sex)
+    "sex-expert": { symbol: "💦", color: "#57a5ff" },   // Sex Expert (~5000-10000 Sex)
+    "sex-god": { symbol: "🪛", color: "#f24372" },   // Sex God (~10000+ Sex)
+
+
+        // BODYCOUNT
+    "single-digit": { symbol: "📍", color: "#e94388" },   // Single Digit Samaritan (~1-9 Bodies)
+    "gets-around": { symbol: "❤️‍🩹", color: "#f33782" },   // Gets Around (~10-25 Bodies)
+    "promiscuous": { symbol: "💋", color: "#f01b70" },   // Promiscuous (~25-50 Bodies)
+    "flesh-enjoyer": { symbol: "🍑", color: "#ed9c33" },   // Flesh Enjoyer (~50-100 Bodies)
+    "village-bicycle": { symbol: "🚲", color: "#d04949" },   // Village Bicycle (~100+)
+    "city-trolley": { symbol: "🚌", color: "#52b8d2" },   // City Trolley (~500+ Bodies)
+    "well-traveled": { symbol: "🌎", color: "#5ed05e" },   // Well-traveled (~1000+ Bodies)
+
+
+        // PORN EXPERIENCE
+    "naughty-video": { symbol: "👀", color: "#b0c4de" },   // Saw a Naughty Video (~1-25 Vids)
+    "doomscrolled-porn": { symbol: "📱", color: "#b0c4de" },   // XXX Doomscroller (~200-1000 Vids)
+    "the-watcher": { symbol: "📺", color: "#87cefa" },   // The Watcher (~1000-2500 Vids)
+    "refined-taste": { symbol: "🍸", color: "#6bcc88" },   // Refined Taste (~2500-5000 Vids)
+    "seen-things": { symbol: "🙈", color: "#795f55" },   // Seen Some Things (~5000-10000 Vids)
+    "strong-arm": { symbol: "🩻", color: "#4893e4" },   // Bottomless Hunger (~10000-25000 Vids)
+    "page-24732": { symbol: "📄", color: "#bcbcbc" },   // Page 24732 (~25000+ Vids)
+
+
+        // PORN STASH
+    "handful-of-favourites": { symbol: "⭐", color: "#fdea6c" },   // A Handful of Favourites (1-25 Vids / 250 Images)
+    "the-novice-stasher": { symbol: "📁", color: "#dda0dd" },   // The Novice Stasher (25-100 Vids / 250-2500 Images)
+    "the-stasher": { symbol: "🗄️", color: "#6f468e" },   // The Stasher (100-500 Vids / 2500-10000 Images)
+    "the-bunker": { symbol: "🏣", color: "#c71565" },   // The Bunker (500-3000 Vids / 10000-20000 Images)
+    "the-archivist": { symbol: "🏦", color: "#a4a4a4" },   // The Benevolent Archivist (3000+ Vids / 10000+ Images)
+
+        // FUN ROLES
     "bull": { symbol: "♞", color: "#b98046" },   // Bull
     "cuckcake": { symbol: "🍰", color: "#dbad80" },   // Cuckcake
     "cuckold": { symbol: "🪑", color: "#A56953" },   // Cuckold
@@ -93,6 +181,9 @@ export const ROLE_SYMBOLS: Record<string, { symbol: string; color?: string }> = 
     "sugar-provider": { symbol: "💳", color: "#4ba5fa" },   // Sugar Provider
     "skunk": { symbol: "🦨", color: "#cfcfcf" },   // Skunk
     "cannibal": { symbol: "🍖", color: "#f04502" },   // Cannibal
+    "hucow": { symbol: "🐮", color: "#aaaaaa" },   // Hucow
+    "cum-slut": { symbol: "🤤", color: "#aaaaaa" },   // Hucow
+
 };
 
   
