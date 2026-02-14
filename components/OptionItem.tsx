@@ -65,8 +65,12 @@ function OptionItem({
 
         // defer until next paint so Tailwind width/line wraps are applied
         requestAnimationFrame(() => {
-            const rect = tooltipRef.current!.getBoundingClientRect();
-            const padding = 8;
+        const el = tooltipRef.current;
+        if (!el) return; // ← guard again inside RAF
+
+        const rect = el.getBoundingClientRect();
+
+            const padding = 12;
 
             // ---- Vertical clamp ----
             if (rect.top < padding) {
@@ -303,35 +307,41 @@ function OptionItem({
                     ref={tooltipRef}
                     className={`
                         absolute
-                        ${tooltipPlacement === "top"
-                            ? "bottom-full mb-2"
-                            : "top-full mt-2"}
-                        left-1/2 -translate-x-1/2
+                        ${tooltipPlacement === "top" ? "bottom-full mb-2" : "top-full mt-2"}
+                        left-1/2
                         z-50
+                        pointer-events-none
                     `}
                     style={{
-                        transform: `translateX(calc(-50% + ${tooltipOffsetX}px))`,
+                        /* We add 20px (or whatever number you like) to the translateX to nudge it right */
+                        transform: `translateX(calc(-50% + ${tooltipOffsetX}px + 20px))`,
                     }}
                 >
 
                     <div
-                        className="
-                                w-max
-                                max-w-[90vw]
-                                sm:max-w-md
-                                md:max-w-lg
-                                bg-neutral-800
-                                text-gray-200
-                                px-4 py-3
-                                rounded
-                                border border-gray-500
-                                text-center
-                                animate-pop-in
-                            "
-                        style={{ boxShadow: "0 3px 0 rgba(0,0,0,0.9)" }}
-                    >
-                        {description}
-                    </div>
+                    className="
+                        w-max 
+                        max-w-[85vw]           /* Slightly narrower for extra edge safety */
+                        sm:max-w-md 
+                        md:max-w-lg 
+                        bg-neutral-800 
+                        text-gray-200 
+                        px-3 py-2              /* Slightly reduced padding for mobile */
+                        sm:px-4 sm:py-3        /* Normal padding for larger screens */
+                        rounded 
+                        border border-gray-500 
+                        text-center 
+                        animate-pop-in
+                        
+                        /* RESPONSIVE TEXT SIZE */
+                        text-xs                /* Smallest size for mobile */
+                        sm:text-sm             /* Medium size for larger screens */
+                        leading-relaxed        /* Better readability for wrapped text */
+                    "
+                    style={{ boxShadow: "0 3px 0 rgba(0,0,0,0.9)" }}
+                >
+                    {description}
+                </div>
                 </div>
             )}
         </div>

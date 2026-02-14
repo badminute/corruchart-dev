@@ -1,8 +1,8 @@
 // app/data/roleSymbols.ts
 export const ROLE_SYMBOLS: Record<string, { symbol: string; color?: string }> = {
         // SEX ROLES
-    "top": { symbol: "🡅", color: "#ff9933" },   // Top (Giver)
-    "bottom": { symbol: "🡇", color: "#3ac3fa" },   // Bottom (Receiver)
+    "top": { symbol: "▲", color: "#ff9933" },   // Top (Giver)
+    "bottom": { symbol: "▼", color: "#3ac3fa" },   // Bottom (Receiver)
     "versatile": { symbol: "⬢", color: "#a64dff" },   // Versatile (Giver and Receiver)
 
 
@@ -111,11 +111,11 @@ export const ROLE_SYMBOLS: Record<string, { symbol: string; color?: string }> = 
 
         // HENTAI GAMES PLAYED
     "meet-n-fuck-racer": { symbol: "👯", color: "#fde19f" },   // Meet'N'Fuck Street Racer (1-25 Played)
-    "bad-ends": { symbol: "💀", color: "#c9c9c9" },   // Got Some Bad Ends (26-100 Played)
+    "rpg-maker": { symbol: "💀", color: "#c9c9c9" },   // Got Some Bad Ends (26-100 Played)
     "slop-sifter": { symbol: "🥱", color: "#ebc16e" },   // NTR Slop Sifter (101-250 Played)
     "gallery-grinder": { symbol: "🖼️", color: "#3cb371" },   // Gallery Grinder (251-500 Played)
     "fluent-in-mtl": { symbol: "🤖", color: "#b6b6b6" },   // Fluent in MTL (501-1,000 Played)
-    "waiting-for-devs": { symbol: "⌛", color: "#ecd979" },   // Waiting for Developers (1,001+ Played)
+    "waiting-on-devs": { symbol: "⌛", color: "#ecd979" },   // Waiting for Developers (1,001+ Played)
 
 
         // SEX EXPERIENCE

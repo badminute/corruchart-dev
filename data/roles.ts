@@ -147,7 +147,7 @@ export const ROLES: RoleOption[] = [
     { id: "slop-sifter", label: "Slop Sifter (~101-250 Played)", aka: [], tags: ["Hentai Games Played"], category: 3 },
     { id: "gallery-grinder", label: "Gallery Grinder (~251-500 Played)", aka: [], tags: ["Hentai Games Played"], category: 3 },
     { id: "fluent-in-mtl", label: "Fluent in MTL (~501-1,000 Played)", aka: [], tags: ["Hentai Games Played"], category: 4 },
-    { id: "waiting-for-devs", label: "Waiting for Developers (~1,001+ Played)", aka: [], tags: ["Hentai Games Played"], category: 4 },
+    { id: "waiting-on-devs", label: "Waiting on Devs (~1,001+ Played)", aka: [], tags: ["Hentai Games Played"], category: 4 },
 
 
     // GENDER
