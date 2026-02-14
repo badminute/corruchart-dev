@@ -52,18 +52,18 @@ export const ROLES: RoleOption[] = [
     { id: "rope-top", label: "Rope Top", aka: [], tags: ["Bondage & Discipline"], category: 3 },
 
 
-    // BDSM ROLES Cont.
-    { id: "pig", label: "Pig", aka: [], tags: ["BDSM Roles Cont."], category: 4 },
-    { id: "little", label: "Little", aka: [], tags: ["BDSM Roles Cont."], category: 3 },
-    { id: "doctor", label: "Doctor", aka: [], tags: ["BDSM Roles Cont."], category: 3 },
-    { id: "patient", label: "Patient", aka: [], tags: ["BDSM Roles Cont."], category: 3 },
-    { id: "goddess", label: "Goddess", aka: [], tags: ["BDSM Roles Cont."], category: 3 },
-    { id: "pony", label: "Pony", aka: [], tags: ["BDSM Roles Cont."], category: 3 },
-    { id: "service-top", label: "Service Top", aka: [], tags: ["BDSM Roles Cont."], category: 3 },
-    { id: "service-dom", label: "Service Dom", aka: [], tags: ["BDSM Roles Cont."], category: 3 },
-    { id: "sensation-junkie", label: "Sensation Junkie", aka: [], tags: ["BDSM Roles Cont."], category: 3 },
-    { id: "mommy", label: "Mommy", aka: [], tags: ["BDSM Roles Cont."], category: 3, variantGroup: "parents-variant", variantOrder: 0 },
-    { id: "daddy", label: "Daddy", aka: [], tags: ["BDSM Roles Cont."], category: 3, variantGroup: "parents-variant", variantOrder: 1 },
+    // BDSM ROLES Misc.
+    { id: "pig", label: "Pig", aka: [], tags: ["BDSM Roles Misc."], category: 4 },
+    { id: "little", label: "Little", aka: [], tags: ["BDSM Roles Misc."], category: 3 },
+    { id: "doctor", label: "Doctor", aka: [], tags: ["BDSM Roles Misc."], category: 3 },
+    { id: "patient", label: "Patient", aka: [], tags: ["BDSM Roles Misc."], category: 3 },
+    { id: "goddess", label: "Goddess", aka: [], tags: ["BDSM Roles Misc."], category: 3 },
+    { id: "pony", label: "Pony", aka: [], tags: ["BDSM Roles Misc."], category: 3 },
+    { id: "service-top", label: "Service Top", aka: [], tags: ["BDSM Roles Misc."], category: 3 },
+    { id: "service-dom", label: "Service Dom", aka: [], tags: ["BDSM Roles Misc."], category: 3 },
+    { id: "sensation-junkie", label: "Sensation Junkie", aka: [], tags: ["BDSM Roles Misc."], category: 3 },
+    { id: "mommy", label: "Mommy", aka: [], tags: ["BDSM Roles Misc."], category: 3, variantGroup: "parents-variant", variantOrder: 0 },
+    { id: "daddy", label: "Daddy", aka: [], tags: ["BDSM Roles Misc."], category: 3, variantGroup: "parents-variant", variantOrder: 1 },
 
 
     // GENDER EXPRESSION

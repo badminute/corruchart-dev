@@ -15,10 +15,11 @@ import { narrowTagsCheck } from "@/lib/utils";
 import { NARROW_TAGS } from "@/data/narrowTags";
 import { WelcomeSlideshow } from "@/components/onboarding";
 
+
 const broadOnlyIds = narrowTagsCheck(OPTIONS, NARROW_TAGS);
 const METER_MAX_POINTS = 5000;
 const PAGE_BACKGROUND_COLOR = "#1F2023";
-const MAX_FAVORITES = 25;
+const MAX_FAVORITES = 28;
 const FAVORITES_KEY = "corruchart-favorites";
 const HIDDEN_TAGS = new Set<string>(["upper-body", "dynamics", "qualities", "acts", "lower-body", "themes", "dynamics"]);
 
@@ -79,6 +80,8 @@ export default function ResultsPage() {
     const [popupPos, setPopupPos] = useState<{ x: number; y: number } | null>(null);
     const dragStartRef = useRef<{ x: number; y: number; mouseX: number; mouseY: number } | null>(null);
     const [isWelcomeOpen, setIsWelcomeOpen] = useState(true);
+
+
 
     const welcomeImages = [
     "/corruchart-dev/images/favourite-interests.gif",
@@ -183,7 +186,7 @@ const toggleRedact = (id: string) => {
           "Sex Roles",
           "Bondage & Discipline",
           "Domination & Submission",
-          "BDSM Roles Cont.",
+          "BDSM Roles Misc.",
           "Sadism & Masochism",
         ],
       },
@@ -216,12 +219,12 @@ const toggleRedact = (id: string) => {
 
   /** html2canvas-safe hex colors */
   const COLOR_HEX = [
-    "#d1d5db", // Indifferent
-    "#ef4444", // Disgust
-    "#3b82f6", // Dislike
-    "#22c55e", // Like
-    "#facc15", // Love
-    "#f97316", // Lust
+    "#828282ff", // Indifferent
+    "#e74c3c",   // Disgust
+    "#fc8d59",   // Dislike
+    "#27ae60",   // Like
+    "#37bdf6ff", // Love
+    "#c88de8ff", // Lust
   ];
 
   const COLOR_NAMES = [
@@ -518,6 +521,29 @@ const submitForm = async (event: React.FormEvent<HTMLFormElement>) => {
       .map(id => OPTIONS.find(o => o.id === id))
       .filter(Boolean);
   }, [favorites]);
+    // Favorite options (positive)
+    const favoritePositiveOptions = useMemo(() => {
+    return favorites
+        .map(id => OPTIONS.find(o => o.id === id))
+        .filter(Boolean)
+        .filter(option => {
+        const sel = selections.find(s => s.id === option!.id);
+        return sel && COLOR_NAMES.indexOf(sel.value) >= 3; // like/love/lust
+        });
+    }, [favorites, selections]);
+
+    // Favorite options (negative)
+    const favoriteNegativeOptions = useMemo(() => {
+    return favorites
+        .map(id => OPTIONS.find(o => o.id === id))
+        .filter(Boolean)
+        .filter(option => {
+        const sel = selections.find(s => s.id === option!.id);
+        return sel && [1, 2].includes(COLOR_NAMES.indexOf(sel.value)); 
+    // 1 = disgust, 2 = dislike
+        });
+    }, [favorites, selections]);
+
 
   // ----------------------------
   // Map selections for scoring (combined-selections only)
@@ -598,36 +624,6 @@ const submitForm = async (event: React.FormEvent<HTMLFormElement>) => {
     return Array.from(new Map(combined.map(t => [t.tag, t])).values());
   }, [visiblePositiveTags, visibleNegativeTags]);
 
-// ----------------------------
-  // Drag & Drop Handlers
-  // ----------------------------
-  const handleDragStart = (e: React.DragEvent, index: number) => {
-    // Save the index of the item being dragged
-    e.dataTransfer.setData("dragIndex", index.toString());
-    e.dataTransfer.effectAllowed = "move";
-  };
-
-  const handleDrop = (e: React.DragEvent, dropIndex: number) => {
-    e.preventDefault();
-    const dragIndex = Number(e.dataTransfer.getData("dragIndex"));
-    
-    // Don't do anything if dropped on itself
-    if (dragIndex === dropIndex) return;
-
-    // Reorder array
-    const updated = [...favorites];
-    const [movedItem] = updated.splice(dragIndex, 1);
-    updated.splice(dropIndex, 0, movedItem);
-
-    // Save state and localStorage
-    setFavorites(updated);
-    localStorage.setItem(FAVORITES_KEY, JSON.stringify(updated));
-  };
-
-  const handleDragOver = (e: React.DragEvent) => {
-    // Strictly necessary to allow dropping
-    e.preventDefault();
-  };
 
    // ----------------------------
 // DEV CHECK: positive options whose tags never appear in Tag Affinities
@@ -760,12 +756,12 @@ useEffect(() => {
                 <input type="hidden" name="_captcha" value="false" />
                 <input type="hidden" name="_template" value="table" />
 
-                <input type="text" name="name" placeholder="Name" className="px-2 py-1 rounded text-white" required />
-                <input type="email" name="email" placeholder="Email" className="px-2 py-1 rounded text-white" required />
+                <input type="text" name="name" placeholder="Nickname" className="px-2 py-1 rounded text-white" required />
+                <input type="email" name="email" placeholder="Email (Possibly Get a Reply)" className="px-2 py-1 rounded text-white" />
                 <input type="text" name="honeypot" style={{ display: "none" }} />
                 <textarea
                     name="message"
-                    placeholder="Your message"
+                    placeholder="Your feedback (suggestions, typos, improvements, adjustments, ideas, kisses, etc.)"
                     className="px-2 py-1 rounded text-white resize-y min-h-[5rem] max-h-64 overflow-y-auto"
                     required
                 />
@@ -835,7 +831,7 @@ useEffect(() => {
                 textShadow: "0px 1px 0px rgba(0,0,0,0.6)",
               }}
             >
-              v0.27.0
+              v0.28.0
             </span>
           </div>
 
@@ -1003,7 +999,7 @@ useEffect(() => {
                     onPointerDown={() => startPress(role.id)}
                     onPointerUp={cancelPress}
                     onPointerLeave={cancelPress}
-                    className="flex items-center gap-1.5 text-sm bg-neutral-800 px-3 py-1 rounded border border-neutral-700 shadow-sm break-inside-avoid whitespace-nowrap cursor-pointer hover:brightness-110 transition-all select-none"
+                    className="flex items-center gap-1.5 text-sm bg-neutral-800 px-3 py-1 rounded border border-neutral-700 shadow-sm break-inside-avoid whitespace-nowrap cursor-pointer hover:brightness-110 transition-all select-none active:scale-95 active:opacity-75"
                     >
                     {/* Symbol / Emoji Logic */}
                     <span
@@ -1080,86 +1076,114 @@ useEffect(() => {
 
 
     {/* FAVORITE OPTIONS */}
-        {favorites.length > 0 && (
-          <section className="mt-8 relative">
-            <div className="flex items-center justify-center gap-2 mb-4">
-              <h3 className="text-xl font-semibold text-neutral-300" style={{ textShadow: "2px 2px 0px rgba(0,0,0,0.3)" }}>
-                Favourites
-              </h3>
+{(favoritePositiveOptions.length > 0 || favoriteNegativeOptions.length > 0) && (
+  <section className="mt-8 relative">
+  <div className="flex items-center justify-center gap-2 mb-4">
+    <h3 className="text-xl font-semibold text-neutral-300" style={{ textShadow: "2px 2px 0px rgba(0,0,0,0.3)" }}>
+      Pinned
+    </h3>
+    <span
+      onClick={() =>
+        setOpenTagInfo(prev =>
+          prev?.tag === "__fav_help" ? null : { tag: "__fav_help", type: "positive" }
+        )
+      }
+      className="w-4 h-4 flex items-center justify-center rounded-full text-[9px] font-bold bg-neutral-800 text-gray-300 border border-neutral-600 cursor-pointer"
+      title="How to manage pins"
+    >
+      ?
+    </span>
+  </div>
+
+  {openTagInfo?.tag === "__fav_help" && (
+    <div className="absolute -top-28 left-1/2 transform -translate-x-1/2 z-50 w-64 p-3 bg-neutral-900 text-gray-200 rounded shadow-lg text-center text-sm border border-neutral-700">
+      Double-click a label to remove it from your pinned. Click and hold a label to redact it.
+    </div>
+  )}
+
+  {/* Positive Favorites Row */}
+  {favoritePositiveOptions.length > 0 && (
+    <div className="flex flex-wrap gap-3 justify-center mb-2">
+      {favoritePositiveOptions
+  .sort((a, b) => {
+    const aVal = COLOR_NAMES.indexOf(selections.find(s => s.id === a.id)?.value ?? "indifferent");
+    const bVal = COLOR_NAMES.indexOf(selections.find(s => s.id === b.id)?.value ?? "indifferent");
+    return bVal - aVal; // flipped: strongest → weakest
+  })
+        .map(option => {
+          const sel = selections.find(s => s.id === option.id);
+          const reaction = sel?.value ?? "indifferent";
+          const colorIdx = COLOR_NAMES.indexOf(reaction);
+          const textColor = COLOR_HEX[colorIdx] ?? "#e5e7eb";
+
+          return (
+            <div
+              key={option.id}
+              onClick={() => setOpenDescription(option.id)}
+              onDoubleClick={() => toggleFavorite(option.id)}
+              onPointerDown={() => startPress(option.id)}
+              onPointerUp={cancelPress}
+              onPointerLeave={cancelPress}
+              className="px-3 py-1 rounded cursor-pointer select-none shadow-sm text-sm font-medium transition-transform active:scale-95 active:opacity-75 flex items-center gap-2 bg-neutral-800 border border-neutral-700"
+              title="Double-click to remove • Hold to redact"
+            >
               <span
-                onClick={() =>
-                  setOpenTagInfo(prev =>
-                    prev?.tag === "__fav_help" ? null : { tag: "__fav_help", type: "positive" }
-                  )
-                }
-                className="w-4 h-4 flex items-center justify-center rounded-full text-[9px] font-bold bg-neutral-800 text-gray-300 border border-neutral-600 cursor-pointer"
-                title="How to manage favourites"
+                style={{
+                  whiteSpace: "nowrap",
+                  color: redactedIds.has(option.id) ? "#525252" : textColor,
+                }}
               >
-                ?
+                {redactedIds.has(option.id) ? "█████" : option.label}
               </span>
             </div>
+          );
+        })}
+    </div>
+  )}
 
-            {openTagInfo?.tag === "__fav_help" && (
-              <div className="absolute -top-32 left-1/2 transform -translate-x-1/2 z-50 w-64 p-3 bg-neutral-900 text-gray-200 rounded shadow-lg text-center text-sm border border-neutral-700">
-                Click and drag labels left or right to reorder them. <br/> 
-                Double-click a label to remove it from your favourites. Click and hold a label to redact it.
-              </div>
-            )}
+  {/* Negative Favorites Row */}
+  {favoriteNegativeOptions.length > 0 && (
+    <div className="flex flex-wrap gap-3 justify-center">
+      {favoriteNegativeOptions
+  .sort((a, b) => {
+    const aVal = COLOR_NAMES.indexOf(selections.find(s => s.id === a.id)?.value ?? "indifferent");
+    const bVal = COLOR_NAMES.indexOf(selections.find(s => s.id === b.id)?.value ?? "indifferent");
+    return bVal - aVal; // flipped: strongest → weakest
+  })
+        .map(option => {
+          const sel = selections.find(s => s.id === option.id);
+          const reaction = sel?.value ?? "indifferent";
+          const colorIdx = COLOR_NAMES.indexOf(reaction);
+          const textColor = COLOR_HEX[colorIdx] ?? "#e5e7eb";
 
-            <div className="flex flex-wrap gap-3 justify-center">
-              {favoriteOptions.map((option, index) => {
-                const isGradient = LABEL_GRADIENTS[option.id];
-                const style = isGradient
-                  ? { background: LABEL_GRADIENTS[option.id], color: "#000", border: "none" }
-                  : { backgroundColor: "#262626", color: "#e5e5e5", border: "1px solid #404040" };
-
-                return (
-                    <div
-                        key={option.id}
-                        draggable
-                        onDragStart={(e) => handleDragStart(e, index)}
-                        onDragOver={handleDragOver}
-                        onDrop={(e) => handleDrop(e, index)}
-                        onClick={() => setOpenDescription(option.id)}
-                        onDoubleClick={() => toggleFavorite(option.id)}
-                        onPointerDown={() => startPress(option.id)}
-                        onPointerUp={cancelPress}
-                        onPointerLeave={cancelPress}
-                        className={`px-3 py-1 rounded cursor-move select-none shadow-sm text-sm font-medium transition-transform active:scale-95 active:opacity-75 hover:brightness-110 flex items-center gap-2 ${
-                        redactedIds.has(option.id) ? "bg-black border-black shadow-none" : ""
-                        }`}
-                        style={style}
-                        title="Drag to reorder • Double-click to remove • Hold to redact"
-                    >
-
-                        {/* Label Text Logic */}
-                        <span
-                        className="flex-shrink-0 text-sm leading-tight"
-                        style={{
-                            display: "inline-block",
-                            backgroundColor: "transparent",
-                            whiteSpace: "nowrap",
-                            /* Redaction override for text */
-                            ...(redactedIds.has(option.id)
-                            ? { color: "#525252", background: "none", WebkitTextFillColor: "initial" }
-                            : {
-                                background: LABEL_GRADIENTS[option.id] ?? undefined,
-                                WebkitBackgroundClip: LABEL_GRADIENTS[option.id] ? "text" : undefined,
-                                WebkitTextFillColor: LABEL_GRADIENTS[option.id] ? "transparent" : undefined,
-                                color: LABEL_GRADIENTS[option.id]
-                                    ? undefined
-                                    : ROLE_SYMBOLS[option.id]?.color ?? "#e5e7eb",
-                                }),
-                        }}
-                        >
-                        {redactedIds.has(option.id) ? "█████" : option.label}
-                        </span>
-                    </div>
-                    );
-              })}
+          return (
+            <div
+              key={option.id}
+              onClick={() => setOpenDescription(option.id)}
+              onDoubleClick={() => toggleFavorite(option.id)}
+              onPointerDown={() => startPress(option.id)}
+              onPointerUp={cancelPress}
+              onPointerLeave={cancelPress}
+              className="px-3 py-1 rounded cursor-pointer select-none shadow-sm text-sm font-medium transition-transform active:scale-95 active:opacity-75 flex items-center gap-2 bg-neutral-800 border border-neutral-700"
+              title="Double-click to remove • Hold to redact"
+            >
+              <span
+                style={{
+                  whiteSpace: "nowrap",
+                  color: redactedIds.has(option.id) ? "#525252" : textColor,
+                }}
+              >
+                {redactedIds.has(option.id) ? "█████" : option.label}
+              </span>
             </div>
-          </section>
-        )}
+    );
+  })}
+</div>
+
+
+  )}
+</section>
+)}
 
 
        {/* TAG AFFINITIES */}
@@ -1195,31 +1219,43 @@ useEffect(() => {
             />
       {/* MODAL OVERLAY */}
             {showWelcome && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4">
-                    <div className="bg-neutral-900 border border-neutral-800 p-6 rounded-2xl max-w-md w-full shadow-2xl">
-                        <h2 className="text-2xl font-bold text-center text-violet-400 mb-2">Results Section</h2>
-                        
-                        <div className="text-gray-400 text-center text-sm space-y-3">
-                            <p>Your results are computed based on your responses to specific interests. Your affinities are based on the tags that the interests are in. You can customize your results a bit more, here are some tips.</p>
-                        </div>
+  <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4">
+    <div className="bg-neutral-900 border border-neutral-800 p-6 rounded-2xl w-full max-w-4xl h-[650px] shadow-2xl flex flex-col">
+      {/* Header */}
+      <h2 className="text-2xl font-bold text-center text-violet-400 mb-4">
+        Results Section
+      </h2>
 
-                        <WelcomeSlideshow 
-                            images={[
-                                "images/favourite-interests.gif", 
-                                "images/redact-favourites.gif",
-                                "images/remove-favourites.gif",
-                            ]} 
-                        />
+      {/* Description */}
+      <div className="text-gray-400 text-center text-sm mb-4">
+        <p>
+          Your results are computed based on your responses to specific interests. Your affinities
+          are based on the tags that the interests are in. You can customize your results a bit more, here are some tips.
+        </p>
+      </div>
 
-                        <button
-                            onClick={closeWelcome}
-                            className="w-full py-3 mt-2 bg-neutral-800 hover:bg-violet-500/30 cursor-pointer text-white font-semibold rounded-xl transition-colors"
-                        >
-                            RESULTS
-                        </button>
-                    </div>
-                </div>
-            )}
+      {/* Slideshow */}
+      <div className="flex-1">
+        <WelcomeSlideshow 
+          images={[
+            "images/favourite-interests.gif", 
+            "images/redact-favourites.gif",
+            "images/remove-favourites.gif",
+          ]} 
+        />
+      </div>
+
+      {/* Button */}
+      <button
+        onClick={closeWelcome}
+        className="w-full py-3 mt-4 bg-neutral-800 hover:bg-violet-500/30 cursor-pointer text-white font-semibold rounded-xl transition-colors"
+      >
+        RESULTS
+      </button>
+    </div>
+  </div>
+)}
+
           </section>
       </div>
     </main>

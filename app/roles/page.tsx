@@ -189,7 +189,7 @@ export default function Page() {
         });
     });
 
-    const categoryOrder = ["Sex", "Sex Roles", "Gender", "Sexual Orientation", "Gender Expression", "Domination & Submission", "Bondage & Discipline", "Fun Roles", "BDSM Roles Cont.", "Sex Experience", "Body Count",];
+    const categoryOrder = ["Sex", "Sex Roles", "Gender", "Sexual Orientation", "Gender Expression", "Domination & Submission", "Bondage & Discipline", "Fun Roles", "BDSM Roles Misc.", "Sex Experience", "Body Count",];
     const categoryNames = Object.keys(categoriesMap).sort((a, b) => {
         const ia = categoryOrder.indexOf(a);
         const ib = categoryOrder.indexOf(b);
@@ -202,32 +202,43 @@ export default function Page() {
     return (
         <>
             {/* MODAL OVERLAY */}
-            {showWelcome && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4">
-                    <div className="bg-neutral-900 border border-neutral-800 p-6 rounded-2xl max-w-md w-full shadow-2xl">
-                        <h2 className="text-2xl font-bold text-center text-violet-400 mb-2">Roles Section</h2>
-                        
-                        <div className="text-gray-400 text-center text-sm space-y-3">
-                            <p>Here are some usage tips to make things smoother.</p>
-                        </div>
+{showWelcome && (
+  <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4">
+    <div className="bg-neutral-900 border border-neutral-800 p-6 rounded-2xl w-full max-w-4xl h-[650px] shadow-2xl flex flex-col">
+      
+      {/* Header */}
+      <h2 className="text-2xl font-bold text-center text-violet-400 mb-4">
+        Roles Section
+      </h2>
 
-                        <WelcomeSlideshow 
-                            images={[
-                                "images/select-roles.gif", 
-                                "images/role-descriptions.gif",
-                                "images/swap-roles.gif",
-                            ]} 
-                        />
+      {/* Description */}
+      <div className="text-gray-400 text-center text-sm mb-4">
+        <p>Here are some usage tips to make things smoother.</p>
+      </div>
 
-                        <button
-                            onClick={closeWelcome}
-                            className="w-full py-3 mt-2 bg-neutral-800 hover:bg-violet-500/30 cursor-pointer text-white font-semibold rounded-xl transition-colors"
-                        >
-                            ROLES
-                        </button>
-                    </div>
-                </div>
-            )}
+      {/* Slideshow */}
+      <div className="flex-1">
+        <WelcomeSlideshow 
+          images={[
+            "images/select-roles.gif", 
+            "images/role-descriptions.gif",
+            "images/swap-roles.gif",
+          ]} 
+        />
+      </div>
+
+      {/* Button */}
+      <button
+        onClick={closeWelcome}
+        className="w-full py-3 mt-4 bg-neutral-800 hover:bg-violet-500/30 cursor-pointer text-white font-semibold rounded-xl transition-colors"
+      >
+        ROLES
+      </button>
+
+    </div>
+  </div>
+)}
+
 
             {/* ORIGINAL PAGE CONTENT */}
             <main className="min-h-screen px-8 pb-24 flex flex-col items-center" style={{ backgroundColor: "#1F2023" }}>
