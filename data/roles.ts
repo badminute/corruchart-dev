@@ -88,13 +88,13 @@ export const ROLES: RoleOption[] = [
 
 
     // BODY COUNT
-    { id: "single-digit", label: "Single Digit Samaritan (~1-9 Bodies)", aka: [], tags: ["Body Count"], category: 1 },
-    { id: "gets-around", label: "Gets Around (~10-25 Bodies)", aka: [], tags: ["Body Count"], category: 1 },
-    { id: "promiscuous", label: "Promiscuous (~25-50 Bodies)", aka: [], tags: ["Body Count"], category: 1 },
-    { id: "flesh-enjoyer", label: "Flesh Enjoyer (~50-100 Bodies)", aka: [], tags: ["Body Count"], category: 1 },
-    { id: "village-bicycle", label: "Village Bicycle (~100+)", aka: [], tags: ["Body Count"], category: 1 },
-    { id: "city-trolley", label: "City Trolley (~500+ Bodies)", aka: [], tags: ["Body Count"], category: 1 },
-    { id: "well-traveled", label: "Well-traveled (~1000+ Bodies)", aka: [], tags: ["Body Count"], category: 1 },
+    { id: "single-digit", label: "Single Digit Samaritan (~1-9 Bodies)", aka: [], tags: ["Body Count"], category: 2 },
+    { id: "gets-around", label: "Gets Around (~10-25 Bodies)", aka: [], tags: ["Body Count"], category: 2 },
+    { id: "promiscuous", label: "Promiscuous (~25-50 Bodies)", aka: [], tags: ["Body Count"], category: 3 },
+    { id: "flesh-enjoyer", label: "Flesh Enjoyer (~50-100 Bodies)", aka: [], tags: ["Body Count"], category: 4 },
+    { id: "village-bicycle", label: "Village Bicycle (~100+)", aka: [], tags: ["Body Count"], category: 4 },
+    { id: "city-trolley", label: "City Trolley (~500+ Bodies)", aka: [], tags: ["Body Count"], category: 4 },
+    { id: "well-traveled", label: "Well-traveled (~1000+ Bodies)", aka: [], tags: ["Body Count"], category: 5 },
 
 
     // PORN EXPERIENCE
@@ -108,46 +108,46 @@ export const ROLES: RoleOption[] = [
 
 
     // PORN STASH
-    { id: "handful-of-favourites", label: "A Handful of Favourites (1-25 Vids / 250 Images)", aka: [], tags: ["Porn Stash"], category: 3 },
-    { id: "the-novice-stasher", label: "The Novice Stasher (25-100 Vids / 250-2500 Images)", aka: [], tags: ["Porn Stash"], category: 4 },
-    { id: "the-stasher", label: "The Stasher (100-500 Vids / 2500-10000 Images)", aka: [], tags: ["Porn Stash"], category: 4 },
-    { id: "the-bunker", label: "The Bunker (500-3000 Vids / 10000-20000 Images)", aka: [], tags: ["Porn Stash"], category: 4 },
-    { id: "the-archivist", label: "The Archivist (3000+ Vids / 10000+ Images)", aka: [], tags: ["Porn Stash"], category: 5 },
+    { id: "handful-of-favourites", label: "A Handful of Favourites (~1-25 Vids)", aka: [], tags: ["Porn Stash"], category: 3 },
+    { id: "the-novice-stasher", label: "The Novice Stasher (~25-100 Vids)", aka: [], tags: ["Porn Stash"], category: 4 },
+    { id: "the-stasher", label: "The Stasher (~100-500 Vids)", aka: [], tags: ["Porn Stash"], category: 4 },
+    { id: "the-bunker", label: "The Bunker (~500-3000 Vids)", aka: [], tags: ["Porn Stash"], category: 4 },
+    { id: "the-archivist", label: "The Archivist (~3000+ Vids)", aka: [], tags: ["Porn Stash"], category: 5 },
 
 
     // EROTIC NOVELS READ
-    { id: "50-shades", label: "50 Shades (1-15 Read)", aka: [], tags: ["Erotic Novels Read"], category: 2 },
-    { id: "milking-minotaurs", label: "Milking Minotaurs (15-50 Read)", aka: [], tags: ["Erotic Novels Read"], category: 3 },
-    { id: "smut-sommelier", label: "Smut Sommelier (51-100 Read)", aka: [], tags: ["Erotic Novels Read"], category: 3 },
-    { id: "erotica-expert", label: "Erotica Expert (101-200 Read)", aka: [], tags: ["Erotic Novels Read"], category: 3 },
-    { id: "smut-librarian", label: "Smut Librarian (201+ Read)", aka: [], tags: ["Erotic Novels Read"], category: 4 },
+    { id: "50-shades", label: "50 Shades (~1-15 Read)", aka: [], tags: ["Erotic Novels Read"], category: 2 },
+    { id: "milking-minotaurs", label: "Milking Minotaurs (~15-50 Read)", aka: [], tags: ["Erotic Novels Read"], category: 3 },
+    { id: "smut-sommelier", label: "Smut Sommelier (~51-100 Read)", aka: [], tags: ["Erotic Novels Read"], category: 3 },
+    { id: "erotica-expert", label: "Erotica Expert (~101-200 Read)", aka: [], tags: ["Erotic Novels Read"], category: 3 },
+    { id: "smut-librarian", label: "Smut Librarian (~201+ Read)", aka: [], tags: ["Erotic Novels Read"], category: 4 },
 
 
     // HENTAI DOUJINSHI READ
-    { id: "nhentai-tourist", label: "Nhentai Tourist (1-50 Read)", aka: [], tags: ["Hentai Doujinshi Read"], category: 2 },
-    { id: "177013-initiate", label: "177013 Initiate (51-150 Read)", aka: [], tags: ["Hentai Doujinshi Read"], category: 2 },
-    { id: "has-favourites", label: "Has Favourites (151-400 Read)", aka: [], tags: ["Hentai Doujinshi Read"], category: 3 },
-    { id: "for-the-plot", label: "For The Plot (401-800 Read)", aka: [], tags: ["Hentai Doujinshi Read"], category: 3 },
-    { id: "rereader", label: "Rereader (801-1,500 Read)", aka: [], tags: ["Hentai Doujinshi Read"], category: 4 },
-    { id: "sad-panda", label: "Sad Panda (1,501+ Read)", aka: [], tags: ["Hentai Doujinshi Read"], category: 4 },
+    { id: "nhentai-tourist", label: "Nhentai Tourist (~1-50 Read)", aka: [], tags: ["Hentai Doujinshi Read"], category: 2 },
+    { id: "177013-initiate", label: "177013 Initiate (~51-150 Read)", aka: [], tags: ["Hentai Doujinshi Read"], category: 2 },
+    { id: "has-favourites", label: "Has Favourites (~151-400 Read)", aka: [], tags: ["Hentai Doujinshi Read"], category: 3 },
+    { id: "for-the-plot", label: "For The Plot (~401-800 Read)", aka: [], tags: ["Hentai Doujinshi Read"], category: 3 },
+    { id: "rereader", label: "Rereader (~801-1,500 Read)", aka: [], tags: ["Hentai Doujinshi Read"], category: 4 },
+    { id: "sad-panda", label: "Sad Panda (~1,501+ Read)", aka: [], tags: ["Hentai Doujinshi Read"], category: 4 },
 
 
     // HENTAI ANIME WATCHED
-    { id: "tentacle", label: "Seen a Tentacle (1-25 Watched)", aka: [], tags: ["Hentai Anime Watched"], category: 2 },
-    { id: "deflowered", label: "Deflowered (26-75 Watched)", aka: [], tags: ["Hentai Anime Watched"], category: 2 },
-    { id: "kuroinu", label: "Kuroinu (76-150 Watched)", aka: [], tags: ["Hentai Anime Watched"], category: 3 },
-    { id: "get-pregnant", label: "Get Pregnant x12 (151-300 Watched)", aka: [], tags: ["Hentai Anime Watched"], category: 3 },
-    { id: "mind-broken", label: "Mind Broken (301-600 Watched)", aka: [], tags: ["Hentai Anime Watched"], category: 3 },
-    { id: "watched-everything", label: "Watched Everything (601+ Watched)", aka: [], tags: ["Hentai Anime Watched"], category: 4 },
+    { id: "tentacle", label: "Seen a Tentacle (~1-25 Watched)", aka: [], tags: ["Hentai Anime Watched"], category: 2 },
+    { id: "deflowered", label: "Deflowered (~26-75 Watched)", aka: [], tags: ["Hentai Anime Watched"], category: 2 },
+    { id: "kuroinu", label: "Kuroinu (~76-150 Watched)", aka: [], tags: ["Hentai Anime Watched"], category: 3 },
+    { id: "get-pregnant", label: "Get Pregnant x12 (~151-300 Watched)", aka: [], tags: ["Hentai Anime Watched"], category: 3 },
+    { id: "mind-broken", label: "Mind Broken (~301-600 Watched)", aka: [], tags: ["Hentai Anime Watched"], category: 3 },
+    { id: "watched-everything", label: "Watched Everything (~601+ Watched)", aka: [], tags: ["Hentai Anime Watched"], category: 4 },
 
 
     // HENTAI GAMES PLAYED
-    { id: "meet-n-fuck-racer", label: "Meet'N'Fuck Street Racer (1-25 Played)", aka: [], tags: ["Hentai Games Played"], category: 2 },
-    { id: "rpg-maker", label: "RPGMaker Rigamarole (26-100 Played)", aka: [], tags: ["Hentai Games Played"], category: 2 },
-    { id: "slop-sifter", label: "Slop Sifter (101-250 Played)", aka: [], tags: ["Hentai Games Played"], category: 3 },
-    { id: "gallery-grinder", label: "Gallery Grinder (251-500 Played)", aka: [], tags: ["Hentai Games Played"], category: 3 },
-    { id: "fluent-in-mtl", label: "Fluent in MTL (501-1,000 Played)", aka: [], tags: ["Hentai Games Played"], category: 4 },
-    { id: "waiting-for-devs", label: "Waiting for Developers (1,001+ Played)", aka: [], tags: ["Hentai Games Played"], category: 4 },
+    { id: "meet-n-fuck-racer", label: "Meet'N'Fuck Street Racer (~1-25 Played)", aka: [], tags: ["Hentai Games Played"], category: 2 },
+    { id: "rpg-maker", label: "RPGMaker Rigamarole (~26-100 Played)", aka: [], tags: ["Hentai Games Played"], category: 2 },
+    { id: "slop-sifter", label: "Slop Sifter (~101-250 Played)", aka: [], tags: ["Hentai Games Played"], category: 3 },
+    { id: "gallery-grinder", label: "Gallery Grinder (~251-500 Played)", aka: [], tags: ["Hentai Games Played"], category: 3 },
+    { id: "fluent-in-mtl", label: "Fluent in MTL (~501-1,000 Played)", aka: [], tags: ["Hentai Games Played"], category: 4 },
+    { id: "waiting-for-devs", label: "Waiting for Developers (~1,001+ Played)", aka: [], tags: ["Hentai Games Played"], category: 4 },
 
 
     // GENDER
@@ -165,7 +165,7 @@ export const ROLES: RoleOption[] = [
     { id: "bisexual", label: "Bisexual", aka: ["Bi"], tags: ["Sexual Orientation"], category: 1, variantGroup: "bisexual", variantOrder: 0 },
     { id: "pansexual", label: "Pansexual", aka: ["Pan"], tags: ["Sexual Orientation"], category: 1, variantGroup: "bisexual", variantOrder: 1 },
     { id: "asexual", label: "Asexual", aka: ["Ace"], tags: ["Sexual Orientation"], category: 1 },
-    { id: "aromantic", label: "Aromantic", aka: [], tags: ["Sexual Orientation"], category: 1 },
+    { id: "aromantic", label: "Aromantic", aka: ["Aro"], tags: ["Sexual Orientation"], category: 1 },
     { id: "demisexual", label: "Demisexual", aka: ["Demi"], tags: ["Sexual Orientation"], category: 1 },
 
 
@@ -194,9 +194,9 @@ export const ROLES: RoleOption[] = [
     { id: "living-doll", label: "Living Doll", aka: [], tags: ["Fun Roles"], category: 3 },
     { id: "plushophile", label: "Plushophile", aka: [], tags: ["Fun Roles"], category: 2 },
     { id: "scientist", label: "Scientist", aka: [], tags: ["Fun Roles"], category: 3 },
-    { id: "experiment", label: "Experiment", aka: ["SUBJECT"], tags: ["Fun Roles"], category: 3 },
+    { id: "experiment", label: "Experiment", aka: ["Subject"], tags: ["Fun Roles"], category: 3 },
     { id: "hucow", label: "Hucow", aka: ["Human Cow"], tags: ["Fun Roles"], category: 3 },
-    { id: "cum-slut", label: "Cum Slut", aka: [""], tags: ["Fun Roles"], category: 3 },
+    { id: "cum-slut", label: "Cum Slut", aka: [], tags: ["Fun Roles"], category: 4 },
     { id: "sugar-provider", label: "Sugar Provider", aka: [], tags: ["Fun Roles"], category: 3 },
     { id: "skunk", label: "Skunk", aka: [], tags: ["Fun Roles"], category: 3 },
     { id: "cannibal", label: "Cannibal", aka: [], tags: ["Fun Roles"], category: 6 },

@@ -13,6 +13,7 @@ import { ROLE_SYMBOLS,  } from "@/data/roleSymbols";
 import TagAffinityDrilldown from "@/components/tags/TagAffinityDrilldown";
 import { narrowTagsCheck } from "@/lib/utils";
 import { NARROW_TAGS } from "@/data/narrowTags";
+import { WelcomeSlideshow } from "@/components/onboarding";
 
 const broadOnlyIds = narrowTagsCheck(OPTIONS, NARROW_TAGS);
 const METER_MAX_POINTS = 5000;
@@ -63,22 +64,48 @@ export default function ResultsPage() {
   // ----------------------------
   // STATE
   // ----------------------------
-  const [selections, setSelections] = useState<any[]>([]);
-  const [identityOptions, setIdentityOptions] = useState<typeof ROLES>([]);
-  const [positiveTags, setPositiveTags] = useState<TagBreakdown[]>([]);
-  const [negativeTags, setNegativeTags] = useState<TagBreakdown[]>([]);
-  const [openTag, setOpenTag] = useState<string | null>(null);
-  const [favorites, setFavorites] = useState<string[]>([]);
-  const [openTagInfo, setOpenTagInfo] = useState<{ tag: string; type: "positive" | "negative" } | null>(null);
-  const warnedOptionsRef = useRef<Set<string>>(new Set());
-  const [openDescription, setOpenDescription] = useState<string | null>(null);
-  const clipIdRef = useRef(`wiggle-${Math.random().toString(36).slice(2)}`);
-  const [clipId, setClipId] = useState<string | null>(null);
-  const [feedbackOpen, setFeedbackOpen] = useState(false);
-  const [popupPos, setPopupPos] = useState<{ x: number; y: number } | null>(null);
-  const dragStartRef = useRef<{ x: number; y: number; mouseX: number; mouseY: number } | null>(null);
+    const [selections, setSelections] = useState<any[]>([]);
+    const [identityOptions, setIdentityOptions] = useState<typeof ROLES>([]);
+    const [positiveTags, setPositiveTags] = useState<TagBreakdown[]>([]);
+    const [negativeTags, setNegativeTags] = useState<TagBreakdown[]>([]);
+    const [openTag, setOpenTag] = useState<string | null>(null);
+    const [favorites, setFavorites] = useState<string[]>([]);
+    const [openTagInfo, setOpenTagInfo] = useState<{ tag: string; type: "positive" | "negative" } | null>(null);
+    const warnedOptionsRef = useRef<Set<string>>(new Set());
+    const [openDescription, setOpenDescription] = useState<string | null>(null);
+    const clipIdRef = useRef(`wiggle-${Math.random().toString(36).slice(2)}`);
+    const [clipId, setClipId] = useState<string | null>(null);
+    const [feedbackOpen, setFeedbackOpen] = useState(false);
+    const [popupPos, setPopupPos] = useState<{ x: number; y: number } | null>(null);
+    const dragStartRef = useRef<{ x: number; y: number; mouseX: number; mouseY: number } | null>(null);
+    const [isWelcomeOpen, setIsWelcomeOpen] = useState(true);
 
-const timerRef = useRef<NodeJS.Timeout | null>(null);
+    const welcomeImages = [
+    "/corruchart-dev/images/favourite-interests.gif",
+    "/corruchart-dev/images/redact-favourites.gif",
+    "/corruchart-dev/images/remove-favourites.gif",
+    ];
+    const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+    // TIPS MODAL
+    const [showWelcome, setShowWelcome] = useState(false);
+
+    useEffect(() => {
+    const hasSeenWelcome = localStorage.getItem("hasSeenWelcomeRoles");
+    if (!hasSeenWelcome) {
+        setIsWelcomeOpen(true); // Use the same state as the button
+    } else {
+        setIsWelcomeOpen(false); // Default to closed if seen before
+    }
+    }, []);
+
+    // Update your close function
+    const closeWelcome = () => {
+        setShowWelcome(false);
+        localStorage.setItem("hasSeenWelcomeRoles", "true");
+    };
+    // -----------------------
+
 
 const startPress = (id: string) => {
   timerRef.current = setTimeout(() => {
@@ -653,41 +680,32 @@ useEffect(() => {
                 >
             {/* Actions */}
             <div className="flex gap-2 -mt-6 mb-6 items-center flex-wrap relative">
-            {/* Export Screenshot */}
-            <button
-                type="button"
-                onClick={exportScreenshot}
-                className="px-3 py-1 rounded bg-neutral-900 text-neutral-200 text-sm hover:bg-neutral-800 cursor-pointer flex items-center justify-center h-8"
-            >
-                Export Screenshot
-            </button>
+                {/* Export Screenshot */}
+                <button
+                    type="button"
+                    onClick={exportScreenshot}
+                    className="px-3 py-1 rounded bg-neutral-900 text-neutral-200 text-sm hover:bg-neutral-800 cursor-pointer flex items-center justify-center h-8"
+                >
+                    Export Screenshot
+                </button>
 
-            {/* Back Button */}
-            <Link
-                href="/corruchart"
-                className="px-3 py-1 rounded bg-neutral-900 text-neutral-200 text-sm hover:bg-neutral-800 cursor-pointer flex items-center justify-center h-8"
-            >
-                Back
-            </Link>
+                {/* Info/Help button (Standardized size) */}
+                <button
+                    type="button"
+                    onClick={() => setShowWelcome(true)}
+                    className="px-4 py-1 rounded bg-neutral-900 text-neutral-200 text-sm hover:bg-neutral-800 cursor-pointer flex items-center justify-center h-8 gap-1"
+                >
+                    <span className="font-bold">Tips</span>
+                </button>
 
-            {/* Mini Ko-fi button */}
-            <a
-                href="https://ko-fi.com/badminute"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-3 py-1 rounded bg-neutral-900 text-neutral-200 font-semibold text-sm shadow hover:bg-violet-500/30 transition-colors cursor-pointer flex items-center justify-center h-8"
-            >
-                ˗ˋˏ$ˎˊ˗
-            </a>
-
-            {/* Feedback button */}
-            <button
-                type="button"
-                onClick={() => setFeedbackOpen(prev => !prev)}
-                className="px-2 py-1 rounded bg-neutral-900 text-white text-sm hover:bg-neutral-500 transition-colors cursor-pointer flex items-center justify-center h-8"
-            >
-                Feedback
-            </button>
+                {/* Feedback button (In Back's old spot) */}
+                <button
+                    type="button"
+                    onClick={() => setFeedbackOpen(prev => !prev)}
+                    className="px-3 py-1 rounded bg-neutral-900 text-white text-sm hover:bg-neutral-800 transition-colors cursor-pointer flex items-center justify-center h-8"
+                >
+                    Feedback
+                </button>
 
             {/* Feedback Form Popup */}
             {feedbackOpen && (
@@ -764,13 +782,29 @@ useEffect(() => {
                     type="submit"
                     className="px-3 py-1 rounded cursor-pointer bg-green-800 text-white hover:bg-green-600 transition-colors text-sm"
                     >
-                    Submit
+                            Submit
                     </button>
                 </div>
-                </form>
-            </div>
+            </form>
+        </div>
+    )}
+            {/* Mini Ko-fi button */}
+                <a
+                    href="https://ko-fi.com/badminute"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-3 py-1 rounded bg-neutral-900 text-neutral-200 font-semibold text-sm shadow hover:bg-neutral-800 transition-colors cursor-pointer flex items-center justify-center h-8"
+                >
+                    ˗ˋˏ$ˎˊ˗
+                </a>
 
-)}
+            {/* Back Button (In Feedback's old spot) */}
+                <Link
+                    href="/corruchart"
+                    className="px-3 py-1 rounded bg-neutral-900 text-neutral-200 text-sm hover:bg-violet-500/30 cursor-pointer flex items-center justify-center h-8"
+                >
+                    Back
+                </Link>
 
             </div>
 
@@ -801,7 +835,7 @@ useEffect(() => {
                 textShadow: "0px 1px 0px rgba(0,0,0,0.6)",
               }}
             >
-              v0.25.0
+              v0.27.0
             </span>
           </div>
 
@@ -1159,6 +1193,33 @@ useEffect(() => {
               favorites={favorites}
               toggleFavorite={toggleFavorite}
             />
+      {/* MODAL OVERLAY */}
+            {showWelcome && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4">
+                    <div className="bg-neutral-900 border border-neutral-800 p-6 rounded-2xl max-w-md w-full shadow-2xl">
+                        <h2 className="text-2xl font-bold text-center text-violet-400 mb-2">Results Section</h2>
+                        
+                        <div className="text-gray-400 text-center text-sm space-y-3">
+                            <p>Your results are computed based on your responses to specific interests. Your affinities are based on the tags that the interests are in. You can customize your results a bit more, here are some tips.</p>
+                        </div>
+
+                        <WelcomeSlideshow 
+                            images={[
+                                "images/favourite-interests.gif", 
+                                "images/redact-favourites.gif",
+                                "images/remove-favourites.gif",
+                            ]} 
+                        />
+
+                        <button
+                            onClick={closeWelcome}
+                            className="w-full py-3 mt-2 bg-neutral-800 hover:bg-violet-500/30 cursor-pointer text-white font-semibold rounded-xl transition-colors"
+                        >
+                            RESULTS
+                        </button>
+                    </div>
+                </div>
+            )}
           </section>
       </div>
     </main>

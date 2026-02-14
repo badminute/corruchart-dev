@@ -9,6 +9,7 @@ import { OPTIONS } from "@/data/options";
 import { DESCRIPTIONS } from "@/data/descriptions";
 import SettingsButton from "@/components/SettingsButton";
 import OptionsGrid from "@/components/OptionsGrid";
+import { WelcomeSlideshow } from "@/components/onboarding";
 
 // import base type
 import type { OptionData as BaseOption } from "@/data/options";
@@ -123,6 +124,7 @@ export default function Page() {
         }));
     }, [options]);
 
+    const [isWelcomeOpen, setIsWelcomeOpen] = useState(true);
     const [showNarrowGroups, setShowNarrowGroups] = useState(false);
     const [isHolding, setIsHolding] = useState<string | null>(null);
     const holdTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -144,6 +146,24 @@ export default function Page() {
         return map;
     }, [options]);
   
+    // TIPS MODAL
+    const [showWelcome, setShowWelcome] = useState(false);
+
+    useEffect(() => {
+    const hasSeenWelcome = localStorage.getItem("hasSeenWelcomeRoles");
+    if (!hasSeenWelcome) {
+        setIsWelcomeOpen(true); // Use the same state as the button
+    } else {
+        setIsWelcomeOpen(false); // Default to closed if seen before
+    }
+    }, []);
+
+    // Update your close function
+    const closeWelcome = () => {
+        setShowWelcome(false);
+        localStorage.setItem("hasSeenWelcomeRoles", "true");
+    };
+    // -----------------------
 
   /** SET ALL TO (Forbidden only) */
   const [setAllState, setSetAllState] = useState(0);
@@ -280,16 +300,6 @@ export default function Page() {
     localStorage.setItem("showCategory6", showCategory6 ? "true" : "false");
     }, [showCategory6]);
 
-
-  /** Reset all options */
-  const resetAll = () => {
-    if (confirm("Reset all selections to 'Indifferent'?")) {
-      setStates(Array(options.length).fill(0));
-      setColorFilter(new Set());
-      setShowCategory6(false);
-    }
-  };
-
   /** Toggle color filter */
   const toggleColor = (colorIndex: number) => {
     setColorFilter((prev) => {
@@ -417,6 +427,38 @@ useEffect(() => {
   if (!states.length) return null;
 
   return (
+<>
+      {/* MODAL OVERLAY */}
+      {showWelcome && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4">
+          <div className="bg-neutral-900 border border-neutral-800 p-6 rounded-2xl max-w-md w-full shadow-2xl">
+            <h2 className="text-2xl font-bold text-center text-violet-400 mb-2">Corruchart Section</h2>
+            
+            <div className="text-gray-400 text-center text-sm space-y-3">
+              <p>Here are some usage tips to make things smoother.</p>
+            </div>
+
+            <WelcomeSlideshow 
+              images={[
+                "images/cycle.gif", 
+                "images/descriptions.gif",
+                "images/swappables.gif",
+                "images/scroll.gif",
+                "images/interests-bulk.gif",
+                "images/reset-interests.gif"
+              ]} 
+            />
+
+            <button
+              onClick={closeWelcome}
+              className="w-full py-3 mt-2 bg-neutral-800 hover:bg-violet-500/30 cursor-pointer text-white font-semibold rounded-xl transition-colors"
+            >
+              CHART
+            </button>
+          </div>
+        </div>
+      )}
+
       <main className="min-h-screen px-8 pb-12" style={{ backgroundColor: "#1F2023" }}>
       {/* Controls */}
       <div className="py-4 space-y-3">
@@ -429,12 +471,15 @@ useEffect(() => {
             className="px-3 py-2 rounded bg-neutral-900 text-gray-100 placeholder-gray-400 outline-none w-64"
           />
 
-          <button
-            onClick={resetAll}
-            className="px-4 py-2 rounded bg-neutral-900 text-neutral-200 hover:bg-red-600/30 hover:text-neutral-300 cursor-pointer"
-          >
-            Reset All
-          </button>
+
+            {/* Info/Help button */}
+            <button
+                type="button"
+                onClick={() => setShowWelcome(true)}
+                className="px-4 py-2.5 rounded bg-neutral-900 text-neutral-400 hover:bg-neutral-800 cursor-pointer flex items-center justify-center text-sm gap-1"
+            >
+                <span className="font-bold text-neutral-200">Tips</span>
+            </button>
 
           <div className="flex items-center gap-2">
               {/* Forbidden toggle */}
@@ -467,7 +512,7 @@ useEffect(() => {
                 "
               >
                 <span className="text-sm font-semibold text-gray-300">
-                  SET ALL VISIBLE TO:
+                  SET ALL VISIBLE TO
                 </span>
 
                 <svg
@@ -629,5 +674,6 @@ useEffect(() => {
               cycleColor={cycleColor}
           />
     </main>
+    </>
   );
 }

@@ -148,10 +148,10 @@ export const ROLE_SYMBOLS: Record<string, { symbol: string; color?: string }> = 
 
 
         // PORN STASH
-    "handful-of-favourites": { symbol: "⭐", color: "#fdea6c" },   // A Handful of Favourites (1-25 Vids / 250 Images)
-    "the-novice-stasher": { symbol: "📁", color: "#dda0dd" },   // The Novice Stasher (25-100 Vids / 250-2500 Images)
+    "handful-of-favourites": { symbol: "⭐", color: "#fdcf6c" },   // A Handful of Favourites (1-25 Vids / 250 Images)
+    "the-novice-stasher": { symbol: "📁", color: "#f2c753" },   // The Novice Stasher (25-100 Vids / 250-2500 Images)
     "the-stasher": { symbol: "🗄️", color: "#6f468e" },   // The Stasher (100-500 Vids / 2500-10000 Images)
-    "the-bunker": { symbol: "🏣", color: "#c71565" },   // The Bunker (500-3000 Vids / 10000-20000 Images)
+    "the-bunker": { symbol: "🏣", color: "#c71536" },   // The Bunker (500-3000 Vids / 10000-20000 Images)
     "the-archivist": { symbol: "🏦", color: "#a4a4a4" },   // The Benevolent Archivist (3000+ Vids / 10000+ Images)
 
         // FUN ROLES
