@@ -831,7 +831,7 @@ useEffect(() => {
                 textShadow: "0px 1px 0px rgba(0,0,0,0.6)",
               }}
             >
-              v0.28.0
+              v0.28.1
             </span>
           </div>
 
