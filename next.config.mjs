@@ -4,8 +4,6 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  basePath: "/corruchart-dev",
-  assetPrefix: "/corruchart-dev/",
 };
 
 export default nextConfig;
