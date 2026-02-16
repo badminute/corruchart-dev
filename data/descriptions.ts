@@ -50,7 +50,7 @@ export const DESCRIPTIONS: Record<string, string> = {
     "annoyance-anger": "An expression of annoyance and/or anger during sex acts.",
     "anthro-human": "Sex between anthropomorphs and humans.",
     "anthromorphs": "Attraction towards humanoid animals, hybrid beings, furries, etc.",
-    "ants": "Creatures typically associated with formicophilia.",
+    "ants": "Six legged insects that are in this context typically associated with formicophilia, sexual arousal from having small insects crawl/bite on one's body and genitals.",
     "aphrodisiacs": "Substances (real or fantasy) that induce uncontrollable arousal.",
     "apparel-bukkakes": "The act of cumming onto someone's clothes, typically in large amounts, typically by a group.",
     "arachne-monsterboys": "Sadistic, manipulative half-human, half-spider women, who weave webs to capture and use men and women to sate their lust.",

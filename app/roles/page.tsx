@@ -43,41 +43,6 @@ export default function Page() {
         "optionB": "#34d399",
     };
 
-    const customGradients: Record<string, string> = {
-        "man-transgender": "linear-gradient(90deg, #5BCEFA, #F5A9B8, #FFFFFF, #F5A9B8, #5BCEFA)",
-        "woman-transgender": "linear-gradient(90deg, #5BCEFA, #F5A9B8, #FFFFFF, #F5A9B8, #5BCEFA)",
-        "non-binary": "linear-gradient(90deg, #FFF430 0% 33%, #FFFFFF 33% 66%, #9C59D1 66% 99%)",
-        "lesbian": "linear-gradient(90deg, #D62E00 0% 33%, #FF9A56 33% 66%, #D462A6 66% 99%)",
-        "gay": "linear-gradient(90deg, #2db99b 0% 33%, #d3d3d3 33% 66%, #6491c1 66% 99%)",
-        "asexual": "linear-gradient(90deg, #8b8b8b 0% 33%, #bfbfbf 33% 66%, #8f078f 66% 99%)",
-        "aromantic": "linear-gradient(90deg, #3DA63D 0% 33%, #B5E2B5 33% 66%, #646464 66% 99%)",
-        "bisexual": "linear-gradient(90deg, #d32a81 0% 33%, #d36ccc 33% 66%, #1657da 66% 99%)",
-        "pansexual": "linear-gradient(90deg, #FF218C 0% 33%, #FFD800 33% 66%, #21B1FF 66% 99%)",
-        "demisexual": "linear-gradient(90deg, #c2c2c2, #8f078f",
-        "non-binary-transgender": "linear-gradient(90deg, #FCF434, #9C59D1, #8e8e8e)",
-        "sadomasochist": "linear-gradient(90deg, #3399ff 0% 33%, #fcac34 33% 100%)",
-        "pony": "linear-gradient(90deg, #FF3B3B , #FFE066 , #4D96FF )",
-        "pet-owner": "linear-gradient(90deg, #ba955d 0% 33%, #55a4f4 33% 100%)",
-
-    };
-
-    const symbolGradients: Record<string, string> = {
-        "man-transgender": "linear-gradient(90deg, #5BCEFA 0% 33%, #F5A9B8 33% 66%, #5BCEFA 66% 99%)",
-        "woman-transgender": "linear-gradient(90deg, #5BCEFA 0% 33%, #F5A9B8 33% 66%, #5BCEFA 66% 99%)",
-        "non-binary-transgender": "linear-gradient(180deg, #d5d038 50%, #9C59D1 50%)",
-        "non-binary": "linear-gradient(90deg, #FFF430 0% 33%, #FFFFFF 33% 66%, #9C59D1 66% 99%)",
-        "lesbian": "linear-gradient(90deg, #D62E00 0% 33%, #FF9A56 33% 66%, #D462A6 66% 99%)",
-        "gay": "linear-gradient(90deg, #2db99b 0% 33%, #d3d3d3 33% 66%, #6491c1 66% 99%)",
-        "asexual": "linear-gradient(90deg, #8b8b8b 0% 33%, #bfbfbf 33% 66%, #8f078f 66% 99%)",
-        "aromantic": "linear-gradient(90deg, #3DA63D 0% 33%, #B5E2B5 33% 66%, #646464 66% 99%)",
-        "bisexual": "linear-gradient(90deg, #D60270 0% 33%, #9B4F96 33% 66%, #0038A8 66% 99%)",
-        "pansexual": "linear-gradient(90deg, #FF218C 0% 33%, #FFD800 33% 66%, #21B1FF 66% 99%)",
-        "demisexual": "linear-gradient(90deg, #c2c2c2, #8f078f",
-        "queen-of-spades": "linear-gradient(90deg, #c2c2c2",
-        "queen-of-hearts": "linear-gradient(90deg, #fa3e3e",
-    
-    };
-
     useEffect(() => {
         const savedRaw = localStorage.getItem("combined-selections");
         if (!savedRaw) {
@@ -288,24 +253,68 @@ export default function Page() {
                                                 />
 
                                                 <button
-                                                    type="button"
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        cycleColor(option);
-                                                        setOpenDescription(null);
-                                                    }}
-                                                    className="flex-shrink-0 w-7 h-7 mr-3 flex items-center justify-center rounded cursor-pointer relative z-10 bg-transparent"
-                                                    style={{
-                                                        fontSize: 18,
-                                                        background: symbolGradients[option.id] ?? undefined,
-                                                        WebkitBackgroundClip: symbolGradients[option.id] ? "text" : undefined,
-                                                        WebkitTextFillColor: symbolGradients[option.id] ? "transparent" : undefined,
-                                                        color: !symbolGradients[option.id] ? (ROLE_SYMBOLS[option.id]?.color ?? "#b1b1b1") : undefined,
-                                                        opacity: states[actualIndex] === 1 ? 1 : 0.4,
-                                                    }}
+                                                type="button"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    cycleColor(option);
+                                                    setOpenDescription(null);
+                                                }}
+                                                className="flex-shrink-0 w-7 h-7 mr-3 flex items-center justify-center rounded cursor-pointer relative z-10 bg-transparent"
+                                                style={{
+                                                    fontSize: 18,
+                                                    color: (() => {
+                                                        const symbol = ROLE_SYMBOLS[option.id]?.symbol;
+                                                        switch (symbol) {
+                                                            case "TRANS_FLAG": return "#55CDFC";
+                                                            case "GAY_FLAG": return "#ff0018";
+                                                            case "LESBIAN_FLAG": return "#d52d00";
+                                                            case "BI_FLAG": return "#d60270";
+                                                            case "PAN_FLAG": return "#ff218c";
+                                                            case "ACE_FLAG": return "#000000";
+                                                            case "ARO_FLAG": return "#3eb489";
+                                                            case "DEMI_FLAG": return "#800080";
+                                                            default: return ROLE_SYMBOLS[option.id]?.color ?? "#b1b1b1";
+                                                        }
+                                                    })(),
+                                                    opacity: states[actualIndex] === 1 ? 1 : 0.4,
+                                                }}
+
                                                 >
-                                                    {ROLE_SYMBOLS[option.id]?.symbol ?? "★"}
+                                                {(() => {
+                                                    const symbol = ROLE_SYMBOLS[option.id]?.symbol;
+
+                                                    const FLAG_MAP: Record<string, string> = {
+                                                    TRANS_FLAG: "/icons/trans-flag.svg",
+                                                    NONBINARY_FLAG: "/icons/nonbinary-flag.svg",
+                                                    STRAIGHT_FLAG: "/icons/straight-flag.svg",
+                                                    GAY_FLAG: "/icons/gay-flag.svg",
+                                                    LESBIAN_FLAG: "/icons/lesbian-flag.svg",
+                                                    BI_FLAG: "/icons/bisexual-flag.svg",
+                                                    PAN_FLAG: "/icons/pansexual-flag.svg",
+                                                    ACE_FLAG: "/icons/asexual-flag.svg",
+                                                    ARO_FLAG: "/icons/aromantic-flag.svg",
+                                                    DEMI_FLAG: "/icons/demisexual-flag.svg",
+                                                    };
+
+                                                    if (symbol && FLAG_MAP[symbol]) {
+                                                    return (
+                                                        <img
+                                                        src={FLAG_MAP[symbol]}
+                                                        alt={symbol.replace("_FLAG", "").toLowerCase()}
+                                                        style={{
+                                                            width: 18,
+                                                            height: 12,
+                                                            display: "inline-block",
+                                                            verticalAlign: "middle",
+                                                        }}
+                                                        />
+                                                    );
+                                                    }
+
+                                                    return symbol ?? "★";
+                                                })()}
                                                 </button>
+
 
                                             <button
                                                 type="button"
@@ -335,22 +344,43 @@ export default function Page() {
                                                 }}
                                             >
                                                 <span
-                                                    className="truncate block w-full"
-                                                    style={{
-                                                        background: customGradients[option.id] ?? undefined,
-                                                        WebkitBackgroundClip: customGradients[option.id] ? "text" : undefined,
-                                                        WebkitTextFillColor: customGradients[option.id] ? "transparent" : undefined,
-                                                        color: !customGradients[option.id]
-                                                            ? customColor[option.id] ?? (states[actualIndex] === 1 ? ROLE_SYMBOLS[option.id]?.color ?? "#b1b1b1" : "#aaa")
-                                                            : undefined,
-                                                        opacity: states[actualIndex] === 1 ? 1 : 0.55,
-                                                        filter: states[actualIndex] === 1 ? "none" : "grayscale(100%) brightness(60%)",
-                                                        textShadow: "0 2px 4px rgba(0,0,0,0.3)",
-                                                        display: "inline-block" 
-                                                    }}
-                                                >
+                                                className="truncate block w-full"
+                                                style={{
+                                                    color: states[actualIndex] === 1
+                                                        ? (() => {
+                                                            const symbol = ROLE_SYMBOLS[option.id]?.symbol;
+
+                                                            // Custom overrides for specific roles
+                                                            if (symbol === "TRANS_FLAG") {
+                                                                if (option.id === "man-transgender") return "#55CDFC";       // Light blue for trans men
+                                                                if (option.id === "woman-transgender") return "#d792d7";    // Pink for trans women
+                                                                return "#A3A3A3"; // Default color for other trans roles
+                                                            }
+
+                                                            // All other flags
+                                                            switch (symbol) {
+                                                                case "NONBINARY_FLAG": return "#9C59D1";
+                                                                case "GAY_FLAG": return "#26CEAA";
+                                                                case "LESBIAN_FLAG": return "#d52d00";
+                                                                case "BI_FLAG": return "#d60270";
+                                                                case "PAN_FLAG": return "#ff218c";
+                                                                case "ACE_FLAG": return "#800080";
+                                                                case "ARO_FLAG": return "#3eb489";
+                                                                case "DEMI_FLAG": return "#800080";
+                                                                default: return ROLE_SYMBOLS[option.id]?.color ?? "#b1b1b1";
+                                                            }
+                                                        })()
+                                                        : "#aaa",
+                                                    opacity: states[actualIndex] === 1 ? 1 : 0.55,
+                                                    filter: states[actualIndex] === 1 ? "none" : "grayscale(100%) brightness(60%)",
+                                                    textShadow: "0 2px 4px rgba(0,0,0,0.3)",
+                                                    display: "inline-block"
+                                                }}
+                                            >
+
                                                     {option.label}
                                                 </span>
+
                                             </button>
 
                                                 {option.variantGroup && variantGroups[option.variantGroup]?.length > 1 && (

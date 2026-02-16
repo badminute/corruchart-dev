@@ -25,40 +25,6 @@ const HIDDEN_TAGS = new Set<string>(["upper-body", "dynamics", "qualities", "act
 
 console.log("Broad-only option IDs:", broadOnlyIds);
 
-const LABEL_GRADIENTS: Record<string, string> = {
-    "man-transgender": "linear-gradient(90deg, #5BCEFA, #F5A9B8, #FFFFFF, #F5A9B8, #5BCEFA)",
-    "woman-transgender": "linear-gradient(90deg, #5BCEFA, #F5A9B8, #FFFFFF, #F5A9B8, #5BCEFA)",
-    "non-binary-transgender": "linear-gradient(90deg, #FFF430 0% 33%, #FFFFFF 33% 66%, #9C59D1 66% 99%)",
-    "gay": "linear-gradient(90deg, #2db99b 0% 33%, #d3d3d3 33% 66%, #6491c1 66% 99%)",
-    "lesbian": "linear-gradient(90deg, #D62E00 0% 33%, #FF9A56 33% 66%, #D462A6 66% 99%)",
-    "asexual": "linear-gradient(90deg, #646464 0% 33%, #A4A4A4 33% 66%, #810081 66% 99%)",
-    "aromantic": "linear-gradient(90deg, #3DA63D 0% 33%, #B5E2B5 33% 66%, #646464 66% 99%)",
-    "bisexual": "linear-gradient(90deg, #D60270 0% 33%, #9B4F96 33% 66%, #0038A8 66% 99%)",
-    "pansexual": "linear-gradient(90deg, #FF218C 0% 33%, #FFD800 33% 66%, #21B1FF 66% 99%)",
-    "queen-of-spades": "linear-gradient(90deg, #c2c2c2, #c2c2c2)",
-    "demisexual": "linear-gradient(90deg, #c2c2c2, #8f078f)",
-    "queen-of-hearts": "linear-gradient(90deg, #fa3e3e, #fa3e3e)",
-    "sadomasochist": "linear-gradient(90deg, #3399ff 0% 33%, #fcac34 33% 100%)",
-    "pony": "linear-gradient(90deg, #FF3B3B , #FFE066 , #4D96FF )",
-    "pet-owner": "linear-gradient(90deg, #ba955d 0% 33%, #55a4f4 33% 100%)",
-};
-
-
-const SYMBOL_GRADIENTS: Record<string, string> = {
-        "man-transgender": "linear-gradient(90deg, #5BCEFA 0% 33%, #F5A9B8 33% 66%, #5BCEFA 66% 99%)",
-        "woman-transgender": "linear-gradient(90deg, #5BCEFA 0% 33%, #F5A9B8 33% 66%, #5BCEFA 66% 99%)",
-        "non-binary-transgender": "linear-gradient(180deg, #d5d038 50%, #9C59D1 50%)",
-        "non-binary": "linear-gradient(90deg, #FFF430 0% 33%, #FFFFFF 33% 66%, #9C59D1 66% 99%)",
-        "lesbian": "linear-gradient(90deg, #D62E00 0% 33%, #FF9A56 33% 66%, #D462A6 66% 99%)",
-        "gay": "linear-gradient(90deg, #2db99b 0% 33%, #d3d3d3 33% 66%, #6491c1 66% 99%)",
-        "asexual": "linear-gradient(90deg, #8b8b8b 0% 33%, #bfbfbf 33% 66%, #8f078f 66% 99%)",
-        "aromantic": "linear-gradient(90deg, #3DA63D 0% 33%, #B5E2B5 33% 66%, #646464 66% 99%)",
-        "bisexual": "linear-gradient(90deg, #D60270 0% 33%, #9B4F96 33% 66%, #0038A8 66% 99%)",
-        "pansexual": "linear-gradient(90deg, #FF218C 0% 33%, #FFD800 33% 66%, #21B1FF 66% 99%)",
-        "demisexual": "linear-gradient(90deg, #c2c2c2, #8f078f",
-        "queen-of-spades": "linear-gradient(90deg, #c2c2c2",
-        "queen-of-hearts": "linear-gradient(90deg, #fa3e3e",
-};
 
 
 export default function ResultsPage() {
@@ -401,9 +367,6 @@ const submitForm = async (event: React.FormEvent<HTMLFormElement>) => {
 };
 
 
-
-
-
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
@@ -587,81 +550,102 @@ const submitForm = async (event: React.FormEvent<HTMLFormElement>) => {
     return counts;
   }, [scoredSelections]);
 
-  // ----------------------------
-  // Screenshot export
-  // ----------------------------
-  const exportScreenshot = async () => {
-    const container = document.getElementById("results-container");
-    if (!container) return;
+            // ----------------------------
+            // Screenshot export
+            // ----------------------------
+            const exportScreenshot = async () => {
+            const container = document.getElementById("results-container");
+            if (!container) return;
 
-    // Create a temporary wrapper with padding
-    const wrapper = document.createElement("div");
-    wrapper.style.padding = "40px"; // <-- adjust padding here
-    wrapper.style.backgroundColor = PAGE_BACKGROUND_COLOR;
-    wrapper.style.display = "inline-block"; // shrink to content
-    wrapper.className = "text-neutral-200";
-    wrapper.appendChild(container.cloneNode(true)); // clone to avoid moving the real DOM
+            // Clone the container
+            const clone = container.cloneNode(true) as HTMLElement;
 
-    document.body.appendChild(wrapper); // temporarily add to DOM
+            // Force maximum width for large-screen layout
+            clone.style.width = "1200px"; // or whatever max width you want
+            clone.style.maxWidth = "1200px";
+            
+            // Force all role sections to 2 columns (or more if desired)
+            const roleSections = clone.querySelectorAll<HTMLElement>("[class*='columns-']");
+            roleSections.forEach(section => {
+                section.style.columnCount = "2";  // or 3 for larger
+                section.style.columnGap = "1.5rem";
+            });
 
-    const canvas = await html2canvas(wrapper, { scale: 2, backgroundColor: PAGE_BACKGROUND_COLOR });
+            // Wrap in temporary div for styling/padding
+            const wrapper = document.createElement("div");
+            wrapper.style.padding = "40px";
+            wrapper.style.backgroundColor = PAGE_BACKGROUND_COLOR;
+            wrapper.style.display = "inline-block"; // shrink to content
+            wrapper.className = "text-neutral-200";
+            wrapper.appendChild(clone);
 
-    document.body.removeChild(wrapper); // clean up
+            document.body.appendChild(wrapper);
 
-    const link = document.createElement("a");
-    link.download = "corruchart-results.png";
-    link.href = canvas.toDataURL("image/png");
-    link.click();
-  };
+            // Render screenshot
+            const canvas = await html2canvas(wrapper, { 
+                scale: 2, 
+                backgroundColor: PAGE_BACKGROUND_COLOR,
+                useCORS: true,
+            });
 
-  /** Filter visible tags based on HIDDEN_TAGS */
-  const visiblePositiveTags = positiveTags.filter(tag => !HIDDEN_TAGS.has(tag.tag));
-  const visibleNegativeTags = negativeTags.filter(tag => !HIDDEN_TAGS.has(tag.tag));
-  const allVisibleTags = useMemo(() => {
-    const combined = [...visiblePositiveTags, ...visibleNegativeTags];
-    // Deduplicate by tag name
-    return Array.from(new Map(combined.map(t => [t.tag, t])).values());
-  }, [visiblePositiveTags, visibleNegativeTags]);
+            document.body.removeChild(wrapper);
+
+            // Trigger download
+            const link = document.createElement("a");
+            link.download = "corruchart-results.png";
+            link.href = canvas.toDataURL("image/png");
+            link.click();
+            };
 
 
-   // ----------------------------
-// DEV CHECK: positive options whose tags never appear in Tag Affinities
-// ----------------------------
-useEffect(() => {
-  if (process.env.NODE_ENV !== "development") return;
+            /** Filter visible tags based on HIDDEN_TAGS */
+            const visiblePositiveTags = positiveTags.filter(tag => !HIDDEN_TAGS.has(tag.tag));
+            const visibleNegativeTags = negativeTags.filter(tag => !HIDDEN_TAGS.has(tag.tag));
+            const allVisibleTags = useMemo(() => {
+                const combined = [...visiblePositiveTags, ...visibleNegativeTags];
+                // Deduplicate by tag name
+                return Array.from(new Map(combined.map(t => [t.tag, t])).values());
+            }, [visiblePositiveTags, visibleNegativeTags]);
 
-  // Tags that actually made it into the Tag Affinities section
-  const visibleTagSet = new Set(
-    allVisibleTags.map(t => t.tag)
-  );
 
-  // Positively reacted options
-  const positiveOptions = selections.filter(sel => {
-    const idx = COLOR_NAMES.indexOf(sel.value);
-    return idx >= 3; // like / love / lust
-  });
+            // ----------------------------
+            // DEV CHECK: positive options whose tags never appear in Tag Affinities
+            // ----------------------------
+            useEffect(() => {
+            if (process.env.NODE_ENV !== "development") return;
 
-  positiveOptions.forEach(sel => {
-    const option = OPTIONS.find(o => o.id === sel.id);
-    if (!option) return;
+            // Tags that actually made it into the Tag Affinities section
+            const visibleTagSet = new Set(
+                allVisibleTags.map(t => t.tag)
+            );
 
-    const optionTags = option.tags ?? [];
+            // Positively reacted options
+            const positiveOptions = selections.filter(sel => {
+                const idx = COLOR_NAMES.indexOf(sel.value);
+                return idx >= 3; // like / love / lust
+            });
 
-    const hasVisibleTag = optionTags.some(tag =>
-      visibleTagSet.has(tag)
-    );
+            positiveOptions.forEach(sel => {
+                const option = OPTIONS.find(o => o.id === sel.id);
+                if (!option) return;
 
-    if (!hasVisibleTag && !warnedOptionsRef.current.has(option.id)) {
-  warnedOptionsRef.current.add(option.id);
+                const optionTags = option.tags ?? [];
 
-    console.warn(
-        "⚠️ Positive option contributes NO tags to Tag Affinities:",
-        option.id,
-        optionTags
-    );
-    }
-  });
-}, [selections, allVisibleTags]);
+                const hasVisibleTag = optionTags.some(tag =>
+                visibleTagSet.has(tag)
+                );
+
+                if (!hasVisibleTag && !warnedOptionsRef.current.has(option.id)) {
+            warnedOptionsRef.current.add(option.id);
+
+                console.warn(
+                    "⚠️ Positive option contributes NO tags to Tag Affinities:",
+                    option.id,
+                    optionTags
+                );
+                }
+            });
+            }, [selections, allVisibleTags]);
 
 
 
@@ -830,7 +814,7 @@ useEffect(() => {
                 textShadow: "0px 1px 0px rgba(0,0,0,0.6)",
               }}
             >
-              v0.28.3
+              v0.28.4
             </span>
           </div>
 
@@ -976,68 +960,78 @@ useEffect(() => {
           );
         })()}
 
+{/* IDENTITY & ROLES */}
+{rolesBySection.length > 0 && (
+  <section className="mt-6 space-y-6">
+    <div className="w-full max-w-3xl mx-auto columns-1 sm:columns-2 gap-6">
+      {rolesBySection.map((section) => (
+        <div
+          key={section.key}
+          className="break-inside-avoid mb-6"
+        >
+          <h3 className="text-lg text-center font-semibold text-neutral-300 mb-2">
+            {section.title}
+          </h3>
+          <div className="flex flex-wrap gap-2 justify-center">
+            {section.roles.map((role) => {
+              const isRedacted = redactedIds.has(role.id);
+              return (
+                <div
+                  key={role.id}
+                  onPointerDown={() => startPress(role.id)}
+                  onPointerUp={cancelPress}
+                  onPointerLeave={cancelPress}
+                  className="flex items-center gap-1.5 text-sm bg-neutral-800 px-3 py-1 rounded border border-neutral-700 shadow-sm break-inside-avoid whitespace-nowrap cursor-pointer hover:brightness-110 transition-all select-none active:scale-95 active:opacity-75"
+                >
+                  {/* Symbol / Emoji Logic */}
+                  <span
+                    className="flex-shrink-0 w-6 text-center font-bold"
+                    style={{
+                      fontSize: "18px",
+                      display: "inline-block",
+                      backgroundColor: "transparent",
+                      lineHeight: "1.25em",
+                      paddingBottom: "0.1em",
+                      color: isRedacted
+                        ? "#525252"
+                        : ROLE_SYMBOLS[role.id]?.color ?? "#e5e7eb",
+                    }}
+                  >
+                    {isRedacted ? (
+                      "█"
+                    ) : (() => {
+                      const symbol = ROLE_SYMBOLS[role.id]?.symbol;
+                      const FLAG_MAP: Record<string, string> = {
+                        TRANS_FLAG: "/icons/trans-flag.svg",
+                        NONBINARY_FLAG: "/icons/nonbinary-flag.svg",
+                        STRAIGHT_FLAG: "/icons/straight-flag.svg",
+                        GAY_FLAG: "/icons/gay-flag.svg",
+                        LESBIAN_FLAG: "/icons/lesbian-flag.svg",
+                        BI_FLAG: "/icons/bisexual-flag.svg",
+                        PAN_FLAG: "/icons/pansexual-flag.svg",
+                        ACE_FLAG: "/icons/asexual-flag.svg",
+                        ARO_FLAG: "/icons/aromantic-flag.svg",
+                        DEMI_FLAG: "/icons/demisexual-flag.svg",
+                      };
+                      if (symbol && FLAG_MAP[symbol]) {
+                        return (
+                          <img
+                            src={FLAG_MAP[symbol]}
+                            alt={symbol.replace("_FLAG", "").toLowerCase()}
+                            style={{
+                              width: 18,
+                              height: 12,
+                              display: "inline-block",
+                              verticalAlign: "middle",
+                            }}
+                          />
+                        );
+                      }
+                      return symbol ?? "★";
+                    })()}
+                  </span>
 
 
-        {/* IDENTITY & ROLES */}
-        {rolesBySection.length > 0 && (
-          <section className="mt-6 space-y-6">
-            <div className="flex flex-col md:flex-row md:justify-center md:gap-6 gap-6">
-              {rolesBySection.map((section) => (
-                <div key={section.key} className="md:flex-1 md:max-w-sm">
-                  <h3 className="text-lg text-center font-semibold text-neutral-300 mb-2">
-                    {section.title}
-                  </h3>
-
-                  <div className="flex flex-wrap gap-2 justify-center">
-                    {section.roles.map((role) => {
-                const isRedacted = redactedIds.has(role.id);
-                return (
-                    <div
-                    key={role.id}
-                    // Replaced onDoubleClick with Hold triggers
-                    onPointerDown={() => startPress(role.id)}
-                    onPointerUp={cancelPress}
-                    onPointerLeave={cancelPress}
-                    className="flex items-center gap-1.5 text-sm bg-neutral-800 px-3 py-1 rounded border border-neutral-700 shadow-sm break-inside-avoid whitespace-nowrap cursor-pointer hover:brightness-110 transition-all select-none active:scale-95 active:opacity-75"
-                    >
-                    {/* Symbol / Emoji Logic */}
-                    <span
-                        className="flex-shrink-0 w-6 text-center font-bold"
-                        style={{
-                        fontSize: "18px",
-                        display: "inline-block",
-                        backgroundColor: "transparent",
-                        lineHeight: "1.25em",
-                        paddingBottom: "0.1em",
-
-                        /* Redaction override: if redacted, hide colors and show block */
-                        ...(isRedacted
-                            ? { color: "#525252", background: "none", WebkitTextFillColor: "initial" }
-                            : ["🐕‍🦺", "🎭", "🪅"].includes(ROLE_SYMBOLS[role.id]?.symbol ?? "")
-                            ? {
-                                color: ROLE_SYMBOLS[role.id]?.color ?? "#e5e7eb",
-                                WebkitTextFillColor: undefined,
-                                WebkitBackgroundClip: undefined,
-                                background: undefined,
-                            }
-                            : SYMBOL_GRADIENTS[role.id]
-                            ? {
-                                background: SYMBOL_GRADIENTS[role.id],
-                                WebkitBackgroundClip: "text",
-                                WebkitTextFillColor: "transparent",
-                                color: undefined,
-                            }
-                            : {
-                                color: ROLE_SYMBOLS[role.id]?.color ?? "#e5e7eb",
-                                WebkitTextFillColor: undefined,
-                                WebkitBackgroundClip: undefined,
-                                background: undefined,
-                            }),
-                        }}
-                    >
-                        {isRedacted ? "█" : (ROLE_SYMBOLS[role.id]?.symbol ?? "★")}
-
-                            </span>
 
                             {/* Label Text Logic */}
                             <span
@@ -1046,22 +1040,38 @@ useEffect(() => {
                                     display: "inline-block",
                                     backgroundColor: "transparent",
                                     whiteSpace: "nowrap",
+                                    color: (() => {
+                                        if (isRedacted) return "#525252";
 
-                                    /* Redaction override for text */
-                                    ...(isRedacted 
-                                      ? { color: "#525252", background: "none", WebkitTextFillColor: "initial" }
-                                      : {
-                                        background: LABEL_GRADIENTS[role.id] ?? undefined,
-                                        WebkitBackgroundClip: LABEL_GRADIENTS[role.id] ? "text" : undefined,
-                                        WebkitTextFillColor: LABEL_GRADIENTS[role.id] ? "transparent" : undefined,
-                                        color: LABEL_GRADIENTS[role.id]
-                                            ? undefined
-                                            : ROLE_SYMBOLS[role.id]?.color ?? "#e5e7eb",
-                                      })
+                                        const symbol = ROLE_SYMBOLS[role.id]?.symbol;
+
+                                        // Override specific roles
+                                        if (symbol === "TRANS_FLAG") {
+                                            if (role.id === "man-transgender") return "#55CDFC"; // light blue
+                                            if (role.id === "woman-transgender") return "#d792d7"; // pink
+                                            // default trans color for other trans roles
+                                            return "#A3A3A3";
+                                        }
+
+                                        // Other flag-based colors
+                                        switch (symbol) {
+                                            case "NONBINARY_FLAG": return "#9C59D1";
+                                            case "GAY_FLAG": return "#26CEAA";
+                                            case "LESBIAN_FLAG": return "#d52d00";
+                                            case "BI_FLAG": return "#d60270";
+                                            case "PAN_FLAG": return "#ff218c";
+                                            case "ACE_FLAG": return "#800080";
+                                            case "ARO_FLAG": return "#3eb489";
+                                            case "DEMI_FLAG": return "#800080";
+                                            default: return ROLE_SYMBOLS[role.id]?.color ?? "#e5e7eb";
+                                        }
+                                    })(),
+
                                 }}
                             >
                                 {isRedacted ? "█████" : role.label}
                             </span>
+
                         </div>
                       );
                     })}
@@ -1070,8 +1080,7 @@ useEffect(() => {
               ))}
             </div>
           </section>
-        )}
-
+)}
 
 
     {/* FAVORITE OPTIONS */}

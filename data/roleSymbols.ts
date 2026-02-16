@@ -58,29 +58,27 @@ export const ROLE_SYMBOLS: Record<string, { symbol: string; color?: string }> = 
     "intersex": { symbol: "⚥", color: "#cc99ff" },   // Intersex
     "man-cisgender": { symbol: "♂", color: "#61a8ee" },   // Man (Cisgender)
     "woman-cisgender": { symbol: "♀", color: "#d792d7" },   // Woman (Cisgender)
-    "man-transgender": { symbol: "♂", color: "#6699ff" },   // Man (Transgender)
-    "woman-transgender": { symbol: "♀", color: "#ff99ff" },   // Woman (Transgender)
-    "non-binary-transgender": { symbol: "🜬", color: "#cc66ff" },   // Non-Binary (Transgender)
-    "non-binary-man-transgender": { symbol: "🜜", color: "#9966ff" },   // Non-Binary Man (Transgender)
-    "non-binary-woman-transgender": { symbol: "🜠", color: "#a578ce" },   // Non-Binary Woman (Transgender)
-    "agender-transgender": { symbol: "⚲", color: "#999999" },   // Agender (Transgender)
-    "genderfluid-transgender": { symbol: "🜡", color: "#a578ce" },   // Genderfluid (Transgender)
-    "bigender-transgender": { symbol: "⚴", color: "#cc3399" },   // Bigender (Transgender)
-    "two-spirit-transgender": { symbol: "🜐", color: "#cc3399" },   // Two-Spirit (Transgender)
+    "man-transgender": { symbol: "TRANS_FLAG" },
+    "woman-transgender": { symbol: "TRANS_FLAG" },
+    "non-binary-transgender": { symbol: "NONBINARY_FLAG" },
+    "non-binary-man-transgender": { symbol: "NONBINARY_FLAG" },
+    "non-binary-woman-transgender": { symbol: "NONBINARY_FLAG" },
+    "agender-transgender": { symbol: "TRANS_FLAG" },
+    "genderfluid-transgender": { symbol: "TRANS_FLAG" },
+    "bigender-transgender": { symbol: "TRANS_FLAG" },
+    "two-spirit-transgender": { symbol: "TRANS_FLAG" },
 
 
         // SEXUAL ORIENTATIONS
     "straight": { symbol: "⚤", color: "#c2c2c2" },   // Heterosexual (Straight)
-    "gay": { symbol: "⚣", color: "#45A893" },   // Homosexual (Gay)
-    "lesbian": { symbol: "⚢", color: "#D262A5" },   // Homosexual (Lesbian)
-    "bisexual": { symbol: "⚤", color: "#cc66ff" },   // Bisexual/Pansexual
-    "pansexual": { symbol: "⚤", color: "#cc66ff" },   // Bisexual/Pansexual
-    "asexual": { symbol: "♠️", color: "#999999" },   // Asexual
-    "aromantic": { symbol: "🏹", color: "#ff9999" },   // Aromantic
-    "demisexual": { symbol: "❦", color: "#ff66cc" },   // Demisexual
-    "2d-only": { symbol: "✎", color: "#59b465" },   // 2D ONLY
-    "adult-baby-option": { symbol: "🍼", color: "#FFE5D9" },   // Adult Baby
-    "diaper-lover": { symbol: "🚼", color: "#48a6f2" },   // Adult Baby
+    "gay": { symbol: "GAY_FLAG" },
+    "lesbian": { symbol: "LESBIAN_FLAG" },
+    "bisexual": { symbol: "BI_FLAG" },
+    "pansexual": { symbol: "PAN_FLAG" },
+    "asexual": { symbol: "ACE_FLAG" },
+    "aromantic": { symbol: "ARO_FLAG" },
+    "demisexual": { symbol: "DEMI_FLAG" },
+
 
     
         // EROTIC NOVELS READ
@@ -183,6 +181,9 @@ export const ROLE_SYMBOLS: Record<string, { symbol: string; color?: string }> = 
     "cannibal": { symbol: "🍖", color: "#f04502" },   // Cannibal
     "hucow": { symbol: "🐮", color: "#aaaaaa" },   // Hucow
     "cum-slut": { symbol: "🤤", color: "#aaaaaa" },   // Hucow
+    "2d-only": { symbol: "✎", color: "#59b465" },   // 2D ONLY
+    "adult-baby-option": { symbol: "🍼", color: "#FFE5D9" },   // Adult Baby
+    "diaper-lover": { symbol: "🚼", color: "#48a6f2" },   // Adult Baby
 
 };
 

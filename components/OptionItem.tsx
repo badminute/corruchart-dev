@@ -93,17 +93,11 @@ function OptionItem({
 
 
     const customColor: Record<string, string> = {
-        "scat": "#785023", // poo poo
+        "scat": "#9b774e", // poo poo
         // "optionB": "#34d399", // 
     };
 
-    const customGradients: Record<string, string> = {
-        "trans-porn": "linear-gradient(90deg, #5BCEFA, #F5A9B8, #FFFFFF, #F5A9B8, #5BCEFA)", // trans porn
-        // "optionB": "linear-gradient(90deg, #34d399, #3b82f6)", //
-    };
-
     // Pick gradient or fallback color
-    const gradient = customGradients[option.id];
     const solid = customColor[option.id] ?? (
         option.category === 5 ? "#a56ddd" :
             option.category === 6 ? "#6770c2" :
@@ -214,15 +208,7 @@ function OptionItem({
                 <button
                     ref={labelRef}
                     id={`label-${slot.slotId}`}
-                    style={
-                        gradient
-                            ? {
-                                background: gradient,
-                                WebkitBackgroundClip: "text",
-                                WebkitTextFillColor: "transparent",
-                            }
-                            : { color: solid }
-                    }
+                    style={{ color: solid }}
                     onPointerDown={() => {
                         if (slot.options.length <= 1) return;
 

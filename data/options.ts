@@ -613,7 +613,7 @@ export const OPTIONS: OptionData[] = [
 { id: "kappa-monstergirls", label: "KAPPA MONSTERGIRLS", tags: ["creatures", "monstergirls", "fantasy"], category: 3, variantGroup: "kappa-variant", variantOrder: 0 },
 { id: "kigurumi", label: "KIGURUMI", tags: ["apparel"], category: 4 },
 { id: "kissing", label: "KISSING", tags: ["acts", "oral"], category: 1 },
-{ id: "kitsune-monsterboys", label: "KITSUNE MONSTERBOYS", tags: ["creatures", "monstergirls", "fantasy"], category: 3, variantGroup: "kitsune-variant", variantOrder: 1 },
+{ id: "kitsune-monsterboys", label: "KITSUNE MONSTERBOYS", tags: ["creatures", "monsters", "fantasy"], category: 3, variantGroup: "kitsune-variant", variantOrder: 1 },
 { id: "kitsune-monstergirls", label: "KITSUNE MONSTERGIRLS", tags: ["creatures", "monstergirls", "fantasy"], aka: ["FOXGIRLS"], category: 3, variantGroup: "kitsune-variant", variantOrder: 0 },
 { id: "kneejobs", label: "KNEEJOBS", aka:["POPLITEAL"], tags: ["acts", "outercourse", "thighs", "lower-body"], category: 2 },
 { id: "knife-play", label: "KNIFE PLAY", tags: ["acts", "danger"], category: 5 },
