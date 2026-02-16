@@ -151,11 +151,7 @@ export default function Page() {
 
     useEffect(() => {
     const hasSeenWelcome = localStorage.getItem("hasSeenWelcomeRoles");
-    if (!hasSeenWelcome) {
-        setIsWelcomeOpen(true); // Use the same state as the button
-    } else {
-        setIsWelcomeOpen(false); // Default to closed if seen before
-    }
+    setShowWelcome(!hasSeenWelcome);
     }, []);
 
     // Update your close function
@@ -232,7 +228,7 @@ export default function Page() {
     }
   }, [options]);
   
-  
+
 
   /** Persist numeric state safely, merging with existing selections */
   useEffect(() => {
@@ -439,7 +435,7 @@ useEffect(() => {
       </h2>
 
       {/* Description */}
-      <div className="text-gray-400 text-center text-sm mb-4">
+      <div className="text-gray-400 text-center text-lg mb-4">
         <p>Here are some usage tips to make things smoother.</p>
       </div>
 
@@ -461,13 +457,13 @@ useEffect(() => {
       <button
         onClick={closeWelcome}
         className="w-full py-3 mt-4 bg-neutral-800 hover:bg-violet-500/30 cursor-pointer text-white font-semibold rounded-xl transition-colors"
-      >
-        CHART
-      </button>
+            >
+                CHART
+            </button>
 
-    </div>
-  </div>
-)}
+            </div>
+        </div>
+        )}
 
 
 

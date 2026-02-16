@@ -96,11 +96,10 @@ export default function ResultsPage() {
     useEffect(() => {
     const hasSeenWelcome = localStorage.getItem("hasSeenWelcomeRoles");
     if (!hasSeenWelcome) {
-        setIsWelcomeOpen(true); // Use the same state as the button
-    } else {
-        setIsWelcomeOpen(false); // Default to closed if seen before
+        setShowWelcome(true);
     }
     }, []);
+
 
     // Update your close function
     const closeWelcome = () => {
@@ -831,7 +830,7 @@ useEffect(() => {
                 textShadow: "0px 1px 0px rgba(0,0,0,0.6)",
               }}
             >
-              v0.28.1
+              v0.28.2
             </span>
           </div>
 
@@ -1227,7 +1226,7 @@ useEffect(() => {
       </h2>
 
       {/* Description */}
-      <div className="text-gray-400 text-center text-sm mb-4">
+      <div className="text-gray-400 text-center text-lg mb-4">
         <p>
           Your results are computed based on your responses to specific interests. Your affinities
           are based on the tags that the interests are in. You can customize your results a bit more, here are some tips.
