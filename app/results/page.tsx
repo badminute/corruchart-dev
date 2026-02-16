@@ -855,7 +855,7 @@ useEffect(() => {
           <div className="flex items-center gap-2">
             {/* Left icon */}
             <img
-              src="/corruchart-dev/images/anglefinal.png"
+              src="/images/anglefinal.png"
               alt="left icon"
               className="w-10 h-10"
               style={{ filter: "drop-shadow(1px 3px 0px rgba(0,0,0,1))" }}
@@ -951,7 +951,7 @@ useEffect(() => {
 
             {/* Right icon */}
             <img
-              src="/corruchart-dev/images/demenfinal.png"
+              src="/images/demenfinal.png"
               alt="right icon"
               className="w-10 h-10"
               style={{ filter: "drop-shadow(1px 3px 0px rgba(0,0,0,1))" }}
