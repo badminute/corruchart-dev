@@ -830,7 +830,7 @@ useEffect(() => {
                 textShadow: "0px 1px 0px rgba(0,0,0,0.6)",
               }}
             >
-              v0.28.2
+              v0.28.3
             </span>
           </div>
 
@@ -1219,39 +1219,43 @@ useEffect(() => {
       {/* MODAL OVERLAY */}
             {showWelcome && (
   <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4">
-    <div className="bg-neutral-900 border border-neutral-800 p-6 rounded-2xl w-full max-w-4xl h-[650px] shadow-2xl flex flex-col">
-      {/* Header */}
-      <h2 className="text-2xl font-bold text-center text-violet-400 mb-4">
-        Results Section
-      </h2>
+    <div className="bg-neutral-900 border border-neutral-800 p-6 rounded-2xl w-full max-w-4xl + max-h-[90vh] shadow-2xl flex flex-col">
+  
+  {/* Header */}
+  <h2 className="text-2xl font-bold text-center text-violet-400 mb-4">
+    Results Section
+  </h2>
 
-      {/* Description */}
-      <div className="text-gray-400 text-center text-lg mb-4">
-        <p>
-          Your results are computed based on your responses to specific interests. Your affinities
-          are based on the tags that the interests are in. You can customize your results a bit more, here are some tips.
-        </p>
-      </div>
-
-      {/* Slideshow */}
-      <div className="flex-1">
-        <WelcomeSlideshow 
-          images={[
-            "images/favourite-interests.gif", 
-            "images/redact-favourites.gif",
-            "images/remove-favourites.gif",
-          ]} 
-        />
-      </div>
-
-      {/* Button */}
-      <button
-        onClick={closeWelcome}
-        className="w-full py-3 mt-4 bg-neutral-800 hover:bg-violet-500/30 cursor-pointer text-white font-semibold rounded-xl transition-colors"
-      >
-        RESULTS
-      </button>
+  {/* Scrollable Content Area */}
+  <div className="flex-1 overflow-y-auto">
+    
+    {/* Description */}
+    <div className="text-gray-400 text-center text-xl mb-4">
+      <p>
+        Your results are computed based on your responses to specific interests. Your affinities
+        are based on the tags that the interests are in. You can customize your results a bit more, here are some tips.
+      </p>
     </div>
+
+    {/* Slideshow */}
+    <WelcomeSlideshow 
+      images={[
+        "images/favourite-interests.gif", 
+        "images/redact-favourites.gif",
+        "images/remove-favourites.gif",
+      ]} 
+    />
+  </div>
+
+  {/* Button — always visible */}
+  <button
+    onClick={closeWelcome}
+    className="w-full py-3 mt-4 bg-neutral-800 hover:bg-violet-500/30 cursor-pointer text-white font-semibold rounded-xl transition-colors"
+  >
+    RESULTS
+  </button>
+</div>
+
   </div>
 )}
 
