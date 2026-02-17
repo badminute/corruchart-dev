@@ -92,7 +92,7 @@ export const ROLES: RoleOption[] = [
     { id: "gets-around", label: "Gets Around (~10-25 Bodies)", aka: [], tags: ["Body Count"], category: 2 },
     { id: "promiscuous", label: "Promiscuous (~25-50 Bodies)", aka: [], tags: ["Body Count"], category: 3 },
     { id: "flesh-enjoyer", label: "Flesh Enjoyer (~50-100 Bodies)", aka: [], tags: ["Body Count"], category: 4 },
-    { id: "village-bicycle", label: "Village Bicycle (~100+)", aka: [], tags: ["Body Count"], category: 4 },
+    { id: "village-bicycle", label: "Village Bicycle (~100+ Bodies)", aka: [], tags: ["Body Count"], category: 4 },
     { id: "city-trolley", label: "City Trolley (~500+ Bodies)", aka: [], tags: ["Body Count"], category: 4 },
     { id: "well-traveled", label: "Well-traveled (~1000+ Bodies)", aka: [], tags: ["Body Count"], category: 5 },
 

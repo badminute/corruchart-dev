@@ -97,7 +97,7 @@ export default function Page() {
                         if (typeof tag === "number") return GROUPS[tag - 1]?.id || "general";
                         return tag;
                     }) || ["general"],
-                aka: opt.aka?.map((a) => a.toLowerCase()) || [],
+                aka: opt.aka?.map((a) => a.toUpperCase()) || [],
             })),
         []
     );
@@ -136,6 +136,7 @@ export default function Page() {
     const [showCategory6, setShowCategory6] = useState(false);
     const [openDescription, setOpenDescription] = useState<string | null>(null);
     const [activeVariant, setActiveVariant] = useState<Record<string, number>>({});
+    const [variantBlockedWarning, setVariantBlockedWarning] = useState<string | null>(null);
     type ActivePlus = { index: number; id: string; state: number }; // ✅ must include state
     const [activePluses, setActivePluses] = useState<ActivePlus[]>([]);
     const optionIndexById = useMemo(() => {
@@ -355,9 +356,10 @@ useEffect(() => {
         const index = optionIndexById[option.id];
 
         const matchesText =
-            !q ||
-            option.label.toLowerCase().includes(q) ||
-            option.aka.some((a) => a.includes(q));
+        !q ||
+        option.label.toLowerCase().includes(q) ||
+        option.aka.some((a) => a.toLowerCase().includes(q));
+
 
         const matchesColor =
             colorFilter.size === 0 ||
@@ -443,12 +445,15 @@ useEffect(() => {
       <div className="flex-1">
         <WelcomeSlideshow 
           images={[
-            "images/cycle.gif", 
+            "images/potion-tips.png", 
+            "images/cycle.gif",
+            "images/dark-reader.gif", 
             "images/descriptions.gif",
             "images/swappables.gif",
             "images/scroll.gif",
             "images/interests-bulk.gif",
-            "images/reset-interests.gif"
+            "images/reset-interests.gif",
+            "images/filters-preventing.gif"
           ]} 
         />
       </div>
@@ -486,7 +491,7 @@ useEffect(() => {
                 onClick={() => setShowWelcome(true)}
                 className="px-4 py-2.5 rounded bg-neutral-900 text-neutral-400 hover:bg-neutral-800 cursor-pointer flex items-center justify-center text-sm gap-1"
             >
-                <span className="font-bold text-neutral-200">Tips</span>
+                <span className="font-bold text-neutral-200">Guide</span>
             </button>
 
           <div className="flex items-center gap-2">

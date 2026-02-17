@@ -224,8 +224,14 @@ export default function Page() {
                             onClick={() => setShowWelcome(true)}
                             className="px-4 py-2.5 rounded bg-neutral-900 text-neutral-400 hover:bg-neutral-800 cursor-pointer flex items-center justify-center text-sm gap-1"
                         >
-                            <span className="font-bold text-white">Tips</span>
+                            <span className="font-bold text-white">Guide</span>
                         </button>
+                        <Link
+                        href="/corruchart"
+                        className="px-4 py-2.5 rounded bg-neutral-900 text-neutral-400 hover:bg-neutral-800 cursor-pointer flex items-center justify-center text-sm gap-1"
+                        >
+                        <span className="font-bold text-white">Back</span>
+                        </Link>
                         <Link href="/results" className="px-4 py-2 rounded bg-neutral-900 text-neutral-200 hover:bg-violet-500/30">Results</Link>
                         <span className="text-gray-400">Showing {filtered.length} / {options.length}</span>
                     </div>

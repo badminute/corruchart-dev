@@ -21,7 +21,7 @@ const METER_MAX_POINTS = 5000;
 const PAGE_BACKGROUND_COLOR = "#1F2023";
 const MAX_FAVORITES = 28;
 const FAVORITES_KEY = "corruchart-favorites";
-const HIDDEN_TAGS = new Set<string>(["upper-body", "dynamics", "qualities", "acts", "lower-body", "themes", "dynamics"]);
+
 
 console.log("Broad-only option IDs:", broadOnlyIds);
 
@@ -46,7 +46,33 @@ export default function ResultsPage() {
     const [popupPos, setPopupPos] = useState<{ x: number; y: number } | null>(null);
     const dragStartRef = useRef<{ x: number; y: number; mouseX: number; mouseY: number } | null>(null);
     const [isWelcomeOpen, setIsWelcomeOpen] = useState(true);
+    const [isTagSearchOpen, setIsTagSearchOpen] = useState(false);
+    const [tagSearchQuery, setTagSearchQuery] = useState("");
 
+
+  // === Tags you want to hide from results ===
+  const HIDDEN_TAGS = new Set<string>([
+    "upper-body",
+    "dynamics",
+    "qualities",
+    "acts",
+    "lower-body",
+    "misc",
+    "roles-themes"
+  ]);
+
+
+const tagSearchResults = useMemo(() => {
+  const q = tagSearchQuery.trim().toLowerCase();
+  if (!q) return [];
+
+  return OPTIONS.filter(opt =>
+    opt.tags?.some(tag => !HIDDEN_TAGS.has(tag)) &&
+    opt.label.toLowerCase().includes(q) &&
+    // Only include options that the user reacted to (not indifferent)
+    selections.find(sel => sel.id === opt.id && sel.value !== "indifferent")
+  ).slice(0, 100); // safety limit
+}, [tagSearchQuery, selections]);
 
 
     const welcomeImages = [
@@ -200,17 +226,6 @@ const toggleRedact = (id: string) => {
     "love",
     "lust",
   ];
-
-  // === Tags you want to hide from results ===
-  const HIDDEN_TAGS = new Set<string>([
-    "upper-body",
-    "dynamics",
-    "qualities",
-    "acts",
-    "lower-body",
-    "misc",
-    "roles-themes"
-  ]);
 
   // Custom messages for each threshold
   const CORRUPTION_MESSAGES: Record<number, string> = {
@@ -557,6 +572,12 @@ const submitForm = async (event: React.FormEvent<HTMLFormElement>) => {
             const container = document.getElementById("results-container");
             if (!container) return;
 
+              // 1️⃣ Close the tag search
+            setIsTagSearchOpen(false);
+
+              // Wait a frame so DOM updates
+            await new Promise(requestAnimationFrame);
+
             // Clone the container
             const clone = container.cloneNode(true) as HTMLElement;
 
@@ -674,7 +695,7 @@ const submitForm = async (event: React.FormEvent<HTMLFormElement>) => {
                     onClick={() => setShowWelcome(true)}
                     className="px-4 py-1 rounded bg-neutral-900 text-neutral-200 text-sm hover:bg-neutral-800 cursor-pointer flex items-center justify-center h-8 gap-1"
                 >
-                    <span className="font-bold">Tips</span>
+                    <span className="font-bold">Guide</span>
                 </button>
 
                 {/* Feedback button (In Back's old spot) */}
@@ -814,7 +835,7 @@ const submitForm = async (event: React.FormEvent<HTMLFormElement>) => {
                 textShadow: "0px 1px 0px rgba(0,0,0,0.6)",
               }}
             >
-              v0.28.4
+              v0.29.0
             </span>
           </div>
 
@@ -1196,39 +1217,67 @@ const submitForm = async (event: React.FormEvent<HTMLFormElement>) => {
 
        {/* TAG AFFINITIES */}
           <section className="space-y-6 relative">
-            <div className="flex items-center justify-center gap-2 mb-4">
-              <h3 className="text-xl font-semibold" style={{ textShadow: "2px 2px 0px rgba(0,0,0,0.3)" }}>
-                Tag Affinities
-              </h3>
-              <span
-                onClick={() =>
-                  setOpenTagInfo(prev =>
-                    prev?.tag === "__positive_help" ? null : { tag: "__positive_help", type: "positive" }
-                  )
-                }
-                className="w-4 h-4 flex items-center justify-center rounded-full text-[9px] font-bold bg-neutral-800 text-gray-300 border border-neutral-600 cursor-pointer"
-                title="Show help for positive tags"
-              >
-                ?
-              </span>
-            </div>
 
+<div className="flex items-center justify-center gap-2 mb-4">
+  <h3 className="text-xl font-semibold" style={{ textShadow: "2px 2px 0px rgba(0,0,0,0.3)" }}>
+    Tag Affinities
+  </h3>
+
+
+
+  {/* Help button */}
+  <span
+    onClick={() =>
+      setOpenTagInfo(prev =>
+        prev?.tag === "__positive_help" ? null : { tag: "__positive_help", type: "positive" }
+      )
+    }
+    className="w-4 h-4 flex items-center justify-center rounded-full text-[9px] font-bold bg-neutral-800 text-gray-300 border border-neutral-600 cursor-pointer"
+    title="Show help for positive tags"
+  >
+    ?
+  </span>
+
+  {/* Search button */}
+  <button
+    onClick={() => setIsTagSearchOpen(v => !v)}
+    className="text-neutral-400 cursor-pointer hover:text-white text-lg px-2"
+    aria-label="Search tags"
+  >
+    🔍
+  </button>
+
+  {/* Search Input — only shows when open, positioned to the right */}
+  {isTagSearchOpen && (
+    <input
+      autoFocus
+      value={tagSearchQuery}
+      onChange={e => setTagSearchQuery(e.target.value)}
+      placeholder="Search tag options…"
+      className="ml-2 px-2 py-1 rounded bg-neutral-800 text-white outline-none"
+      style={{ height: "28px" }} // match buttons' height for alignment
+    />
+  )}
+</div>
             {openTagInfo?.tag === "__positive_help" && (
               <div className="absolute -top-32 left-1/2 transform -translate-x-1/2 z-50 w-64 p-3 bg-neutral-900 text-gray-200 rounded shadow-lg text-center text-sm border border-neutral-700">
-                These are the tags you reacted most positively to. From here you can add and remove up to 25 interests to your favorites.
+                These are the tags you reacted most positively to. From here you can add and remove up to 28 interests to your favorites.
               </div>
             )}
 
             {/* TagAffinityDrilldown */}
             <TagAffinityDrilldown
-              tags={allVisibleTags}
-              favorites={favorites}
-              toggleFavorite={toggleFavorite}
+            tags={visiblePositiveTags} // or negative
+            favorites={favorites}
+            toggleFavorite={toggleFavorite}
+            searchQuery={tagSearchQuery}
             />
+
+
       {/* MODAL OVERLAY */}
-            {showWelcome && (
-  <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4">
-    <div className="bg-neutral-900 border border-neutral-800 p-6 rounded-2xl w-full max-w-4xl + max-h-[90vh] shadow-2xl flex flex-col">
+        {showWelcome && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4">
+        <div className="bg-neutral-900 border border-neutral-800 p-6 rounded-2xl w-full max-w-4xl + max-h-[90vh] shadow-2xl flex flex-col">
   
   {/* Header */}
   <h2 className="text-2xl font-bold text-center text-violet-400 mb-4">
@@ -1242,14 +1291,15 @@ const submitForm = async (event: React.FormEvent<HTMLFormElement>) => {
     <div className="text-gray-400 text-center text-xl mb-4">
       <p>
         Your results are computed based on your responses to specific interests. Your affinities
-        are based on the tags that the interests are in. You can customize your results a bit more, here are some tips.
+        are based on the tags that the interests are in. You can customize your results a bit more, here are ways to do that.
       </p>
     </div>
 
     {/* Slideshow */}
     <WelcomeSlideshow 
       images={[
-        "images/favourite-interests.gif", 
+        "images/favourite-interests.gif",
+        "images/search-interests.gif",
         "images/redact-favourites.gif",
         "images/remove-favourites.gif",
       ]} 

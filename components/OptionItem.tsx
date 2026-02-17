@@ -50,6 +50,7 @@ function OptionItem({
     const [tooltipPlacement, setTooltipPlacement] = useState<"top" | "bottom">("top");
     const [tooltipOffsetX, setTooltipOffsetX] = useState(0);
     const tooltipRef = useRef<HTMLDivElement | null>(null);
+    const [variantBlockedWarning, setVariantBlockedWarning] = useState<string | null>(null);
 
     // Customize potion widths and heights here
     const potionSizes: Record<number, { width: string; height: string }> = {
@@ -184,23 +185,31 @@ function OptionItem({
 
 
                         {slot.options.length > 1 && (
-                            <span
-                                className="absolute -top-1 -left-1 text-[12px] text-gray-400 cursor-pointer select-none z-10"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    setActiveVariant(prev => {
-                                        const updated = {
-                                            ...prev,
-                                            [slot.slotId]: ((prev[slot.slotId] ?? 0) + 1) % slot.options.length,
-                                        };
-                                        triggerHaptic([30, 20, 30]); // long press pattern
-                                        return updated;
-                                    });
-                                }}
-                            >
-                                ⇄
-                            </span>
-                        )}
+                        <span
+                            className="absolute -top-1 -left-1 text-[12px] text-gray-400 cursor-pointer select-none z-10"
+                            onClick={(e) => {
+                                e.stopPropagation();
+
+                                const activeIndex = activeVariant[slot.slotId] ?? 0;
+                                const nextIndex = (activeIndex + 1) % slot.options.length;
+                                const nextOption = slot.options[nextIndex];
+
+                                // Check if any of nextOption's tags are excluded
+                                const blocked = nextOption.tags.some(tag => (window as any).groupStates?.[tag] === "exclude");
+
+                                if (blocked) {
+                                    (window as any).setVariantBlockedWarning?.(`Cannot switch to "${nextOption.label}" due to a selected tag filter.`);
+                                    return;
+                                }
+
+                                setActiveVariant(prev => ({ ...prev, [slot.slotId]: nextIndex }));
+                                triggerHaptic([30, 20, 30]);
+                            }}
+                        >
+                            ⇄
+                        </span>
+                    )}
+
                     </button>
                 </div>
 
@@ -289,47 +298,50 @@ function OptionItem({
 
             {/* DESCRIPTION */}
             {openDescription === option.id && description && (
+            <div
+                ref={tooltipRef}
+                className={`
+                absolute
+                ${tooltipPlacement === "top" ? "bottom-full mb-2" : "top-full mt-2"}
+                left-1/2
+                z-50
+                pointer-events-none
+                `}
+                style={{
+                transform: `translateX(calc(-50% + ${tooltipOffsetX}px + 20px))`,
+                }}
+            >
                 <div
-                    ref={tooltipRef}
-                    className={`
-                        absolute
-                        ${tooltipPlacement === "top" ? "bottom-full mb-2" : "top-full mt-2"}
-                        left-1/2
-                        z-50
-                        pointer-events-none
-                    `}
-                    style={{
-                        /* We add 20px (or whatever number you like) to the translateX to nudge it right */
-                        transform: `translateX(calc(-50% + ${tooltipOffsetX}px + 20px))`,
-                    }}
+                className="
+                    w-max 
+                    max-w-[85vw] 
+                    sm:max-w-md 
+                    md:max-w-lg 
+                    bg-neutral-800 
+                    text-gray-200 
+                    px-3 py-2
+                    sm:px-4 sm:py-3
+                    rounded 
+                    border border-gray-500 
+                    text-center 
+                    animate-pop-in
+                    text-xs
+                    sm:text-sm
+                    leading-relaxed
+                "
+                style={{ boxShadow: "0 3px 0 rgba(0,0,0,0.9)" }}
                 >
+                <p>{description}</p>
 
-                    <div
-                    className="
-                        w-max 
-                        max-w-[85vw]           /* Slightly narrower for extra edge safety */
-                        sm:max-w-md 
-                        md:max-w-lg 
-                        bg-neutral-800 
-                        text-gray-200 
-                        px-3 py-2              /* Slightly reduced padding for mobile */
-                        sm:px-4 sm:py-3        /* Normal padding for larger screens */
-                        rounded 
-                        border border-gray-500 
-                        text-center 
-                        animate-pop-in
-                        
-                        /* RESPONSIVE TEXT SIZE */
-                        text-xs                /* Smallest size for mobile */
-                        sm:text-sm             /* Medium size for larger screens */
-                        leading-relaxed        /* Better readability for wrapped text */
-                    "
-                    style={{ boxShadow: "0 3px 0 rgba(0,0,0,0.9)" }}
-                >
-                    {description}
+                {option.aka && option.aka.length > 0 && (
+                    <p className="text-gray-400 text-xs italic mt-1">
+                    AKA: {option.aka.join(", ")}
+                    </p>
+                )}
                 </div>
-                </div>
+            </div>
             )}
+
         </div>
     );
 }

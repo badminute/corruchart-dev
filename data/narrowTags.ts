@@ -5,7 +5,7 @@ export const NARROW_TAGS = [
   "D/s","drugs","physiological","emotions", "exhibitionism",
   "fandoms","fantasy","feet","footwear","free use","futanari","furry","gender fun",
   "gross","group activities","hair","hands","horse","hyper","incest",
-  "inflation","macrophilia","mature","medical","aural","messy","mind","marks","monstergirls","monsters","muscles",
+  "inflation","macrophilia","mature","medical","aural","messy","mind","marks","monstergirls","monsterboys","monsters","muscles",
   "non-monogamy","non-consensual","occupational","oddities","oral","outercourse","pain","partialisms",
   "pee","petplay","personalities","penetration","porn","power","pregnancy",
   "public","pussies","racial","religious","roleplay","rough","scent",
