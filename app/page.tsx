@@ -46,7 +46,7 @@ export default function HomePage() {
                                 textShadow: "0px 1px 0px rgba(0,0,0,0.6)",
                             }}
                         >
-                            v0.29.0
+                            v0.29.1
                         </span>
                     </div>
 
@@ -66,7 +66,7 @@ export default function HomePage() {
 
                     {/* Disclaimer */}
                     <p className="text-xs sm:text-md text-gray-400 mb-7 sm:mb-9 leading-relaxed max-w-2xl text-center drop-shadow-[0_4px_4px_rgba(0,0,0,0.3)] ">
-                        Disclaimer: This tool is designed for fun and educational purposes, NONE of the interests (especially the taboo ones) are endorsed and/or condoned by the creator of this tool. The interests available are interests that real people have (even if you don't believe it). The creator assumes no responsibility for any consequences that arise from the use of this tool. Please exercise discretion when using it and sharing results. <u><b>Only proceed if you are 18 years of age or older.</b></u>
+                        Disclaimer: This tool is designed for fun and educational purposes, NONE of the interests (especially the taboo ones) are endorsed and/or condoned by the creator of this tool. <u><b>This tool does not gather any information from the user with the sole exception being the feedback form which must be filled and submitted.</b></u> The interests available are interests that real people have (even if you don't believe it). The creator assumes no responsibility for any consequences that arise from the use of this tool. Please exercise discretion when using it and sharing results. <u><b>Only proceed if you are 18 years of age or older.</b></u>
                     </p>
 
                     {/* START Button */}

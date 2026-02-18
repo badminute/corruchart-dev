@@ -526,6 +526,7 @@ export const DESCRIPTIONS: Record<string, string> = {
     "hard-vore": "Graphic, often violent depictions of being eaten or eating others. Contrasts with soft vore, which is gentler and may omit digestion.",
     "harems": "A polyamorous or power-based dynamic where one person has multiple devoted partners, often with hierarchical or gendered roles.",
     "harpy-monstergirls": "Avian demihumans that kidnap male humans to mate with.",
+    "harpies": "Avian demihumans that kidnap male humans to mate with, they have cloacas.",
     "hate-sex": "Sex fueled by mutual animosity, tension, or unresolved conflict rather than affection.",
     "head-insertion": "The act of inserting ones head into a vagina or anus. Not to be confused with vore, but similar.",
     "headpats": "Small pats on someone's head, typically as a show of affection, can be a a soft display of control.",

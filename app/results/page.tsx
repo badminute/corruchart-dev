@@ -835,7 +835,7 @@ const submitForm = async (event: React.FormEvent<HTMLFormElement>) => {
                 textShadow: "0px 1px 0px rgba(0,0,0,0.6)",
               }}
             >
-              v0.29.0
+              v0.29.1
             </span>
           </div>
 
