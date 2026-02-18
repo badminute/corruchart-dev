@@ -1135,7 +1135,7 @@ export const DESCRIPTIONS: Record<string, string> = {
     "werewolves": "Attraction to werewolves and arousal from scenarios involving them.",
     "wet-and-messy": "A fetish involving covering a person (or oneself) in messy substances like food, mud, slime, or whipped cream.",
     "wet-dreams": "Involuntary erotic dreams that result in orgasm during sleep (nocturnal emission).",
-    "wet-hair": "The appearance of wet, shiny, glossy hair, often as a result of .",
+    "wet-hair": "The appearance of wet, shiny, glossy hair, often as a result of showering or swimming in a pool.",
     "wetlook": "The look of wet clothing or the feeling while wearing them.",
     "whips-whipping": "The act of whipping or being whipped.",
     "wide-hips": "Wide hips, significantly larger than the waist.",
