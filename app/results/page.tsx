@@ -1224,7 +1224,6 @@ const submitForm = async (event: React.FormEvent<HTMLFormElement>) => {
   </h3>
 
 
-
   {/* Help button */}
   <span
     onClick={() =>
@@ -1258,6 +1257,25 @@ const submitForm = async (event: React.FormEvent<HTMLFormElement>) => {
       style={{ height: "28px" }} // match buttons' height for alignment
     />
   )}
+</div>
+
+{/* Tag Affinity Legend */}
+<div className="flex justify-center flex-wrap gap-4 text-sm text-neutral-300 mt-2">
+  {[
+    { name: "Lust", color: "#c88de8ff" },
+    { name: "Love", color: "#37bdf6ff" },
+    { name: "Like", color: "#27ae60" },
+    { name: "Dislike", color: "#fc8d59" },
+    { name: "Disgust", color: "#e74c3c" },
+  ].map((item) => (
+    <div key={item.name} className="flex items-center gap-1.5">
+      <span
+        className="w-3 h-3 rounded-full inline-block"
+        style={{ backgroundColor: item.color }}
+      />
+      <span>{item.name}</span>
+    </div>
+  ))}
 </div>
             {openTagInfo?.tag === "__positive_help" && (
               <div className="absolute -top-32 left-1/2 transform -translate-x-1/2 z-50 w-64 p-3 bg-neutral-900 text-gray-200 rounded shadow-lg text-center text-sm border border-neutral-700">
