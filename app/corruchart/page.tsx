@@ -155,12 +155,33 @@ export default function Page() {
     setShowWelcome(!hasSeenWelcome);
     }, []);
 
+    // HAS USER SEEN THE UPDATES?
+    useEffect(() => {
+    const seen = localStorage.getItem("corruchart-changelog-seen");
+    if (seen !== CHANGELOG_VERSION) {
+    setHasNewUpdate(true);
+    }
+    }, []);
+    const openChangelog = () => {
+    setShowChangelog(true);
+
+    if (hasNewUpdate) {
+    localStorage.setItem("corruchart-changelog-seen", CHANGELOG_VERSION);
+    setHasNewUpdate(false);
+    }
+    };
+
+
     // Update your close function
     const closeWelcome = () => {
         setShowWelcome(false);
         localStorage.setItem("hasSeenWelcomeRoles", "true");
     };
     // -----------------------
+
+    const [showChangelog, setShowChangelog] = useState(false);
+    const CHANGELOG_VERSION = "0.29.3"; // ← bump this when you update
+    const [hasNewUpdate, setHasNewUpdate] = useState(false);
 
   /** SET ALL TO (Forbidden only) */
   const [setAllState, setSetAllState] = useState(0);
@@ -426,6 +447,77 @@ useEffect(() => {
 
   return (
 <>
+
+   {/* CHANGELOG MODAL */}
+{showChangelog && (
+  <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4">
+    <div className="bg-neutral-900 border border-neutral-800 p-6 rounded-2xl w-full max-w-4xl h-[650px] shadow-2xl flex flex-col">
+      
+      {/* Header */}
+      <h2 className="text-2xl font-bold text-center text-violet-400 mb-4">
+        Changelog
+      </h2>
+
+      {/* Description */}
+      <div className="text-gray-400 text-center text-lg mb-4">
+        <p>Recent changes, additions, and improvements.</p>
+      </div>
+
+      {/* CHANGELOG CONTENT */}
+      <div className="flex-1 overflow-y-auto pr-2 space-y-6 text-gray-300">
+        <div>
+          <h3 className="text-lg font-semibold text-white">
+            v0.29.3 — Latest
+          </h3>
+          <ul className="list-disc ml-6 mt-2 space-y-1">
+            <li>Added a changelog, expect plenty of new things to show here!</li>
+            <li>Added these interests: Pillow Humping, Gumjobs, and Wide Tongues.</li>
+            <li>Separated BBW/BHM, SSBW/SSBHM</li>
+            <li>Description and label chiseling.</li>
+          </ul>
+        </div>
+
+        <div>
+          <h3 className="text-lg font-semibold text-white">
+            v0.29.2
+          </h3>
+          <ul className="list-disc ml-6 mt-2 space-y-1">
+            <li>Added a legend for tag affinities.</li>
+          </ul>
+        </div>
+
+        <div>
+          <h3 className="text-lg font-semibold text-white">
+            v0.29.1
+          </h3>
+          <ul className="list-disc ml-6 mt-2 space-y-1">
+            <li>Little bits and bobs of chiseling.</li>
+          </ul>
+        </div>
+
+        <div>
+          <h3 className="text-lg font-semibold text-white">
+            v0.29.0
+          </h3>
+          <ul className="list-disc ml-6 mt-2 space-y-1">
+            <li>Added a search button for tag affinities.</li>
+          </ul>
+        </div>
+      </div>
+
+      {/* Button — identical to Guide modal */}
+      <button
+        onClick={() => setShowChangelog(false)}
+        className="w-full py-3 mt-4 bg-neutral-800 hover:bg-violet-500/30 cursor-pointer text-white font-semibold rounded-xl transition-colors"
+      >
+        CLOSE
+      </button>
+
+    </div>
+  </div>
+)}
+
+
       {/* MODAL OVERLAY */}
 {showWelcome && (
   <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4">
@@ -492,6 +584,26 @@ useEffect(() => {
                 className="px-4 py-2.5 rounded bg-neutral-900 text-neutral-400 hover:bg-neutral-800 cursor-pointer flex items-center justify-center text-sm gap-1"
             >
                 <span className="font-bold text-neutral-200">Guide</span>
+            </button>
+
+            <button
+            type="button"
+            onClick={openChangelog}
+            className={`
+                px-4 py-2.5 rounded bg-neutral-900 text-neutral-400
+                hover:bg-neutral-800 cursor-pointer flex items-center justify-center text-sm gap-1
+                ${hasNewUpdate ? "ring-2 ring-violet-400" : ""}
+            `}
+            >
+            <span className="font-bold text-neutral-200">
+                Changelog
+            </span>
+
+            {hasNewUpdate && (
+                <span className="text-[10px] font-bold text-violet-300 ml-1">
+                NEW!
+                </span>
+            )}
             </button>
 
           <div className="flex items-center gap-2">

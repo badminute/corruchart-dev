@@ -29,7 +29,7 @@ export const ROLES: RoleOption[] = [
     { id: "brat", label: "Brat", aka: [], tags: ["Domination & Submission"], category: 3 },
     { id: "degradee", label: "Degradee", aka: [], tags: ["Domination & Submission"], category: 3, variantGroup: "degradation-variant", variantOrder: 1 },
     { id: "degrader", label: "Degrader", aka: [], tags: ["Domination & Submission"], category: 3, variantGroup: "degradation-variant", variantOrder: 0 },
-    { id: "dominant", label: "Dominant", aka: ["Dom"], tags: ["Domination & Submission"], category: 3 },
+    { id: "dominant", label: "Dominant", aka: ["Dom", "Domme"], tags: ["Domination & Submission"], category: 3 },
     { id: "findom", label: "Findom", aka: ["Financial Dom"], tags: ["Domination & Submission"], category: 3 },
     { id: "master", label: "Master", aka: [], tags: ["Domination & Submission"], category: 4 },
     { id: "paypig", label: "Paypig", aka: [], tags: ["Domination & Submission"], category: 3 },
@@ -38,7 +38,7 @@ export const ROLES: RoleOption[] = [
     { id: "predator-primal", label: "Predator (Primal)", aka: [], tags: ["Domination & Submission"], category: 3 },
     { id: "prey-primal", label: "Prey (Primal)", aka: [], tags: ["Domination & Submission"], category: 3 },
     { id: "slave", label: "Slave", aka: [], tags: ["Domination & Submission"], category: 4 },
-    { id: "submissive", label: "Submissive", aka: ["Sub"], tags: ["Domination & Submission"], category: 3 },
+    { id: "submissive", label: "Submissive", aka: ["Sub", "Subby"], tags: ["Domination & Submission"], category: 3 },
     { id: "switch", label: "Switch", aka: [], tags: ["Domination & Submission"], category: 3 },
 
 

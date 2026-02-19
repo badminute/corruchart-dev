@@ -235,7 +235,7 @@ const toggleRedact = (id: string) => {
     3: "You are tainted with corruption...",
     4: "You are very corrupt. A real pervert.",
     5: "You are beyond corrupt.",
-    6: "You should probably be in prison.",
+    6: "You are sick and twisted.",
   };
 
   // Custom colors for each corruption threshold/message
@@ -835,7 +835,7 @@ const submitForm = async (event: React.FormEvent<HTMLFormElement>) => {
                 textShadow: "0px 1px 0px rgba(0,0,0,0.6)",
               }}
             >
-              v0.29.1
+              v0.29.3
             </span>
           </div>
 

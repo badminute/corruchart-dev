@@ -1,6 +1,6 @@
 # Corruchart (Corruption Chart)
 
-Corruchart (v0.29.1) is a robust, fun, and interactive chart made for sexual beings of all kinds to discover, fill in, and share with others! Humans have long had a very large diversity of identities, sexual interests, preferences, and paraphilias. This chart intends to cover the plethora of everything under that umbrella and intends to evolve and expand with the suggestions of others via Feedback button on the final (results) page.
+Corruchart (v0.29.3) is a robust, fun, and interactive chart made for sexual beings of all kinds to discover, fill in, and share with others! Humans have long had a very large diversity of identities, sexual interests, preferences, and paraphilias. This chart intends to cover the plethora of everything under that umbrella and intends to evolve and expand with the suggestions of others via Feedback button on the final (results) page.
 
 <p align="center">
     <img src="/public/images/corrucloud.png" width="500" height="500">
