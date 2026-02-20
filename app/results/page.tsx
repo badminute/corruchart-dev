@@ -48,7 +48,8 @@ export default function ResultsPage() {
     const [isWelcomeOpen, setIsWelcomeOpen] = useState(true);
     const [isTagSearchOpen, setIsTagSearchOpen] = useState(false);
     const [tagSearchQuery, setTagSearchQuery] = useState("");
-
+    const [drilldownCloseSignal, setDrilldownCloseSignal] = useState(0);
+console.log("NEGATIVE TAGS:", negativeTags);
 
   // === Tags you want to hide from results ===
   const HIDDEN_TAGS = new Set<string>([
@@ -60,6 +61,13 @@ export default function ResultsPage() {
     "misc",
     "roles-themes"
   ]);
+
+// Master list of ALL tags from OPTIONS (excluding hidden)
+const ALL_TAGS = Array.from(
+  new Set(
+    OPTIONS.flatMap(o => o.tags ?? []).filter(tag => !HIDDEN_TAGS.has(tag))
+  )
+).sort();
 
 
 const tagSearchResults = useMemo(() => {
@@ -572,8 +580,9 @@ const submitForm = async (event: React.FormEvent<HTMLFormElement>) => {
             const container = document.getElementById("results-container");
             if (!container) return;
 
-              // 1️⃣ Close the tag search
+            // 1️⃣ Close overlays
             setIsTagSearchOpen(false);
+            setDrilldownCloseSignal(s => s + 1);
 
               // Wait a frame so DOM updates
             await new Promise(requestAnimationFrame);
@@ -602,12 +611,18 @@ const submitForm = async (event: React.FormEvent<HTMLFormElement>) => {
 
             document.body.appendChild(wrapper);
 
+            // Render screenshot (hides drilldowns)
+            document.body.classList.add("screenshot-mode");
+
             // Render screenshot
             const canvas = await html2canvas(wrapper, { 
                 scale: 2, 
                 backgroundColor: PAGE_BACKGROUND_COLOR,
                 useCORS: true,
             });
+
+            // 🔓 Exit screenshot mode
+            document.body.classList.remove("screenshot-mode");
 
             document.body.removeChild(wrapper);
 
@@ -623,9 +638,7 @@ const submitForm = async (event: React.FormEvent<HTMLFormElement>) => {
             const visiblePositiveTags = positiveTags.filter(tag => !HIDDEN_TAGS.has(tag.tag));
             const visibleNegativeTags = negativeTags.filter(tag => !HIDDEN_TAGS.has(tag.tag));
             const allVisibleTags = useMemo(() => {
-                const combined = [...visiblePositiveTags, ...visibleNegativeTags];
-                // Deduplicate by tag name
-                return Array.from(new Map(combined.map(t => [t.tag, t])).values());
+            return [...visiblePositiveTags, ...visibleNegativeTags];
             }, [visiblePositiveTags, visibleNegativeTags]);
 
 
@@ -1289,6 +1302,7 @@ const submitForm = async (event: React.FormEvent<HTMLFormElement>) => {
             favorites={favorites}
             toggleFavorite={toggleFavorite}
             searchQuery={tagSearchQuery}
+            forceCloseSignal={drilldownCloseSignal}
             />
 
 

@@ -7,10 +7,11 @@ import { TagBreakdown } from "@/lib/tagScores";
 
 
 interface TagAffinityDrilldownProps {
-  tags: TagBreakdown[];
-  favorites: string[];
-  toggleFavorite: (id: string) => void;
-  searchQuery?: string;
+    tags: TagBreakdown[];
+    favorites: string[];
+    toggleFavorite: (id: string) => void;
+    searchQuery?: string;
+    forceCloseSignal?: number;
 }
 
 
@@ -19,11 +20,17 @@ export default function TagAffinityDrilldown({
   favorites,
   toggleFavorite,
   searchQuery = "",
+  forceCloseSignal,
 }: TagAffinityDrilldownProps) {
     const [openTag, setOpenTag] = useState<string | null>(null);
     const [activeReaction, setActiveReaction] = useState<ReactionKey | null>(null);
     const q = searchQuery.trim().toLowerCase();
     const isFavorite = (id: string) => favorites.includes(id);
+
+    useLayoutEffect(() => {
+        setOpenTag(null);
+        setActiveReaction(null);
+    }, [forceCloseSignal]);
 
     // Map tag -> whether to flip drilldown above
     const [flipUpMap, setFlipUpMap] = useState<Record<string, boolean>>({});

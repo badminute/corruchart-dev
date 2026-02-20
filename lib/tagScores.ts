@@ -68,14 +68,14 @@ export function computeTagScores(
         }
     }
 
-    // Sort tags by number of positive/negative reactions
+// Include tags that have ANY reactions of that type
     const positive = Object.values(tagMap)
-        .filter(t => t.positive.length > 0)
-        .sort((a, b) => b.positive.length - a.positive.length);
+    .filter(t => t.positive.length > 0 || t.negative.length > 0)
+    .sort((a, b) => b.positive.length - a.positive.length);
 
     const negative = Object.values(tagMap)
-        .filter(t => t.negative.length > 0)
-        .sort((a, b) => b.negative.length - a.negative.length);
+    .filter(t => t.negative.length > 0 || t.positive.length > 0)
+    .sort((a, b) => b.negative.length - a.negative.length);
 
     return { positive, negative };
 }

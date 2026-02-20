@@ -357,7 +357,7 @@ export const DESCRIPTIONS: Record<string, string> = {
     "e-boys": "Aesthetic of internet-styled, soft or alternative men.",
     "e-girls": "Aesthetic of internet-styled, expressive or alternative women.",
     "ear-fucking": "Ear penetration. Didn't expect that, did you?",
-    "ear-play": "Playing with ears seductively.",
+    "ear-play": "Playing with ears seductively, kissing and touching them.",
     "ederacinism": "The scenario of removing sexual organs by the root.",
     "edging": "The act of stopping stimulation when near the brink of an orgasm for oneself or their partner, typically in order to control, enhance, and prolong orgasm.",
     "electrostimulation": "Sexual stimulation via electric currents, typically using specialized toys.",
