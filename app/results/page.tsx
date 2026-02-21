@@ -904,7 +904,7 @@ const scoredSelections = useMemo(() => {
                 style={{ width: `${fillPercent}%` }}
                 >
                     <div className="absolute inset-0" style={{
-                    backgroundColor: isTainted ? "#484d7d" : "#a78bfa",
+                    backgroundColor: isTainted ? "#2f3358" : "#7752cd"
                     }} />
                     <svg
                     viewBox="0 0 100 16"
@@ -943,7 +943,7 @@ const scoredSelections = useMemo(() => {
                         y="0"
                         width="100"
                         height="16"
-                        fill={isTainted ? "#6770c2" : "#a78bfa"}
+                        fill={isTainted ? "#6770c2" : "#9672e8"}
                         clipPath={`url(#${clipIdRef.current})`}
                     />
                     </svg>
