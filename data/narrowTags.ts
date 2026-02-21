@@ -7,7 +7,7 @@ export const NARROW_TAGS = [
   "gross","group activities","hair","hands","horse","hyper","incest",
   "inflation","macrophilia","mature","medical","aural","messy","mind","marks","monstergirls","monsterboys","monsters","muscles",
   "non-monogamy","non-consensual","occupational","oddities","oral","outercourse","pain","partialisms",
-  "pee","petplay","personalities","penetration","porn","power","pregnancy",
+  "pee","petplay","personalities","penetration","poop", "porn","power","pregnancy",
   "public","pussies","racial","religious","roleplay","rough","scent",
   "scenarios","school","self-indulgence","sexuality fun","size","sports",
   "stranger sex","tails","themes","thighs","tickling","training","transformation",

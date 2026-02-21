@@ -95,7 +95,18 @@ function OptionItem({
 
     const customColor: Record<string, string> = {
         "scat": "#9b774e", // poo poo
-        // "optionB": "#34d399", // 
+        "scat-efro": "#9b774e", // poo poo
+        "coprophagia": "#9b774e", // poo poo
+        "septic-tanks": "#9b774e", // poo poo
+        "fecal-transfer": "#9b774e", // poo poo
+        "soiling": "#9b774e", // poo poo
+        "messing": "#9b774e", // poo poo
+        "hypermess": "#9b774e", // poo poo
+        "hyperscat": "#9b774e", // poo poo
+        "scat-smearing": "#9b774e", // poo poo
+        "scat-sex": "#9b774e", // poo poo
+        "scat-cooking": "#9b774e", // poo poo
+        "candy-scat": "#9b774e", // poo poo
     };
 
     // Pick gradient or fallback color

@@ -242,8 +242,8 @@ const toggleRedact = (id: string) => {
     2: "You've thought some perverted thoughts before. Pervert.",
     3: "You are tainted with corruption...",
     4: "You are very corrupt. A real pervert.",
-    5: "You are beyond corrupt.",
-    6: "You are sick and twisted.",
+    5: "You are fully corrupt.",
+    6: "You are into some sick and twisted things.",
   };
 
   // Custom colors for each corruption threshold/message
@@ -254,7 +254,7 @@ const toggleRedact = (id: string) => {
     3: "#917fbf", // 
     4: "#917fbf", // 
     5: "#7a66aa", // 
-    6: "#624d92", // demen
+    6: "#7980c2", // demen
   };
 
 
@@ -533,20 +533,27 @@ const submitForm = async (event: React.FormEvent<HTMLFormElement>) => {
   // ----------------------------
   // Map selections for scoring (combined-selections only)
   // ----------------------------
-  const scoredSelections = useMemo(() => {
-    // selections is already loaded from combined-selections
-    return selections
-      .map(sel => {
-        const option = OPTIONS.find(o => o.id === sel.id) ?? ROLES.find(r => r.id === sel.id);
-        if (!option) return null;
+const scoredSelections = useMemo(() => {
+  return selections
+    .map(sel => {
+      const option =
+        OPTIONS.find(o => o.id === sel.id) ??
+        ROLES.find(r => r.id === sel.id);
 
-        return {
-          category: option.category as CategoryId,
-          value: sel.value as string,
-        };
-      })
-      .filter(Boolean) as { category: CategoryId; value: string }[];
-  }, [selections]);
+      if (!option) return null;
+
+      return {
+        category: option.category as CategoryId,
+        value: sel.value as string,
+        points: (option as any).points, // ⭐ ADD THIS
+      };
+    })
+    .filter(Boolean) as {
+      category: CategoryId;
+      value: string;
+      points?: number;
+    }[];
+}, [selections]);
 
   const scoreData = useMemo(() => computeScore(scoredSelections), [scoredSelections]);
 
@@ -848,7 +855,7 @@ const submitForm = async (event: React.FormEvent<HTMLFormElement>) => {
                 textShadow: "0px 1px 0px rgba(0,0,0,0.6)",
               }}
             >
-              v0.29.3
+              v0.29.4
             </span>
           </div>
 
@@ -861,7 +868,12 @@ const submitForm = async (event: React.FormEvent<HTMLFormElement>) => {
         <section className="space-y-3">
 
           {/* 2️⃣ Score Display */}
-          <div className="flex justify-between text-xl text-violet-400">
+          <div
+            className="flex justify-between text-xl"
+            style={{
+                color: isTainted ? "#737ab9" : "#a78bfa",
+            }}
+            >
             <span style={{ textShadow: "0px 4px 0px rgba(0,0,0,0.3)" }}>Corruption</span>
             <span style={{ textShadow: "0px 4px 0px rgba(0,0,0,0.3)" }}>
               {scoreData.total} / {METER_MAX_POINTS}
@@ -887,8 +899,13 @@ const submitForm = async (event: React.FormEvent<HTMLFormElement>) => {
                 style={{ backgroundColor: "#2c2e33" }}
               >
                 {clipId && (
-                <div className="absolute left-0 top-0 h-full transition-[width] duration-1000 ease-out" style={{ width: `${fillPercent}%` }}>
-                    <div className="absolute inset-0" style={{ backgroundColor: "#7752cd" }} />
+                <div
+                className="absolute left-0 top-0 h-full transition-[width] duration-1000 ease-out"
+                style={{ width: `${fillPercent}%` }}
+                >
+                    <div className="absolute inset-0" style={{
+                    backgroundColor: isTainted ? "#484d7d" : "#a78bfa",
+                    }} />
                     <svg
                     viewBox="0 0 100 16"
                     preserveAspectRatio="none"
@@ -926,7 +943,7 @@ const submitForm = async (event: React.FormEvent<HTMLFormElement>) => {
                         y="0"
                         width="100"
                         height="16"
-                        fill="#8b5cf6"
+                        fill={isTainted ? "#6770c2" : "#a78bfa"}
                         clipPath={`url(#${clipIdRef.current})`}
                     />
                     </svg>
@@ -955,9 +972,15 @@ const submitForm = async (event: React.FormEvent<HTMLFormElement>) => {
                           }`}
                       />
                       <span
-                        className={`text-xl block mt-1 transition-colors duration-300 ${reached ? "text-violet-500" : "text-neutral-400"
-                          }`}
-                      >
+                        className="text-xl block mt-1 transition-colors duration-300"
+                        style={{
+                            color: scoreData.category6Hit
+                            ? "#6770c2" // cat6 reached all tick numbers
+                            : reached
+                            ? "#ae9ae7"  // reached tick number
+                            : "#a78bfa", // unreached tick number
+                        }}
+                        >
                         {i + 1}
                       </span>
                     </div>
@@ -983,7 +1006,7 @@ const submitForm = async (event: React.FormEvent<HTMLFormElement>) => {
 
           return (
             <div
-              className="text-center text-lg font-semibold mb-2"
+            className="text-center text-lg font-semibold mt-1 mb-6"
               style={{ 
                 color, 
                 textShadow: "2px 2px 0px rgba(0,0,0,0.6)" 

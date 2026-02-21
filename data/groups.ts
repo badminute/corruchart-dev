@@ -81,6 +81,7 @@ export const GROUPS: Group[] = [
   { id: "physiological", name: "Physiological", scope: "narrow" },
   { id: "porn", name: "Porn", scope: "narrow" },
   { id: "power", name: "Power", scope: "narrow" },
+  { id: "poop", name: "Poop", scope: "narrow" },
   { id: "pregnancy", name: "Pregnancy", scope: "narrow" },
   { id: "public", name: "Public", scope: "narrow" },
   { id: "pussies", name: "Pussies", scope: "narrow" },

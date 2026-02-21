@@ -180,7 +180,7 @@ export default function Page() {
     // -----------------------
 
     const [showChangelog, setShowChangelog] = useState(false);
-    const CHANGELOG_VERSION = "0.29.3"; // ← bump this when you update
+    const CHANGELOG_VERSION = "0.29.4"; // ← bump this when you update
     const [hasNewUpdate, setHasNewUpdate] = useState(false);
 
   /** SET ALL TO (Forbidden only) */
@@ -467,7 +467,19 @@ useEffect(() => {
       <div className="flex-1 overflow-y-auto pr-2 space-y-6 text-gray-300">
         <div>
           <h3 className="text-lg font-semibold text-white">
-            v0.29.3 — Latest
+            v0.29.4 — The Poop Update
+          </h3>
+          <ul className="list-disc ml-6 mt-2 space-y-1">
+            <li>Added a Poop tag!</li>
+            <li>Added Coprophagia, Fecal Transfer, Hyperscat, Hypermess, Scat Smearing, Scat Cooking, Candy Scat, Soiling, Messing, Septic Tanks, and Scat Sex!</li>
+            <li>A new colourscheme for forbidden corruption reached.</li>
+            <li>Increased corruption amounts for several interests.</li>
+          </ul>
+        </div>
+
+        <div>
+          <h3 className="text-lg font-semibold text-white">
+            v0.29.3 — The Changelog Update
           </h3>
           <ul className="list-disc ml-6 mt-2 space-y-1">
             <li>Added a changelog, expect plenty of new things to show here!</li>

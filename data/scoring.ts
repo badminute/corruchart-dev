@@ -27,22 +27,22 @@ export const CATEGORY_POINTS: Record<
     2: {
         like: 5,
         "love": 7,
-        lust: 7,
+        lust: 8,
     },
     3: {
         like: 12,
         "love": 16,
-        lust: 16,
+        lust: 18,
     },
     4: {
         like: 20,
         "love": 25,
-        lust: 25,
+        lust: 30,
     },
     5: {
         like: 35,
         "love": 45,
-        lust: 45,
+        lust: 50,
     },
     6: {
         like: 0,
@@ -60,24 +60,33 @@ export const THRESHOLDS = [
 ];
 
 export function computeScore(
-    options: { category: CategoryId; value: string }[]
+  options: { category: CategoryId; value: string; points?: number }[]
 ) {
-    let total = 0;
-    let category6Hit = false;
+  let total = 0;
+  let category6Hit = false;
 
-    for (const { category, value } of options) {
-        if (category === 6 && value in CATEGORY_POINTS[6]) {
-            category6Hit = true;
-            continue;
-        }
+  for (const { category, value, points } of options) {
 
-        if (
-            category !== 6 &&
-            value in CATEGORY_POINTS[category]
-        ) {
-            total += CATEGORY_POINTS[category][value as PositiveAnswer];
-        }
+    // ⭐ Category 6 special rule (never gives points)
+    if (category === 6 && value in CATEGORY_POINTS[6]) {
+      category6Hit = true;
+      continue;
     }
 
-    return { total, category6Hit };
+    // ⭐ Per-option override takes priority
+    if (
+    points !== undefined &&
+    (value === "like" || value === "love" || value === "lust")
+    ) {
+    total += points;
+    continue;
+    }
+
+    // ⭐ Default category scoring
+    if (category !== 6 && value in CATEGORY_POINTS[category]) {
+      total += CATEGORY_POINTS[category][value as PositiveAnswer];
+    }
+  }
+
+  return { total, category6Hit };
 }
