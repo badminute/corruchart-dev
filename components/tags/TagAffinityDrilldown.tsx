@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useMemo, useRef, useLayoutEffect } from "react";
-import { REACTIONS, REACTION_COLORS, ReactionKey } from "./reactionConfig";
+import { REACTIONS, getReactionColors, ReactionKey } from "./reactionConfig";
 import { TagBreakdown } from "@/lib/tagScores";
+import { useSettings } from "../SettingsContext";
 
 
 
@@ -22,6 +23,8 @@ export default function TagAffinityDrilldown({
   searchQuery = "",
   forceCloseSignal,
 }: TagAffinityDrilldownProps) {
+    const { colourblindMode } = useSettings();
+    const reactionColors = useMemo(() => getReactionColors(colourblindMode), [colourblindMode]);
     const [openTag, setOpenTag] = useState<string | null>(null);
     const [activeReaction, setActiveReaction] = useState<ReactionKey | null>(null);
     const q = searchQuery.trim().toLowerCase();
@@ -115,7 +118,7 @@ export default function TagAffinityDrilldown({
                     style={{
                       width: `${widthPercent}%`,
                       minWidth: "12px",
-                      backgroundColor: REACTION_COLORS[r],
+                      backgroundColor: reactionColors[r],
                       transition: "filter 0.2s ease",
                     }}
                     className="cursor-pointer hover:brightness-120 relative"
@@ -162,7 +165,7 @@ export default function TagAffinityDrilldown({
                 <div className="font-semibold mb-1 flex items-center gap-1.5 whitespace-nowrap">
                   <span className="text-gray-400 capitalize">{tag.tag}</span>
                   <span className="text-neutral-600">—</span>
-                  <span style={{ color: REACTION_COLORS[activeReaction] }} className="capitalize">
+                  <span style={{ color: reactionColors[activeReaction!] }} className="capitalize">
                     {activeReaction} ({buckets[activeReaction].length})
                   </span>
                 </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import Link from "next/link";
 
 import { ROLES } from "@/data/roles";
@@ -8,6 +8,7 @@ import type { RoleOption } from "@/data/roles";
 import { ROLE_SYMBOLS } from "@/data/roleSymbols";
 import { DESCRIPTIONS } from "@/data/descriptions";
 import { WelcomeSlideshow } from "@/components/onboarding";
+import { useSettings } from "@/components/SettingsContext";
 
 export default function Page() {
     const options: RoleOption[] = ROLES;

@@ -10,6 +10,7 @@ import { DESCRIPTIONS } from "@/data/descriptions";
 import SettingsButton from "@/components/SettingsButton";
 import OptionsGrid from "@/components/OptionsGrid";
 import { WelcomeSlideshow } from "@/components/onboarding";
+import { useSettings } from "@/components/SettingsContext";
 
 // import base type
 import type { OptionData as BaseOption } from "@/data/options";
@@ -22,16 +23,6 @@ type OptionWithCategory = BaseOption & {
 };
 
 type GroupState = "include" | "exclude";
-
-/** html2canvas-safe hex colors */
-const COLOR_HEX = [
-  "#828282ff", // Indifferent
-  "#e74c3c",   // Disgust
-  "#fc8d59",   // Dislike
-  "#27ae60",   // Like
-  "#37bdf6ff", // Love
-  "#c88de8ff", // Lust
-];
 
 const COLOR_NAMES = [
   "indifferent",
@@ -55,7 +46,25 @@ const STATE_TO_VALUE = [
 ] as const;
 
 export default function Page() {
+  const { colourblindMode } = useSettings();
   const searchInputRef = useRef<HTMLInputElement>(null);
+
+  /** html2canvas-safe hex colors */
+  const COLOR_HEX = useMemo(() => colourblindMode ? [
+    "#828282ff", // Indifferent
+    "#d62728",   // Disgust (red to darker red)
+    "#ff7f0e",   // Dislike (orange to brighter orange)
+    "#1f77b4",   // Like (green to blue)
+    "#aec7e8",   // Love (blue to light blue)
+    "#9467bd",   // Lust (purple to darker purple)
+  ] : [
+    "#828282ff", // Indifferent
+    "#e74c3c",   // Disgust
+    "#fc8d59",   // Dislike
+    "#27ae60",   // Like
+    "#37bdf6ff", // Love
+    "#c88de8ff", // Lust
+  ], [colourblindMode]);
 
 
     const broadGroups = useMemo(
@@ -467,11 +476,41 @@ useEffect(() => {
       <div className="flex-1 overflow-y-auto pr-2 space-y-6 text-gray-300">
         <div>
           <h3 className="text-lg font-semibold text-white">
+            v0.29.7 — The Batch Update
+          </h3>
+          <ul className="list-disc ml-6 mt-2 space-y-1">
+            <li>Added these interests: Alien Impregnation, Anal Birthing, Aphrodisiac Spores, Bodily Fluids Into Food/Drinks, Bodily Fluids Into Food/Drinks (NC), Brain Fucking, Budding Breasts, Cigarette Burns, Clothes Theft, Cockroaches, Doll Anatomy, Ear Fucking (Pleasure), Ear Fucking (Gore), Ear Whispers & Blowing, Eyesocket Fucking, Face Play & Distortion, Femdom (Brutal), Finger Lacing, Finger-Toe Lacing, Foot Gagging, Forced Detransition, Fractionation Hypnosis, Frilly Clothing, Gothic Lolita, Heterochromia, Hothusbanding, Human Ashtray, Human Incubator, Hypnotic Eyes, Loli Pregnancies, Mastectomy, Nipple Births, Nudism, Nullification, Ovary Removal, Penis Flies, Piss Drinking, Plant Vore, Pre-Trans Selfcest, Split Tongues, Stomach Growling, Stranded Island Scenario, Throat Impregnation, and Toe Lacing</li>
+            <li>Added these censorship interests: Humiliation Censorship (Cocks), Humiliation Censorship (General), Humiliation Censorship (Silhouettes & Bars), and Humiliation Censorship (Text & Symbols)</li>
+            <li>Added these macrophilia interests: Giant (Unaware), Giant (Cruel), Giant (Gentle), and Giant (Growth)</li>
+            <li>Added various 'receiving' versions of acts.</li>
+            <li>Added these roles: Tiny, Princess, Sugar Baby, Nudist, and Giantess</li>
+            <li>Cleaned up Macrophilia tag.</li>
+          </ul>
+        </div>
+        <div>
+          <h3 className="text-lg font-semibold text-white">
+            v0.29.6 — The Incest Update
+          </h3>
+          <ul className="list-disc ml-6 mt-2 space-y-1">
+            <li>Added these interests: Younger Brother x Older Sister Incest, Younger Sister x Older Brother Incest, Second Cousin Incest, Same Sex Incest, Same Age Incest, Half Sibling Incest, Full Blooded Incest, Age Gaps (Siblings), and Stranded Island Incest!</li>
+          </ul>
+        </div>
+        <div>
+          <h3 className="text-lg font-semibold text-white">
+            v0.29.5 — The Men's Update
+          </h3>
+          <ul className="list-disc ml-6 mt-2 space-y-1">
+            <li>Added these interests: Slim Pecs, Jacked Pecs, Shelf Pecs, Soft Pecs, Princes, Bifauxnen, Bishounen, Bishie Princes, Chest Scars, Clothed Male Nude Male, Embarrassed Nude Male, Femboy Pregancies, Genderbend Servitude, Blueberry Boys, Shota Pregnancies, T-Dick Pregnancies, Magical Boys, Maledom (Brutal), and Distressed Dudes!</li>
+            <li>Added a Colorblind Mode in Options.</li>
+          </ul>
+        </div>
+        <div>
+          <h3 className="text-lg font-semibold text-white">
             v0.29.4 — The Poop Update
           </h3>
           <ul className="list-disc ml-6 mt-2 space-y-1">
             <li>Added a Poop tag!</li>
-            <li>Added Coprophagia, Fecal Transfer, Hyperscat, Hypermess, Scat Smearing, Scat Cooking, Candy Scat, Soiling, Messing, Septic Tanks, and Scat Sex!</li>
+            <li>Added these interests: Coprophagia, Fecal Transfer, Hyperscat, Hypermess, Scat Smearing, Scat Cooking, Candy Scat, Soiling, Messing, Septic Tanks, and Scat Sex!</li>
             <li>A new colourscheme for forbidden corruption reached.</li>
             <li>Increased corruption amounts for several interests.</li>
           </ul>

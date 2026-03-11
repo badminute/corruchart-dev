@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { Roboto } from "next/font/google";
 import "./globals.css";
+import { SettingsProvider } from "@/components/SettingsContext";
 
 const roboto = Roboto({
   subsets: ["latin"],
@@ -18,7 +19,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body className={`${roboto.className} font-semibold`}>
-        {children}
+        <SettingsProvider>
+          {children}
+        </SettingsProvider>
       </body>
     </html>
   );

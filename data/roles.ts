@@ -18,53 +18,55 @@ export const ROLES: RoleOption[] = [
 
 
     // SADISM & MASOCHISM
-    { id: "sadist", label: "Sadist", aka: [], tags: ["Sadism & Masochism"], category: 5 },
+    { id: "sadist", label: "Sadist", aka: [], tags: ["Sadism & Masochism"], category: 4 },
     { id: "masochist", label: "Masochist", aka: ["Pain Slut"], tags: ["Sadism & Masochism"], category: 4 },
-    { id: "sadomasochist", label: "Sadomasochist", aka: ["S&M"], tags: ["Sadism & Masochism"], category: 5 },
+    { id: "sadomasochist", label: "Sadomasochist", aka: ["S&M"], tags: ["Sadism & Masochism"], category: 4 },
     { id: "sadistic-caregiver", label: "Sadistic Caregiver", aka: [], tags: ["Sadism & Masochism"], category: 4 },
 
 
     // DOMINATION & SUBMISSION
-    { id: "brat-tamer", label: "Brat Tamer", aka: [], tags: ["Domination & Submission"], category: 3 },
-    { id: "brat", label: "Brat", aka: [], tags: ["Domination & Submission"], category: 3 },
-    { id: "degradee", label: "Degradee", aka: [], tags: ["Domination & Submission"], category: 3, variantGroup: "degradation-variant", variantOrder: 1 },
-    { id: "degrader", label: "Degrader", aka: [], tags: ["Domination & Submission"], category: 3, variantGroup: "degradation-variant", variantOrder: 0 },
-    { id: "dominant", label: "Dominant", aka: ["Dom", "Domme"], tags: ["Domination & Submission"], category: 3 },
-    { id: "findom", label: "Findom", aka: ["Financial Dom"], tags: ["Domination & Submission"], category: 3 },
-    { id: "master", label: "Master", aka: [], tags: ["Domination & Submission"], category: 4 },
-    { id: "paypig", label: "Paypig", aka: [], tags: ["Domination & Submission"], category: 3 },
-    { id: "pet-owner", label: "Pet Owner", aka: [], tags: ["Domination & Submission"], category: 3 },
-    { id: "pet", label: "Pet", aka: [], tags: ["Domination & Submission"], category: 3 },
-    { id: "predator-primal", label: "Predator (Primal)", aka: [], tags: ["Domination & Submission"], category: 3 },
-    { id: "prey-primal", label: "Prey (Primal)", aka: [], tags: ["Domination & Submission"], category: 3 },
-    { id: "slave", label: "Slave", aka: [], tags: ["Domination & Submission"], category: 4 },
-    { id: "submissive", label: "Submissive", aka: ["Sub", "Subby"], tags: ["Domination & Submission"], category: 3 },
-    { id: "switch", label: "Switch", aka: [], tags: ["Domination & Submission"], category: 3 },
+    { id: "brat-tamer", label: "Brat Tamer", aka: [], tags: ["Domination & Submission"], category: 2 },
+    { id: "brat", label: "Brat", aka: [], tags: ["Domination & Submission"], category: 2 },
+    { id: "degradee", label: "Degradee", aka: [], tags: ["Domination & Submission"], category: 3, variantGroup: "degradation-variants", variantOrder: 1 },
+    { id: "degrader", label: "Degrader", aka: [], tags: ["Domination & Submission"], category: 3, variantGroup: "degradation-variants", variantOrder: 0 },
+    { id: "dominant", label: "Dominant", aka: ["Dom", "Domme"], tags: ["Domination & Submission"], category: 2 },
+    { id: "findom", label: "Findom", aka: ["Financial Dom"], tags: ["Domination & Submission"], category: 2 },
+    { id: "master", label: "Master", aka: [], tags: ["Domination & Submission"], category: 2 },
+    { id: "paypig", label: "Paypig", aka: [], tags: ["Domination & Submission"], category: 2 },
+    { id: "pet-owner", label: "Pet Owner", aka: [], tags: ["Domination & Submission"], category: 2 },
+    { id: "pet", label: "Pet", aka: [], tags: ["Domination & Submission"], category: 2 },
+    { id: "predator-primal", label: "Predator (Primal)", aka: [], tags: ["Domination & Submission"], category: 2 },
+    { id: "prey-primal", label: "Prey (Primal)", aka: [], tags: ["Domination & Submission"], category: 2 },
+    { id: "slave", label: "Slave", aka: [], tags: ["Domination & Submission"], category: 3 },
+    { id: "submissive", label: "Submissive", aka: ["Sub", "Subby"], tags: ["Domination & Submission"], category: 2 },
+    { id: "switch", label: "Switch", aka: [], tags: ["Domination & Submission"], category: 2 },
 
 
     // BONDAGE & DISCIPLINE
     { id: "abductor", label: "Abductor", aka: [], tags: ["Bondage & Discipline"], category: 5 },
     { id: "abductee", label: "Abductee", aka: [], tags: ["Bondage & Discipline"], category: 4 },
-    { id: "prisoner", label: "Prisoner", aka: [], tags: ["Bondage & Discipline"], category: 4 },
-    { id: "captor", label: "Captor", aka: [], tags: ["Bondage & Discipline"], category: 4 },
-    { id: "furniture", label: "Furniture", aka: [], tags: ["Bondage & Discipline"], category: 3 },
-    { id: "rope-bunny", label: "Rope Bunny", aka: [], tags: ["Bondage & Discipline"], category: 3 },
-    { id: "rope-top", label: "Rope Top", aka: [], tags: ["Bondage & Discipline"], category: 3 },
+    { id: "prisoner", label: "Prisoner", aka: [], tags: ["Bondage & Discipline"], category: 3 },
+    { id: "captor", label: "Captor", aka: [], tags: ["Bondage & Discipline"], category: 3 },
+    { id: "furniture", label: "Furniture", aka: [], tags: ["Bondage & Discipline"], category: 2 },
+    { id: "rope-bunny", label: "Rope Bunny", aka: [], tags: ["Bondage & Discipline"], category: 2 },
+    { id: "rope-top", label: "Rope Top", aka: [], tags: ["Bondage & Discipline"], category: 2 },
 
 
     // BDSM ROLES Misc.
-    { id: "pig", label: "Pig", aka: [], tags: ["BDSM Roles Misc."], category: 4 },
-    { id: "little", label: "Little", aka: [], tags: ["BDSM Roles Misc."], category: 3 },
-    { id: "doctor", label: "Doctor", aka: [], tags: ["BDSM Roles Misc."], category: 3 },
-    { id: "patient", label: "Patient", aka: [], tags: ["BDSM Roles Misc."], category: 3 },
-    { id: "goddess", label: "Goddess", aka: [], tags: ["BDSM Roles Misc."], category: 3 },
-    { id: "pony", label: "Pony", aka: [], tags: ["BDSM Roles Misc."], category: 3 },
-    { id: "service-top", label: "Service Top", aka: [], tags: ["BDSM Roles Misc."], category: 3 },
-    { id: "service-dom", label: "Service Dom", aka: [], tags: ["BDSM Roles Misc."], category: 3 },
+    { id: "pig", label: "Pig", aka: [], tags: ["BDSM Roles Misc."], category: 3 },
+    { id: "little", label: "Little", aka: [], tags: ["BDSM Roles Misc."], category: 2 },
+    { id: "doctor", label: "Doctor", aka: [], tags: ["BDSM Roles Misc."], category: 2 },
+    { id: "patient", label: "Patient", aka: [], tags: ["BDSM Roles Misc."], category: 2 },
+    { id: "goddess", label: "Goddess", aka: [], tags: ["BDSM Roles Misc."], category: 2, variantGroup: "god-variants", variantOrder: 0 },
+    { id: "god", label: "God", aka: [], tags: ["BDSM Roles Misc."], category: 2, variantGroup: "god-variants", variantOrder: 1 },
+    { id: "princess", label: "Princess", aka: [], tags: ["BDSM Roles Misc."], category: 2, variantGroup: "prince-variants", variantOrder: 0 },
+    { id: "prince", label: "Prince", aka: [], tags: ["BDSM Roles Misc."], category: 2, variantGroup: "prince-variants", variantOrder: 1 },
+    { id: "pony", label: "Pony", aka: [], tags: ["BDSM Roles Misc."], category: 2 },
+    { id: "service-top", label: "Service Top", aka: [], tags: ["BDSM Roles Misc."], category: 2 },
+    { id: "service-dom", label: "Service Dom", aka: [], tags: ["BDSM Roles Misc."], category: 2 },
     { id: "sensation-junkie", label: "Sensation Junkie", aka: [], tags: ["BDSM Roles Misc."], category: 3 },
-    { id: "mommy", label: "Mommy", aka: [], tags: ["BDSM Roles Misc."], category: 3, variantGroup: "parents-variant", variantOrder: 0 },
-    { id: "daddy", label: "Daddy", aka: [], tags: ["BDSM Roles Misc."], category: 3, variantGroup: "parents-variant", variantOrder: 1 },
-
+    { id: "mommy", label: "Mommy", aka: [], tags: ["BDSM Roles Misc."], category: 2, variantGroup: "parents-variants", variantOrder: 0 },
+    { id: "daddy", label: "Daddy", aka: [], tags: ["BDSM Roles Misc."], category: 2, variantGroup: "parents-variants", variantOrder: 1 },
 
     // GENDER EXPRESSION
     { id: "androgynous-gender-exp", label: "Androgynous (Gender Exp.)", aka: [], tags: ["Gender Expression"], category: 1 },
@@ -91,9 +93,9 @@ export const ROLES: RoleOption[] = [
     { id: "single-digit", label: "Single Digit Samaritan (~1-9 Bodies)", aka: [], tags: ["Body Count"], category: 2 },
     { id: "gets-around", label: "Gets Around (~10-25 Bodies)", aka: [], tags: ["Body Count"], category: 2 },
     { id: "promiscuous", label: "Promiscuous (~25-50 Bodies)", aka: [], tags: ["Body Count"], category: 3 },
-    { id: "flesh-enjoyer", label: "Flesh Enjoyer (~50-100 Bodies)", aka: [], tags: ["Body Count"], category: 4 },
-    { id: "village-bicycle", label: "Village Bicycle (~100+ Bodies)", aka: [], tags: ["Body Count"], category: 4 },
-    { id: "city-trolley", label: "City Trolley (~500+ Bodies)", aka: [], tags: ["Body Count"], category: 4 },
+    { id: "flesh-enjoyer", label: "Flesh Enjoyer (~50-100 Bodies)", aka: [], tags: ["Body Count"], category: 3 },
+    { id: "village-bicycle", label: "Village Bicycle (~100+ Bodies)", aka: [], tags: ["Body Count"], category: 3 },
+    { id: "city-trolley", label: "City Trolley (~500+ Bodies)", aka: [], tags: ["Body Count"], category: 3 },
     { id: "well-traveled", label: "Well-traveled (~1000+ Bodies)", aka: [], tags: ["Body Count"], category: 5 },
 
 
@@ -101,18 +103,18 @@ export const ROLES: RoleOption[] = [
     { id: "naughty-video", label: "Saw a Naughty Video (~1-25 Vids)", aka: [], tags: ["Porn Experience"], category: 1 },
     { id: "doomscrolled-porn", label: "XXX Doomscroller (~200-1000 Vids)", aka: [], tags: ["Porn Experience"], category: 3 },
     { id: "the-watcher", label: "The Watcher (~1000-2500 Vids)", aka: [], tags: ["Porn Experience"], category: 3 },
-    { id: "refined-taste", label: "Refined Taste (~2500-5000 Vids)", aka: [], tags: ["Porn Experience"], category: 4 },
-    { id: "seen-things", label: "Seen Things (~5000-10000 Vids)", aka: [], tags: ["Porn Experience"], category: 4 },
-    { id: "strong-arm", label: "Strong Arm (~10000-25000 Vids)", aka: [], tags: ["Porn Experience"], category: 4 },
+    { id: "refined-taste", label: "Refined Taste (~2500-5000 Vids)", aka: [], tags: ["Porn Experience"], category: 3 },
+    { id: "seen-things", label: "Seen Things (~5000-10000 Vids)", aka: [], tags: ["Porn Experience"], category: 3 },
+    { id: "strong-arm", label: "Strong Arm (~10000-25000 Vids)", aka: [], tags: ["Porn Experience"], category: 3 },
     { id: "page-24732", label: "Page 24732 (~25000+ Vids)", aka: [], tags: ["Porn Experience"], category: 5 },
 
 
     // PORN STASH
     { id: "handful-of-favourites", label: "A Handful of Favourites (~1-25 Vids)", aka: [], tags: ["Porn Stash"], category: 3 },
-    { id: "the-novice-stasher", label: "The Novice Stasher (~25-100 Vids)", aka: [], tags: ["Porn Stash"], category: 4 },
-    { id: "the-stasher", label: "The Stasher (~100-500 Vids)", aka: [], tags: ["Porn Stash"], category: 4 },
-    { id: "the-bunker", label: "The Bunker (~500-3000 Vids)", aka: [], tags: ["Porn Stash"], category: 4 },
-    { id: "the-archivist", label: "The Archivist (~3000+ Vids)", aka: [], tags: ["Porn Stash"], category: 5 },
+    { id: "the-novice-stasher", label: "The Novice Stasher (~25-100 Vids)", aka: [], tags: ["Porn Stash"], category: 3 },
+    { id: "the-stasher", label: "The Stasher (~100-500 Vids)", aka: [], tags: ["Porn Stash"], category: 3 },
+    { id: "the-bunker", label: "The Bunker (~500-3000 Vids)", aka: [], tags: ["Porn Stash"], category: 3 },
+    { id: "the-archivist", label: "The Archivist (~3000+ Vids)", aka: [], tags: ["Porn Stash"], category: 3 },
 
 
     // EROTIC NOVELS READ
@@ -120,7 +122,7 @@ export const ROLES: RoleOption[] = [
     { id: "milking-minotaurs", label: "Milking Minotaurs (~15-50 Read)", aka: [], tags: ["Erotic Novels Read"], category: 3 },
     { id: "smut-sommelier", label: "Smut Sommelier (~51-100 Read)", aka: [], tags: ["Erotic Novels Read"], category: 3 },
     { id: "erotica-expert", label: "Erotica Expert (~101-200 Read)", aka: [], tags: ["Erotic Novels Read"], category: 3 },
-    { id: "smut-librarian", label: "Smut Librarian (~201+ Read)", aka: [], tags: ["Erotic Novels Read"], category: 4 },
+    { id: "smut-librarian", label: "Smut Librarian (~201+ Read)", aka: [], tags: ["Erotic Novels Read"], category: 3 },
 
 
     // HENTAI DOUJINSHI READ
@@ -128,7 +130,7 @@ export const ROLES: RoleOption[] = [
     { id: "177013-initiate", label: "177013 Initiate (~51-150 Read)", aka: [], tags: ["Hentai Doujinshi Read"], category: 2 },
     { id: "has-favourites", label: "Has Favourites (~151-400 Read)", aka: [], tags: ["Hentai Doujinshi Read"], category: 3 },
     { id: "for-the-plot", label: "For The Plot (~401-800 Read)", aka: [], tags: ["Hentai Doujinshi Read"], category: 3 },
-    { id: "rereader", label: "Rereader (~801-1,500 Read)", aka: [], tags: ["Hentai Doujinshi Read"], category: 4 },
+    { id: "rereader", label: "Rereader (~801-1,500 Read)", aka: [], tags: ["Hentai Doujinshi Read"], category: 3 },
     { id: "sad-panda", label: "Sad Panda (~1,501+ Read)", aka: [], tags: ["Hentai Doujinshi Read"], category: 4 },
 
 
@@ -177,8 +179,8 @@ export const ROLES: RoleOption[] = [
     { id: "cuckcake", label: "Cuckcake", aka: [], tags: ["Fun Roles"], category: 4, variantGroup: "thirds", variantOrder: 1 },
     { id: "cuckold", label: "Cuckold", aka: ["Cuck"], tags: ["Fun Roles"], category: 4, variantGroup: "cucks", variantOrder: 0 },
     { id: "cuckquean", label: "Cuckquean", aka: ["Cuck"], tags: ["Fun Roles"], category: 4, variantGroup: "cucks", variantOrder: 1 },
-    { id: "hotwife", label: "Hotwife", aka: ["Hotwife"], tags: ["Fun Roles"], category: 4, variantGroup: "hotpartners", variantOrder: 0 },
-    { id: "hothusband", label: "Hothusband", aka: ["Hotwife"], tags: ["Fun Roles"], category: 4, variantGroup: "hotpartners", variantOrder: 1 },
+    { id: "hotwife", label: "Hotwife", tags: ["Fun Roles"], category: 4, variantGroup: "hotpartners", variantOrder: 0 },
+    { id: "hothusband", label: "Hothusband", tags: ["Fun Roles"], category: 4, variantGroup: "hotpartners", variantOrder: 1 },
     { id: "swinger", label: "Swinger", aka: [], tags: ["Fun Roles"], category: 4 },
     { id: "stag", label: "Stag", aka: [], tags: ["Fun Roles"], category: 4, variantGroup: "stag-vixen", variantOrder: 0 },
     { id: "vixen", label: "Vixen", aka: [], tags: ["Fun Roles"], category: 4, variantGroup: "stag-vixen", variantOrder: 1 },
@@ -197,8 +199,14 @@ export const ROLES: RoleOption[] = [
     { id: "experiment", label: "Experiment", aka: ["Subject"], tags: ["Fun Roles"], category: 3 },
     { id: "hucow", label: "Hucow", aka: ["Human Cow"], tags: ["Fun Roles"], category: 3 },
     { id: "cum-slut", label: "Cum Slut", aka: [], tags: ["Fun Roles"], category: 4 },
-    { id: "sugar-provider", label: "Sugar Provider", aka: [], tags: ["Fun Roles"], category: 3 },
+    { id: "sugar-provider", label: "Sugar Provider", aka: [], tags: ["Fun Roles"], category: 3, variantGroup: "sugar-variants", variantOrder: 0 },
+    { id: "sugar-baby", label: "Sugar Baby", aka: [], tags: ["Fun Roles"], category: 3, variantGroup: "sugar-variants", variantOrder: 1 },
+    { id: "tiny", label: "Tiny", aka: [], tags: ["Fun Roles"], category: 2, variantGroup: "macrophilia", variantOrder: 0 },
+    { id: "giantess", label: "Giantess", aka: [], tags: ["Fun Roles"], category: 2, variantGroup: "macrophilia", variantOrder: 1 },
     { id: "skunk", label: "Skunk", aka: [], tags: ["Fun Roles"], category: 3 },
+    { id: "feeder", label: "Feeder", aka: [], tags: ["Fun Roles"], category: 3, variantGroup: "feeder-variants", variantOrder: 0 },
+    { id: "feedee", label: "Feedee", aka: [], tags: ["Fun Roles"], category: 3, variantGroup: "feeder-variants", variantOrder: 1 },
+    { id: "nudist", label: "Nudist", aka: [], tags: ["Fun Roles"], category: 3 },
     { id: "cannibal", label: "Cannibal", aka: [], tags: ["Fun Roles"], category: 6 },
 
 ];

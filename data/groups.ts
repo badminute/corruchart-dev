@@ -1,6 +1,7 @@
 import type { Group } from "@/types/option";
 
 export const GROUPS: Group[] = [
+
   // ===== BROAD GROUPS =====
   { id: "upper-body", name: "Upper Body", scope: "broad" },
   { id: "lower-body", name: "Lower Body", scope: "broad" },
@@ -8,7 +9,7 @@ export const GROUPS: Group[] = [
   { id: "qualities", name: "Qualities", scope: "broad" },
   { id: "creatures", name: "Creatures", scope: "broad" },
   { id: "dynamics", name: "Dynamics", scope: "broad" },
-  { id: "themes", name: "Themes", scope: "broad" },
+  { id: "themes", name: "Themes & Scenarios", scope: "broad" },
 
   // ===== NARROW GROUPS =====
   { id: "age", name: "Age", scope: "narrow" },
@@ -57,7 +58,7 @@ export const GROUPS: Group[] = [
   { id: "incest", name: "Incest", scope: "narrow" },
   { id: "inflation", name: "Inflation", scope: "narrow" },
   { id: "macrophilia", name: "Macrophilia", scope: "narrow" },
-  { id: "marks", name: "Marks", scope: "narrow" },
+  { id: "marks", name: "Marks & Marking", scope: "narrow" },
   { id: "mature", name: "Mature", scope: "narrow" },
   { id: "medical", name: "Medical", scope: "narrow" },
   { id: "messy", name: "Messy", scope: "narrow" },
@@ -89,7 +90,6 @@ export const GROUPS: Group[] = [
   { id: "religious", name: "Religious", scope: "narrow" },
   { id: "roleplay", name: "Roleplay", scope: "narrow" },
   { id: "rough", name: "Rough", scope: "narrow" },
-  { id: "scenarios", name: "Scenarios", scope: "narrow" },
   { id: "scent", name: "Scent", scope: "narrow" },
   { id: "school", name: "School", scope: "narrow" },
   { id: "self-indulgence", name: "Self-Indulgence", scope: "narrow" },
@@ -100,7 +100,7 @@ export const GROUPS: Group[] = [
   { id: "tails", name: "Tails", scope: "narrow" },
   { id: "thighs", name: "Thighs", scope: "narrow" },
   { id: "tickling", name: "Tickling", scope: "narrow" },
-  { id: "tits", name: "Tits", scope: "narrow" },
+  { id: "tits", name: "Tits and Pecs", scope: "narrow" },
   { id: "training", name: "Training", scope: "narrow" },
   { id: "transformation", name: "Transformation", scope: "narrow" },
   { id: "vanilla", name: "Vanilla", scope: "narrow" },
@@ -111,4 +111,5 @@ export const GROUPS: Group[] = [
   { id: "water", name: "Water", scope: "narrow" },
   { id: "weight", name: "Weight", scope: "narrow" },
   { id: "worship", name: "Worship", scope: "narrow" },
+
 ];

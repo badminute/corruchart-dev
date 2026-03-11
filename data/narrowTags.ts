@@ -8,8 +8,7 @@ export const NARROW_TAGS = [
   "inflation","macrophilia","mature","medical","aural","messy","mind","marks","monstergirls","monsterboys","monsters","muscles",
   "non-monogamy","non-consensual","occupational","oddities","oral","outercourse","pain","partialisms",
   "pee","petplay","personalities","penetration","poop", "porn","power","pregnancy",
-  "public","pussies","racial","religious","roleplay","rough","scent",
-  "scenarios","school","self-indulgence","sexuality fun","size","sports",
+  "public","pussies","racial","religious","roleplay","rough","scent","school","self-indulgence","sexuality fun","size","sports",
   "stranger sex","tails","themes","thighs","tickling","training","transformation",
   "vanilla","violence","vore","virtual-sex","voyeurism","water","weight","worship"
 ] as const;

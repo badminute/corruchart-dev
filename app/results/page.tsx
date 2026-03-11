@@ -14,6 +14,7 @@ import TagAffinityDrilldown from "@/components/tags/TagAffinityDrilldown";
 import { narrowTagsCheck } from "@/lib/utils";
 import { NARROW_TAGS } from "@/data/narrowTags";
 import { WelcomeSlideshow } from "@/components/onboarding";
+import { useSettings } from "@/components/SettingsContext";
 
 
 const broadOnlyIds = narrowTagsCheck(OPTIONS, NARROW_TAGS);
@@ -28,6 +29,7 @@ console.log("Broad-only option IDs:", broadOnlyIds);
 
 
 export default function ResultsPage() {
+  const { colourblindMode } = useSettings();
   // ----------------------------
   // STATE
   // ----------------------------
@@ -217,14 +219,21 @@ const toggleRedact = (id: string) => {
   ];
 
   /** html2canvas-safe hex colors */
-  const COLOR_HEX = [
+  const COLOR_HEX = useMemo(() => colourblindMode ? [
+    "#828282ff", // Indifferent
+    "#d62728",   // Disgust (red to darker red)
+    "#ff7f0e",   // Dislike (orange to brighter orange)
+    "#1f77b4",   // Like (green to blue)
+    "#aec7e8",   // Love (blue to light blue)
+    "#9467bd",   // Lust (purple to darker purple)
+  ] : [
     "#828282ff", // Indifferent
     "#e74c3c",   // Disgust
     "#fc8d59",   // Dislike
     "#27ae60",   // Like
     "#37bdf6ff", // Love
     "#c88de8ff", // Lust
-  ];
+  ], [colourblindMode]);
 
   const COLOR_NAMES = [
     "indifferent",
@@ -247,7 +256,15 @@ const toggleRedact = (id: string) => {
   };
 
   // Custom colors for each corruption threshold/message
-  const CORRUPTION_COLORS: Record<number, string> = {
+  const CORRUPTION_COLORS: Record<number, string> = useMemo(() => colourblindMode ? {
+    0: "#fffdc7", // angle
+    1: "#d62728", // 
+    2: "#ff7f0e", // 
+    3: "#1f77b4", // 
+    4: "#aec7e8", // 
+    5: "#9467bd", // 
+    6: "#7980c2", // demen
+  } : {
     0: "#fffdc7", // angle
     1: "#cdcaff", //
     2: "#917fbf", // 
@@ -255,7 +272,22 @@ const toggleRedact = (id: string) => {
     4: "#917fbf", // 
     5: "#7a66aa", // 
     6: "#7980c2", // demen
-  };
+  }, [colourblindMode]);
+
+  // Legend colors for tag affinities (affected by colorblind mode)
+  const legendItems = useMemo(() => colourblindMode ? [
+    { name: "Lust", color: "#9467bd" },
+    { name: "Love", color: "#aec7e8" },
+    { name: "Like", color: "#1f77b4" },
+    { name: "Dislike", color: "#ff7f0e" },
+    { name: "Disgust", color: "#d62728" },
+  ] : [
+    { name: "Lust", color: "#c88de8ff" },
+    { name: "Love", color: "#37bdf6ff" },
+    { name: "Like", color: "#27ae60" },
+    { name: "Dislike", color: "#fc8d59" },
+    { name: "Disgust", color: "#e74c3c" },
+  ], [colourblindMode]);
 
 
   // Helper to pick the correct message
@@ -1244,20 +1276,16 @@ const scoredSelections = useMemo(() => {
     );
   })}
 </div>
-
-
   )}
 </section>
 )}
 
-
        {/* TAG AFFINITIES */}
           <section className="space-y-6 relative">
-
-<div className="flex items-center justify-center gap-2 mb-4">
-  <h3 className="text-xl font-semibold" style={{ textShadow: "2px 2px 0px rgba(0,0,0,0.3)" }}>
-    Tag Affinities
-  </h3>
+        <div className="flex items-center justify-center gap-2 mb-4">
+        <h3 className="text-xl font-semibold" style={{ textShadow: "2px 2px 0px rgba(0,0,0,0.3)" }}>
+            Tag Affinities
+        </h3>
 
 
   {/* Help button */}
@@ -1295,23 +1323,17 @@ const scoredSelections = useMemo(() => {
   )}
 </div>
 
-{/* Tag Affinity Legend */}
-<div className="flex justify-center flex-wrap gap-4 text-sm text-neutral-300 mt-2">
-  {[
-    { name: "Lust", color: "#c88de8ff" },
-    { name: "Love", color: "#37bdf6ff" },
-    { name: "Like", color: "#27ae60" },
-    { name: "Dislike", color: "#fc8d59" },
-    { name: "Disgust", color: "#e74c3c" },
-  ].map((item) => (
-    <div key={item.name} className="flex items-center gap-1.5">
-      <span
-        className="w-3 h-3 rounded-full inline-block"
-        style={{ backgroundColor: item.color }}
-      />
-      <span>{item.name}</span>
-    </div>
-  ))}
+    {/* Tag Affinity Legend */}
+    <div className="flex justify-center flex-wrap gap-4 text-sm text-neutral-300 mt-2">
+    {legendItems.map((item) => (
+        <div key={item.name} className="flex items-center gap-1.5">
+        <span
+            className="w-3 h-3 rounded-full inline-block"
+            style={{ backgroundColor: item.color }}
+        />
+        <span>{item.name}</span>
+        </div>
+    ))}
 </div>
             {openTagInfo?.tag === "__positive_help" && (
               <div className="absolute -top-32 left-1/2 transform -translate-x-1/2 z-50 w-64 p-3 bg-neutral-900 text-gray-200 rounded shadow-lg text-center text-sm border border-neutral-700">

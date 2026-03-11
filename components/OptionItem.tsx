@@ -1,6 +1,7 @@
 "use client";
 
-import { memo, useRef, useState, useLayoutEffect, useEffect } from "react";
+import { memo, useRef, useState, useLayoutEffect, useEffect, useMemo } from "react";
+import { useSettings } from "./SettingsContext";
 
 type Props = {
     slot: any;
@@ -42,6 +43,7 @@ function OptionItem({
     cycleColor,
     getPlusImage,
 }: Props) {
+    const { colourblindMode } = useSettings();
     const labelRef = useRef<HTMLButtonElement | null>(null);
 
     // ✅ LOCAL (per-item) animation refs
@@ -110,11 +112,18 @@ function OptionItem({
     };
 
     // Pick gradient or fallback color
-    const solid = customColor[option.id] ?? (
-        option.category === 5 ? "#a56ddd" :
-            option.category === 6 ? "#6770c2" :
-                "#9F86D8"
-    );
+    const solid = useMemo(() => customColor[option.id] ?? (
+        option.category === 5 ? (colourblindMode ? "#9467bd" : "#a56ddd") :
+            option.category === 6 ? (colourblindMode ? "#1f77b4" : "#6770c2") :
+                (colourblindMode ? "#9F86D8" : "#9F86D8")
+    ), [customColor, option.id, option.category, colourblindMode]);
+
+    // Star cycle colors (affected by colorblind mode)
+    const starColors = useMemo(() => colourblindMode ? 
+        ["#828282ff", "#d62728", "#ff7f0e", "#1f77b4", "#aec7e8", "#9467bd"] :
+        ["#828282ff", "#e74c3c", "#fc8d59", "#27ae60", "#37bdf6ff", "#c88de8ff"]
+    , [colourblindMode]);
+
     const lastWheelRef = useRef(0);
     const starRef = useRef<HTMLDivElement | null>(null);
         useEffect(() => {
@@ -170,7 +179,7 @@ function OptionItem({
                             width="32"
                             height="32"
                             viewBox="0 0 24 24"
-                            fill={["#828282ff", "#e74c3c", "#fc8d59", "#27ae60", "#37bdf6ff", "#c88de8ff"][state]}
+                            fill={starColors[state]}
                             stroke="#000"
                             strokeWidth="0.5"
                         >

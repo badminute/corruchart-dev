@@ -10,7 +10,7 @@ export const ROLE_SYMBOLS: Record<string, { symbol: string; color?: string }> = 
     "dominant": { symbol: "⛓", color: "#ff9933" },   // Dominant
     "submissive": { symbol: "☍", color: "#66ccff" },   // Submissive
     "switch": { symbol: "⇄", color: "#cc99ff" },   // Switch
-    "sadist": { symbol: "⇝", color: "#ff3300" },   // Sadist
+    "sadist": { symbol: "⇝", color: "#dd4620" },   // Sadist
     "masochist": { symbol: "✧", color: "#3ac3fa" },   // Masochist
     "sadomasochist": { symbol: "🎭", color: "#33ff7e" },   // Sadomasochist
     "brat": { symbol: "🥺", color: "#fac856" },  // Brat
@@ -19,7 +19,7 @@ export const ROLE_SYMBOLS: Record<string, { symbol: string; color?: string }> = 
     "pet-owner": { symbol: "🐕‍🦺", color: "#56afe6" },  // Pet Owner
     "paypig": { symbol: "🏧", color: "#74b5fb" },  // Paypig
     "findom": { symbol: "🧾", color: "#d9d9d9" },  // Findom
-    "slave": { symbol: "⛓️", color: "#ff3300" },  // Slave
+    "slave": { symbol: "⛓️", color: "#e74b25" },  // Slave
     "master": { symbol: "🔑", color: "#ffd700" },  // Master
     "pig": { symbol: "🐷", color: "#FF8687" },  // Pig
     "mommy": { symbol: "👩‍🍼", color: "#cc4d2d" },  // Mommy
@@ -43,8 +43,17 @@ export const ROLE_SYMBOLS: Record<string, { symbol: string; color?: string }> = 
     "captor": { symbol: "👤", color: "#6B438B" },   // Captor
     "furniture": { symbol: "🙇", color: "#e8b041" },   // Furniture
     "goddess": { symbol: "♛", color: "#ffcc66" },   // Goddess
+    "god": { symbol: "♛", color: "#ffcc66" },   // God
     "pony": { symbol: "🪅", color: "#b06bec" },   // Pony
-
+    "feedee": { symbol: "🦃", color: "#885d45" },   // Feedee
+    "feeder": { symbol: "🧑‍🍳", color: "#da3e3e" },   // Feeder
+    "nudist": { symbol: "🦵🏼 ", color: "#dbc292" },   // Nudist
+    "tiny": { symbol: "🧍", color: "#eca35e" },   // Tiny
+    "giantess": { symbol: "🧍‍♀️", color: "#8e5abb" },   // Giantess
+    "giant": { symbol: "🧍‍♂️", color: "#92c774" },   // Giant
+    "sugar-baby": { symbol: "🐥", color: "#f5d671" },   // Sugar Baby
+    "prince": { symbol: "🤴", color: "#f7cf4d" },   // Prince
+    "princess": { symbol: "👸", color: "#f7cf4d" },   // Princess
 
         // GENDER EXPRESSION
     "androgynous-gender-exp": { symbol: "⚧", color: "#a578ce" },  // Androgynous
@@ -157,15 +166,15 @@ export const ROLE_SYMBOLS: Record<string, { symbol: string; color?: string }> = 
     "cuckcake": { symbol: "🍰", color: "#dbad80" },   // Cuckcake
     "cuckold": { symbol: "🪑", color: "#A56953" },   // Cuckold
     "cuckquean": { symbol: "🪑", color: "#A56953" },   // Cuckquean
-    "hotwife": { symbol: "🌶", color: "#ff3300" },   // Hotwife/Hothusband
-    "hothusband": { symbol: "🌶", color: "#ff3300" },   // Hotwife/Hothusband
+    "hotwife": { symbol: "🌶", color: "#eb461d" },   // Hotwife
+    "hothusband": { symbol: "🌶", color: "#e74219" },   // Hothusband
     "swinger": { symbol: "⇄", color: "#66ccff" },   // Swinger
     "stag": { symbol: "🦌", color: "#ffb866" },   // Stag
     "vixen": { symbol: "💄", color: "#f67bcf" },   // Vixen
     "queen-of-spades": { symbol: "♠️", color: "#c2c2c2" },   // Queen of Spades
     "queen-of-hearts": { symbol: "❤️", color: "#fa3e3e" },   // Queen of Hearts
     "snowbunny": { symbol: "❄", color: "#f8f8f8" },   // Snowbunny
-    "clown": { symbol: "🤡", color: "#ff4242" },   // Clown
+    "clown": { symbol: "🤡", color: "#e72e2e" },   // Clown
     "furry": { symbol: "🦊", color: "#fb8740" },   // Furry
     "scalie": { symbol: "🐊", color: "#fb8740" },   // Scalie
     "gooner": { symbol: "🫠", color: "#f9d970" },   // Gooner
@@ -180,7 +189,7 @@ export const ROLE_SYMBOLS: Record<string, { symbol: string; color?: string }> = 
     "skunk": { symbol: "🦨", color: "#cfcfcf" },   // Skunk
     "cannibal": { symbol: "🍖", color: "#f04502" },   // Cannibal
     "hucow": { symbol: "🐮", color: "#aaaaaa" },   // Hucow
-    "cum-slut": { symbol: "🤤", color: "#aaaaaa" },   // Hucow
+    "cum-slut": { symbol: "🤤", color: "#e2e2e2" },   // Hucow
     "2d-only": { symbol: "✎", color: "#59b465" },   // 2D ONLY
     "adult-baby-option": { symbol: "🍼", color: "#FFE5D9" },   // Adult Baby
     "diaper-lover": { symbol: "🚼", color: "#48a6f2" },   // Adult Baby

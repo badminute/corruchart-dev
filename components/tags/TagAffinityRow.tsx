@@ -1,9 +1,11 @@
 // components/tags/TagAffinityRow.tsx
 "use client";
 
+import { useMemo } from "react";
 import { TagBreakdown } from "@/lib/tagScores";
-import { REACTIONS, REACTION_COLORS, ReactionKey } from "./reactionConfig";
+import { REACTIONS, getReactionColors, ReactionKey } from "./reactionConfig";
 import TagAffinityDrilldown from "./TagAffinityDrilldown";
+import { useSettings } from "../SettingsContext";
 
 interface Props {
     tag: TagBreakdown;
@@ -14,6 +16,8 @@ interface Props {
 }
 
 export default function TagAffinityRow({ tag, open, onToggle, favorites, toggleFavorite }: Props) {
+    const { colourblindMode } = useSettings();
+    const reactionColors = useMemo(() => getReactionColors(colourblindMode), [colourblindMode]);
     // Build reaction buckets
     const buckets: Record<ReactionKey, any[]> = {
         disgust: [],
@@ -49,7 +53,7 @@ export default function TagAffinityRow({ tag, open, onToggle, favorites, toggleF
                             key={r}
                             style={{
                                 width: `${(count / total) * 100}%`,
-                                backgroundColor: REACTION_COLORS[r],
+                                backgroundColor: reactionColors[r],
                             }}
                             title={`${r}: ${count}`}
                         />
