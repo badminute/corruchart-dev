@@ -479,7 +479,7 @@ useEffect(() => {
             v0.29.7 — The Batch Update
           </h3>
           <ul className="list-disc ml-6 mt-2 space-y-1">
-            <li>Added these interests: Alien Impregnation, Anal Birthing, Aphrodisiac Spores, Bodily Fluids Into Food/Drinks, Bodily Fluids Into Food/Drinks (NC), Brain Fucking, Budding Breasts, Cigarette Burns, Clothes Theft, Cockroaches, Doll Anatomy, Ear Fucking (Pleasure), Ear Fucking (Gore), Ear Whispers & Blowing, Eyesocket Fucking, Face Play & Distortion, Femdom (Brutal), Finger Lacing, Finger-Toe Lacing, Foot Gagging, Forced Detransition, Fractionation Hypnosis, Frilly Clothing, Gothic Lolita, Heterochromia, Hothusbanding, Human Ashtray, Human Incubator, Hypnotic Eyes, Loli Pregnancies, Mastectomy, Nipple Births, Nudism, Nullification, Ovary Removal, Penis Flies, Piss Drinking, Plant Vore, Pre-Trans Selfcest, Split Tongues, Stomach Growling, Stranded Island Scenario, Throat Impregnation, and Toe Lacing</li>
+            <li>Added these interests: Alien Impregnation, Anal Birthing, Aphrodisiac Spores, Bodily Fluids Into Food/Drinks, Bodily Fluids Into Food/Drinks (NC), Brain Fucking, Budding Breasts, Cigarette Burns, Clothes Theft, Cockroaches, Doll Anatomy, Ear Fucking (Pleasure), Ear Fucking (Gore), Ear Whispers & Blowing, Eyesocket Fucking, Face Play & Distortion, Femdom (Brutal), Finger Lacing, Finger-Toe Lacing, Foot Gagging, Forced Detransition, Fractionation Hypnosis, Frilly Clothing, Gothic Lolita, Heterochromia, Hothusbanding, Human Ashtray, Human Incubator, Hypnotic Eyes, Loli Pregnancies, Mastectomy, Nipple Births, Nudism, Nullification, Ovary Removal, Penis Flies, Piss Drinking, Plant Vore, Pre-Trans Selfcest, Split Tongues, Stomach Growling, Stranded Island Theme, Throat Impregnation, and Toe Lacing!</li>
             <li>Added these censorship interests: Humiliation Censorship (Cocks), Humiliation Censorship (General), Humiliation Censorship (Silhouettes & Bars), and Humiliation Censorship (Text & Symbols)</li>
             <li>Added these macrophilia interests: Giant (Unaware), Giant (Cruel), Giant (Gentle), and Giant (Growth)</li>
             <li>Added various 'receiving' versions of acts.</li>
@@ -500,7 +500,7 @@ useEffect(() => {
             v0.29.5 — The Men's Update
           </h3>
           <ul className="list-disc ml-6 mt-2 space-y-1">
-            <li>Added these interests: Slim Pecs, Jacked Pecs, Shelf Pecs, Soft Pecs, Princes, Bifauxnen, Bishounen, Bishie Princes, Chest Scars, Clothed Male Nude Male, Embarrassed Nude Male, Femboy Pregancies, Genderbend Servitude, Blueberry Boys, Shota Pregnancies, T-Dick Pregnancies, Magical Boys, Maledom (Brutal), and Distressed Dudes!</li>
+            <li>Added these interests: Slim Pecs, Jacked Pecs, Shelf Pecs, Soft Pecs, Princes, Bifauxnen, Bishounen, Bishie Princes, Chest Scars, Clothed Male Nude Male, Embarrassed Nude Male, Femboy Pregancies, Genderbend Servitude, Blueberry Boys, Shota Pregnancies, T-Dick Pumping, Magical Boys, Maledom (Brutal), and Distressed Dudes!</li>
             <li>Added a Colorblind Mode in Options.</li>
           </ul>
         </div>
