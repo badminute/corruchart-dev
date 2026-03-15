@@ -41,7 +41,6 @@ export const GROUPS: Group[] = [
   { id: "drugs", name: "Drugs", scope: "narrow" },
   { id: "emotions", name: "Emotions", scope: "narrow" },
   { id: "exhibitionism", name: "Exhibitionism", scope: "narrow" },
-  { id: "fandoms", name: "Fandoms", scope: "narrow" },
   { id: "fantasy", name: "Fantasy", scope: "narrow" },
   { id: "feet", name: "Feet", scope: "narrow" },
   { id: "footwear", name: "Footwear", scope: "narrow" },

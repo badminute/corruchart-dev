@@ -46,7 +46,7 @@ export default function HomePage() {
                                 textShadow: "0px 1px 0px rgba(0,0,0,0.6)",
                             }}
                         >
-                            v0.29.7
+                            v0.29.8
                         </span>
                     </div>
 

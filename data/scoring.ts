@@ -52,11 +52,11 @@ export const CATEGORY_POINTS: Record<
 };
 
 export const THRESHOLDS = [
-    { points: 75, key: 1 },
-    { points: 750, key: 2 },
-    { points: 1750, key: 3 },
-    { points: 3000, key: 4 },
-    { points: 5000, key: 5 },
+    { points: 250, key: 1 },
+    { points: 1000, key: 2 },
+    { points: 2500, key: 3 },
+    { points: 5500, key: 4 },
+    { points: 9000, key: 5 },
 ];
 
 export function computeScore(

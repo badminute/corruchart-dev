@@ -18,9 +18,9 @@ import { useSettings } from "@/components/SettingsContext";
 
 
 const broadOnlyIds = narrowTagsCheck(OPTIONS, NARROW_TAGS);
-const METER_MAX_POINTS = 5000;
+const METER_MAX_POINTS = 9000;
 const PAGE_BACKGROUND_COLOR = "#1F2023";
-const MAX_FAVORITES = 28;
+const MAX_FAVORITES = 30;
 const FAVORITES_KEY = "corruchart-favorites";
 
 
@@ -256,15 +256,7 @@ const toggleRedact = (id: string) => {
   };
 
   // Custom colors for each corruption threshold/message
-  const CORRUPTION_COLORS: Record<number, string> = useMemo(() => colourblindMode ? {
-    0: "#fffdc7", // angle
-    1: "#d62728", // 
-    2: "#ff7f0e", // 
-    3: "#1f77b4", // 
-    4: "#aec7e8", // 
-    5: "#9467bd", // 
-    6: "#7980c2", // demen
-  } : {
+    const CORRUPTION_COLORS: Record<number, string> = {
     0: "#fffdc7", // angle
     1: "#cdcaff", //
     2: "#917fbf", // 
@@ -272,7 +264,7 @@ const toggleRedact = (id: string) => {
     4: "#917fbf", // 
     5: "#7a66aa", // 
     6: "#7980c2", // demen
-  }, [colourblindMode]);
+  };
 
   // Legend colors for tag affinities (affected by colorblind mode)
   const legendItems = useMemo(() => colourblindMode ? [
@@ -887,7 +879,7 @@ const scoredSelections = useMemo(() => {
                 textShadow: "0px 1px 0px rgba(0,0,0,0.6)",
               }}
             >
-              v0.29.7
+              v0.29.8
             </span>
           </div>
 
@@ -1337,7 +1329,7 @@ const scoredSelections = useMemo(() => {
 </div>
             {openTagInfo?.tag === "__positive_help" && (
               <div className="absolute -top-32 left-1/2 transform -translate-x-1/2 z-50 w-64 p-3 bg-neutral-900 text-gray-200 rounded shadow-lg text-center text-sm border border-neutral-700">
-                These are the tags you reacted most positively to. From here you can add and remove up to 28 interests to your favorites.
+                These are the tags you reacted most positively to. From here you can add and remove up to 30 interests to your favorites.
               </div>
             )}
 
