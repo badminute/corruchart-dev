@@ -189,7 +189,7 @@ export default function Page() {
     // -----------------------
 
     const [showChangelog, setShowChangelog] = useState(false);
-    const CHANGELOG_VERSION = "0.29.4"; // ← bump this when you update
+    const CHANGELOG_VERSION = "0.29.8";
     const [hasNewUpdate, setHasNewUpdate] = useState(false);
 
   /** SET ALL TO (Forbidden only) */
@@ -481,13 +481,13 @@ useEffect(() => {
           <ul className="list-disc ml-6 mt-2 space-y-1">
             <li>Added these futa interests: Casual Erections (Futa), Centaur Futas, Embarrassed Nude Futa, Futa Autopaizuri, Futa Cock Comparison, Futa Daddies, Futa Doms, Futa Heat Transformation, Futa Masturbation Desperation, Futa Mommies, Futa NTR, Futa Pregnancies, Futa Rape, Futa Sex Toys, Futa Shame Transformation, Futa Subs, Futa Underwear Transformation, Futa Virus, Hyper Futas, Loli Futas, Magic Onaholes, Male Futas, Masturbation Desperation, Masturbation (Futa), Needy Futas, Small Futas, and Werefutas!</li>
             <li>Added these receiving versions: Assjobs, Ballbusting, Blowjobs, Deepthroat,</li>
-            <li>Added these interests: Adult Comics, Adult Games, Animal Ears, Animated Porn, Auctioning, Autofootjobs, Casual Erections, Clothed Female Nude Female, Cock Births, Cock Comparison, Deepthroating, Needy Girls, Needy Guys, Pelvic Curtain Dresses, Polynesian Sex, Self Impregnation, Stuck In A Floor, Stuck In A Wall, Womb Tattoo (Arousal), and Womb Tattoo (Curse)!</li>
+            <li>Added these interests: Adult Comics, Adult Games, Animal Ears, Animated Porn, Auctioning, Autofootjobs, Casual Erections, Clothed Female Nude Female, Cock Births, Cock Comparison, Deepthroating, Denim, Needy Girls, Needy Guys, Pelvic Curtain Dresses, Polynesian Sex, Self Impregnation, Stuck In A Floor, Stuck In A Wall, Womb Tattoo (Arousal), and Womb Tattoo (Curse)!</li>
             <li>Adjusted the corruption score thresholds to account for the score inflation.</li>
           </ul>
         </div>
         <div>
           <h3 className="text-lg font-semibold text-white">
-            v0.29.8 — The Batch Update
+            v0.29.7 — The Batch Update
           </h3>
           <ul className="list-disc ml-6 mt-2 space-y-1">
             <li>Added these interests: Alien Impregnation, Anal Birthing, Aphrodisiac Spores, Bodily Fluids Into Food/Drinks, Bodily Fluids Into Food/Drinks (NC), Brain Fucking, Budding Breasts, Cigarette Burns, Clothes Theft, Cockroaches, Doll Anatomy, Ear Fucking (Pleasure), Ear Fucking (Gore), Ear Whispers & Blowing, Eyesocket Fucking, Face Play & Distortion, Femdom (Brutal), Finger Lacing, Finger-Toe Lacing, Foot Gagging, Forced Detransition, Fractionation Hypnosis, Frilly Clothing, Gothic Lolita, Heterochromia, Hothusbanding, Human Ashtray, Human Incubator, Hypnotic Eyes, Loli Pregnancies, Mastectomy, Nipple Births, Nudism, Nullification, Ovary Removal, Penis Flies, Piss Drinking, Plant Vore, Pre-Trans Selfcest, Split Tongues, Stomach Growling, Stranded Island Theme, Throat Impregnation, and Toe Lacing!</li>
