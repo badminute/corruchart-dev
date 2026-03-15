@@ -480,9 +480,9 @@ useEffect(() => {
           </h3>
           <ul className="list-disc ml-6 mt-2 space-y-1">
             <li>Added these futa interests: Casual Erections (Futa), Centaur Futas, Embarrassed Nude Futa, Futa Autopaizuri, Futa Cock Comparison, Futa Daddies, Futa Doms, Futa Heat Transformation, Futa Masturbation Desperation, Futa Mommies, Futa NTR, Futa Pregnancies, Futa Rape, Futa Sex Toys, Futa Shame Transformation, Futa Subs, Futa Underwear Transformation, Futa Virus, Hyper Futas, Loli Futas, Magic Onaholes, Male Futas, Masturbation Desperation, Masturbation (Futa), Needy Futas, Small Futas, and Werefutas!</li>
-            <li>Added these receiving versions: Assjobs, Ballbusting, Blowjobs, Deepthroat,</li>
+            <li>Added 'receiving' versions to these: Assjobs, Ballbusting, Blowjobs, and Deepthroat.</li>
             <li>Added these interests: Adult Comics, Adult Games, Animal Ears, Animated Porn, Auctioning, Autofootjobs, Casual Erections, Clothed Female Nude Female, Cock Births, Cock Comparison, Deepthroating, Denim, Needy Girls, Needy Guys, Pelvic Curtain Dresses, Polynesian Sex, Self Impregnation, Stuck In A Floor, Stuck In A Wall, Womb Tattoo (Arousal), and Womb Tattoo (Curse)!</li>
-            <li>Adjusted the corruption score thresholds to account for the score inflation.</li>
+            <li>Adjusted the corruption score thresholds to account for score inflation.</li>
           </ul>
         </div>
         <div>
