@@ -26,15 +26,19 @@ export default function Page() {
     const [showWelcome, setShowWelcome] = useState(false);
 
     useEffect(() => {
-        const hasSeenWelcome = localStorage.getItem("hasSeenWelcomeRoles");
-        if (!hasSeenWelcome) {
+        const key = "roles-welcome-last-shown";
+        const lastShown = localStorage.getItem(key);
+        const now = Date.now();
+        const SIX_HOURS = 6 * 60 * 60 * 1000;
+
+        if (!lastShown || now - Number(lastShown) >= SIX_HOURS) {
             setShowWelcome(true);
         }
     }, []);
 
     const closeWelcome = () => {
         setShowWelcome(false);
-        localStorage.setItem("hasSeenWelcomeRoles", "true");
+        localStorage.setItem("roles-welcome-last-shown", Date.now().toString());
     };
     // -----------------------
 

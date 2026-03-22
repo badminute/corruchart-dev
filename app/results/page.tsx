@@ -96,17 +96,21 @@ const tagSearchResults = useMemo(() => {
     const [showWelcome, setShowWelcome] = useState(false);
 
     useEffect(() => {
-    const hasSeenWelcome = localStorage.getItem("hasSeenWelcomeRoles");
-    if (!hasSeenWelcome) {
-        setShowWelcome(true);
-    }
+        const key = "results-welcome-last-shown";
+        const lastShown = localStorage.getItem(key);
+        const now = Date.now();
+        const SIX_HOURS = 6 * 60 * 60 * 1000;
+
+        if (!lastShown || now - Number(lastShown) >= SIX_HOURS) {
+            setShowWelcome(true);
+        }
     }, []);
 
 
     // Update your close function
     const closeWelcome = () => {
         setShowWelcome(false);
-        localStorage.setItem("hasSeenWelcomeRoles", "true");
+        localStorage.setItem("results-welcome-last-shown", Date.now().toString());
     };
     // -----------------------
 
