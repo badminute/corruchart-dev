@@ -14,7 +14,7 @@ export const getReactionColors = (colourblindMode: boolean): Record<ReactionKey,
     dislike: "#e07110", // orange
     disgust: "#d72828", // red
 } : {
-    lust: "#8d53ad)",
+    lust: "#9467bd",
     love: "#2a7b9d",
     like: "#299255",
     maybe: "#dfbe08",
