@@ -22,6 +22,7 @@ type Props = {
     options: OptionWithCategory[];
     activePluses: any[];
     activeVariant: Record<string, number>;
+    isOptionVisible: (option: OptionWithCategory) => boolean;
     openDescription: string | null;
     setOpenDescription: (id: string | null) => void;
     setActiveVariant: React.Dispatch<React.SetStateAction<Record<string, number>>>;
@@ -34,6 +35,7 @@ export default function OptionsGrid({
     options,
     activePluses,
     activeVariant,
+    isOptionVisible,
     openDescription,
     setOpenDescription,
     setActiveVariant,
@@ -73,6 +75,7 @@ export default function OptionsGrid({
                         options={options}
                         activePluses={activePluses}
                         activeVariant={activeVariant}
+                        isOptionVisible={isOptionVisible}
                         description={DESCRIPTIONS[option.id]}
                         openDescription={openDescription}
                         setOpenDescription={setOpenDescription}

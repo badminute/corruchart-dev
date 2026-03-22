@@ -172,7 +172,7 @@ export default function TagAffinityDrilldown({
 
                 <ul className="space-y-0.5 pl-2">
                   {buckets[activeReaction].map(opt => {
-                    const showStar = ["like", "love", "lust", "dislike", "disgust"].includes(activeReaction);
+                    const showStar = ["like", "love", "lust", "maybe", "dislike", "disgust"].includes(activeReaction);
                     return (
                       <li key={opt.id} className="flex justify-between items-center text-neutral-300">
                         <span className="truncate pr-2">

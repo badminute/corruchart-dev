@@ -3,6 +3,8 @@
 import { memo, useRef, useState, useLayoutEffect, useEffect, useMemo } from "react";
 import { useSettings } from "./SettingsContext";
 
+type GroupState = "include" | "exclude" | undefined;
+
 type Props = {
     slot: any;
     option: any;
@@ -11,6 +13,7 @@ type Props = {
     options: any[];
     activePluses: any[];
     activeVariant: Record<string, number>;
+    isOptionVisible: (option: any) => boolean;
     description?: string;
     openDescription: string | null;
     setOpenDescription: (id: string | null) => void;
@@ -36,6 +39,7 @@ function OptionItem({
     options,
     activePluses,
     activeVariant,
+    isOptionVisible,
     description,
     openDescription,
     setOpenDescription,
@@ -53,6 +57,12 @@ function OptionItem({
     const [tooltipOffsetX, setTooltipOffsetX] = useState(0);
     const tooltipRef = useRef<HTMLDivElement | null>(null);
     const [variantBlockedWarning, setVariantBlockedWarning] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (!variantBlockedWarning) return;
+        const timeout = window.setTimeout(() => setVariantBlockedWarning(null), 1700);
+        return () => window.clearTimeout(timeout);
+    }, [variantBlockedWarning]);
 
     // Customize potion widths and heights here
     const potionSizes: Record<number, { width: string; height: string }> = {
@@ -96,19 +106,24 @@ function OptionItem({
 
 
     const customColor: Record<string, string> = {
-        "scat": "#9b774e", // poo poo
-        "scat-efro": "#9b774e", // poo poo
+        "candy-scat": "#9b774e", // poo poo
         "coprophagia": "#9b774e", // poo poo
-        "septic-tanks": "#9b774e", // poo poo
         "fecal-transfer": "#9b774e", // poo poo
-        "soiling": "#9b774e", // poo poo
-        "messing": "#9b774e", // poo poo
         "hypermess": "#9b774e", // poo poo
         "hyperscat": "#9b774e", // poo poo
-        "scat-smearing": "#9b774e", // poo poo
-        "scat-sex": "#9b774e", // poo poo
+        "manure": "#9b774e", // poo poo
+        "messing": "#9b774e", // poo poo
         "scat-cooking": "#9b774e", // poo poo
-        "candy-scat": "#9b774e", // poo poo
+        "scat-efro": "#9b774e", // poo poo
+        "scat-sex": "#9b774e", // poo poo
+        "scat-smearing": "#9b774e", // poo poo
+        "scat": "#9b774e", // poo poo
+        "septic-tanks": "#9b774e", // poo poo
+        "soiling": "#9b774e", // poo poo
+    };
+
+    const isVariantBlockedByFilters = (candidateOption: any) => {
+        return !isOptionVisible(candidateOption);
     };
 
     // Pick gradient or fallback color
@@ -120,8 +135,8 @@ function OptionItem({
 
     // Star cycle colors (affected by colorblind mode)
     const starColors = useMemo(() => colourblindMode ? 
-        ["#828282ff", "#d62728", "#ff7f0e", "#1f77b4", "#aec7e8", "#9467bd"] :
-        ["#828282ff", "#e74c3c", "#fc8d59", "#27ae60", "#37bdf6ff", "#c88de8ff"]
+        ["#828282ff", "#d62728", "#ff7f0e", "#ffb347", "#1f77b4", "#aec7e8", "#9467bd"] :
+        ["#828282ff", "#e74c3c", "#fc8d59", "#ffd700", "#27ae60", "#37bdf6ff", "#c88de8ff"]
     , [colourblindMode]);
 
     const lastWheelRef = useRef(0);
@@ -205,29 +220,35 @@ function OptionItem({
 
 
                         {slot.options.length > 1 && (
-                        <span
-                            className="absolute -top-1 -left-1 text-[12px] text-gray-400 cursor-pointer select-none z-10"
-                            onClick={(e) => {
-                                e.stopPropagation();
+                        <>
+                            <span
+                                className="absolute -top-3 -left-1 text-[11px] text-violet-500 select-none z-10"
+                            >
+                                {slot.options.length}
+                            </span>
+                            <span
+                                className="absolute -top-1 -left-1 text-[12px] text-gray-400 cursor-pointer select-none z-10"
+                                onClick={(e) => {
+                                    e.stopPropagation();
 
-                                const activeIndex = activeVariant[slot.slotId] ?? 0;
-                                const nextIndex = (activeIndex + 1) % slot.options.length;
-                                const nextOption = slot.options[nextIndex];
+                                    const activeIndex = activeVariant[slot.slotId] ?? 0;
+                                    const nextIndex = (activeIndex + 1) % slot.options.length;
+                                    const nextOption = slot.options[nextIndex];
 
-                                // Check if any of nextOption's tags are excluded
-                                const blocked = nextOption.tags.some(tag => (window as any).groupStates?.[tag] === "exclude");
+                                    // Check if the next variant is blocked by group filters (exclude/include)
+                                    if (isVariantBlockedByFilters(nextOption)) {
+                                        setVariantBlockedWarning("cannot swap variants due to enabled filters!");
+                                        triggerHaptic([15, 15]);
+                                        return;
+                                    }
 
-                                if (blocked) {
-                                    (window as any).setVariantBlockedWarning?.(`Cannot switch to "${nextOption.label}" due to a selected tag filter.`);
-                                    return;
-                                }
-
-                                setActiveVariant(prev => ({ ...prev, [slot.slotId]: nextIndex }));
-                                triggerHaptic([30, 20, 30]);
-                            }}
-                        >
-                            ⇄
-                        </span>
+                                    setActiveVariant(prev => ({ ...prev, [slot.slotId]: nextIndex }));
+                                    triggerHaptic([30, 20, 30]);
+                                }}
+                            >
+                                ⇄
+                            </span>
+                        </>
                     )}
 
                     </button>
@@ -248,14 +269,21 @@ function OptionItem({
                             didLongPressRef.current = true;
                             labelRef.current?.classList.remove("holding");
 
-                            setActiveVariant(prev => {
-                                const updated = {
-                                    ...prev,
-                                    [slot.slotId]: ((prev[slot.slotId] ?? 0) + 1) % slot.options.length,
-                                };
-                                triggerHaptic(50); // short click vibration
-                                return updated;
-                            });
+                            const currentIndex = activeVariant[slot.slotId] ?? 0;
+                            const nextIndex = (currentIndex + 1) % slot.options.length;
+                            const nextOption = slot.options[nextIndex];
+
+                            if (isVariantBlockedByFilters(nextOption)) {
+                                setVariantBlockedWarning("cannot swap variants due to enabled filters!");
+                                triggerHaptic([15, 15]);
+                                return;
+                            }
+
+                            setActiveVariant(prev => ({
+                                ...prev,
+                                [slot.slotId]: nextIndex,
+                            }));
+                            triggerHaptic(50); // short click vibration
                         }, 400);
                     }}
                     onPointerUp={() => {
@@ -314,6 +342,12 @@ function OptionItem({
                     />
 
                 </button>
+
+                {variantBlockedWarning && (
+                    <div className="absolute -top-3 mt-0 text-[11px] text-black bg-yellow-300 border border-yellow-500 rounded px-2 py-1 shadow-lg z-50">
+                        {variantBlockedWarning}
+                    </div>
+                )}
             </div>
 
             {/* DESCRIPTION */}

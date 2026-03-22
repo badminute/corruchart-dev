@@ -1,21 +1,23 @@
 // components/ui/tags/reactionConfig.ts
 
-// Reactions in desired display order (Lust → Love → Like → Dislike → Disgust)
-export const REACTIONS = ["lust", "love", "like", "dislike", "disgust"] as const;
+// Reactions in desired display order (Lust → Love → Like → Maybe → Dislike → Disgust)
+export const REACTIONS = ["lust", "love", "like", "maybe", "dislike", "disgust"] as const;
 
 export type ReactionKey = typeof REACTIONS[number];
 
 // Colors for each reaction
 export const getReactionColors = (colourblindMode: boolean): Record<ReactionKey, string> => colourblindMode ? {
-    lust: "rgb(148, 103, 189)", // darker purple
+    lust: "#9467bd", // darker purple
     love: "#aec7e8", // light blue
-    like: "rgb(31, 119, 180)", // blue
-    dislike: "rgb(255, 127, 14)", // orange
-    disgust: "rgb(214, 39, 40)", // red
+    like: "#1e75b3", // blue
+    maybe: "#dfbe08", // light yellow
+    dislike: "#e07110", // orange
+    disgust: "#d72828", // red
 } : {
-    lust: "rgb(141, 83, 173)",
-    love: "rgb(42, 124, 159)",
+    lust: "#8d53ad)",
+    love: "#2a7b9d",
     like: "#299255",
-    dislike: "#b66640",
+    maybe: "#dfbe08",
+    dislike: "#e07110",
     disgust: "#b53737",
 };

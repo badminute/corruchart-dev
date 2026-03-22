@@ -53,7 +53,9 @@ export const ROLE_SYMBOLS: Record<string, { symbol: string; color?: string }> = 
     "giant": { symbol: "🧍‍♂️", color: "#92c774" },   // Giant
     "sugar-baby": { symbol: "🐥", color: "#f5d671" },   // Sugar Baby
     "prince": { symbol: "🤴", color: "#f7cf4d" },   // Prince
+    "prince-dominant": { symbol: "🤴", color: "#f7cf4d" },   // Prince (Dominant)
     "princess": { symbol: "👸", color: "#f7cf4d" },   // Princess
+    "princess-dominant": { symbol: "👸", color: "#f7cf4d" },   // Princess (Dominant)
 
         // GENDER EXPRESSION
     "androgynous-gender-exp": { symbol: "⚧", color: "#a578ce" },  // Androgynous

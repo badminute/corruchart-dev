@@ -11,6 +11,7 @@ import SettingsButton from "@/components/SettingsButton";
 import OptionsGrid from "@/components/OptionsGrid";
 import { WelcomeSlideshow } from "@/components/onboarding";
 import { useSettings } from "@/components/SettingsContext";
+import { useNewOptions } from "@/components/NewOptionsList";
 
 // import base type
 import type { OptionData as BaseOption } from "@/data/options";
@@ -28,6 +29,7 @@ const COLOR_NAMES = [
   "indifferent",
   "disgust",
   "dislike",
+  "maybe",
   "like",
   "love",
   "lust",
@@ -40,6 +42,7 @@ const STATE_TO_VALUE = [
   "indifferent",
   "disgust",
   "dislike",
+  "maybe",
   "like",
   "love",
   "lust",
@@ -54,6 +57,7 @@ export default function Page() {
     "#828282ff", // Indifferent
     "#d62728",   // Disgust (red to darker red)
     "#ff7f0e",   // Dislike (orange to brighter orange)
+    "#ffb347",   // Maybe (light orange/peach)
     "#1f77b4",   // Like (green to blue)
     "#aec7e8",   // Love (blue to light blue)
     "#9467bd",   // Lust (purple to darker purple)
@@ -61,6 +65,7 @@ export default function Page() {
     "#828282ff", // Indifferent
     "#e74c3c",   // Disgust
     "#fc8d59",   // Dislike
+    "#ffd700",   // Maybe (gold/yellow)
     "#27ae60",   // Like
     "#37bdf6ff", // Love
     "#c88de8ff", // Lust
@@ -133,6 +138,9 @@ export default function Page() {
         }));
     }, [options]);
 
+    // curated list of new options
+    const newOptions = useNewOptions();
+
     const [isWelcomeOpen, setIsWelcomeOpen] = useState(true);
     const [showNarrowGroups, setShowNarrowGroups] = useState(false);
     const [isHolding, setIsHolding] = useState<string | null>(null);
@@ -141,11 +149,11 @@ export default function Page() {
     const [states, setStates] = useState<number[]>([]);
     const [query, setQuery] = useState("");
     const [colorFilter, setColorFilter] = useState<Set<number>>(new Set());
+    const [showNewFilter, setShowNewFilter] = useState(false);
     const [groupStates, setGroupStates] = useState<Record<string, GroupState>>({});
     const [showCategory6, setShowCategory6] = useState(false);
     const [openDescription, setOpenDescription] = useState<string | null>(null);
     const [activeVariant, setActiveVariant] = useState<Record<string, number>>({});
-    const [variantBlockedWarning, setVariantBlockedWarning] = useState<string | null>(null);
     type ActivePlus = { index: number; id: string; state: number }; // ✅ must include state
     const [activePluses, setActivePluses] = useState<ActivePlus[]>([]);
     const optionIndexById = useMemo(() => {
@@ -246,9 +254,10 @@ export default function Page() {
         switch (reaction) {
           case "disgust": return 1;
           case "dislike": return 2;
-          case "like": return 3;
-          case "love": return 4;
-          case "lust": return 5;
+          case "maybe": return 3;
+          case "like": return 4;
+          case "love": return 5;
+          case "lust": return 6;
           default: return 0; // indifferent
         }
       });
@@ -334,6 +343,15 @@ export default function Page() {
       next.has(colorIndex) ? next.delete(colorIndex) : next.add(colorIndex);
       return next;
     });
+    // Clear new filter when color filter is used
+    if (showNewFilter) setShowNewFilter(false);
+  };
+
+  /** Toggle new filter */
+  const toggleNewFilter = () => {
+    setShowNewFilter(!showNewFilter);
+    // Clear color filters when new filter is activated
+    if (!showNewFilter) setColorFilter(new Set());
   };
 
 useEffect(() => {
@@ -369,6 +387,8 @@ useEffect(() => {
 
       return next;
     });
+    // Clear new filter when group filter is used
+    if (showNewFilter) setShowNewFilter(false);
   };
 
   /** Filtered options */
@@ -378,7 +398,8 @@ useEffect(() => {
         q ||
         colorFilter.size > 0 ||
         Object.keys(groupStates).length > 0 ||
-        !showCategory6;
+        !showCategory6 ||
+        showNewFilter;
 
     return slots.flatMap((slot) => {
         // Step 1: find ALL variants in this slot that match filters
@@ -403,11 +424,16 @@ useEffect(() => {
         const matchesCategory6 =
             showCategory6 || option.category !== 6;
 
+        const matchesNew =
+            !showNewFilter ||
+            newOptions.includes(option.id);
+
         return (
             matchesText &&
             matchesColor &&
             matchesGroup &&
-            matchesCategory6
+            matchesCategory6 &&
+            matchesNew
         );
         });
 
@@ -450,7 +476,39 @@ useEffect(() => {
     colorFilter,
     groupStates,
     showCategory6,
+    showNewFilter,
+    newOptions,
     ]);
+
+  const isOptionVisible = (option: OptionWithCategory) => {
+    const index = optionIndexById[option.id];
+
+    const matchesText =
+      !query ||
+      option.label.toLowerCase().includes(query.trim().toLowerCase()) ||
+      option.aka.some((a) => a.toLowerCase().includes(query.trim().toLowerCase()));
+
+    const matchesColor =
+      colorFilter.size === 0 ||
+      colorFilter.has(states[index] % COLOR_HEX.length);
+
+    const matchesGroup =
+      (!Object.values(groupStates).includes("include") ||
+        option.tags.some((cat) => groupStates[cat] === "include")) &&
+      !option.tags.some((cat) => groupStates[cat] === "exclude");
+
+    const matchesCategory6 = showCategory6 || option.category !== 6;
+
+    const matchesNew = !showNewFilter || newOptions.includes(option.id);
+
+    return (
+      matchesText &&
+      matchesColor &&
+      matchesGroup &&
+      matchesCategory6 &&
+      matchesNew
+    );
+  };
 
   if (!states.length) return null;
 
@@ -474,6 +532,18 @@ useEffect(() => {
 
       {/* CHANGELOG CONTENT */}
       <div className="flex-1 overflow-y-auto pr-2 space-y-6 text-gray-300">
+        <div>
+          <h3 className="text-lg font-semibold text-white">
+            v0.30.0 — QOL Update 1
+          </h3>
+          <ul className="list-disc ml-6 mt-2 space-y-1">
+            <li>Added these interests: Amateur Porn, Autofootjobs (Pussies), Autofootjobs (Cocks), Bratty Domination, Chasers, Chasing, Dykebreaking, Fat Femboys, Flat Thighs, Foot Fucking, Futanari Facefucking, Futanari Facesitting, Grossdom, Hyper Nipples, Karate Gi, Ladypots, Litter Pregnancies, Living Clothes, Male Omorashi, Manure, Milking Table, Monster Pregnancies, Muscular Thighs, Mutual Weight Gain, OTK Spanking, Overfull Balls, Pro-Amateur Porn, Professional Porn, Sloppy Blowjobs, Sloppy Blowjobs (Receiving), Soft Thighs, Tentaclothes, TERFbreaking, Through The Clothes, TNWO, and Twerking!</li>
+            <li>Number of variants are shown next to each interest.</li>
+            <li>A new star to indicate maybe/interested.</li>
+            <li>A warning is now shown when applied filter is preventing variants from being swapped.</li>
+            <li>A filter for newly added interests so you can easily do new additions instead of having to look for them.</li>
+          </ul>
+        </div>
         <div>
           <h3 className="text-lg font-semibold text-white">
             v0.29.8 — The Futa Update
@@ -846,6 +916,15 @@ useEffect(() => {
               </button>
             );
           })}
+          {/* New! button */}
+          <button
+            onClick={toggleNewFilter}
+            className={`flex items-center gap-2 px-3 py-1 rounded cursor-pointer font-bold ${
+              showNewFilter ? "bg-purple-600 text-white" : "bg-neutral-900 text-purple-400 hover:bg-neutral-800"
+            }`}
+          >
+            <span className="text-sm">v0.29.6-0.30.0</span>
+          </button>
         </div>
       </div>
 
@@ -855,6 +934,7 @@ useEffect(() => {
               options={options}
               activePluses={activePluses}
               activeVariant={activeVariant}
+              isOptionVisible={isOptionVisible}
               openDescription={openDescription}
               setOpenDescription={setOpenDescription}
               setActiveVariant={setActiveVariant}

@@ -223,6 +223,7 @@ const toggleRedact = (id: string) => {
     "#828282ff", // Indifferent
     "#d62728",   // Disgust (red to darker red)
     "#ff7f0e",   // Dislike (orange to brighter orange)
+    "#ffb347",   // Maybe (light orange/peach)
     "#1f77b4",   // Like (green to blue)
     "#aec7e8",   // Love (blue to light blue)
     "#9467bd",   // Lust (purple to darker purple)
@@ -230,6 +231,7 @@ const toggleRedact = (id: string) => {
     "#828282ff", // Indifferent
     "#e74c3c",   // Disgust
     "#fc8d59",   // Dislike
+    "#ffd700",   // Maybe (gold/yellow)
     "#27ae60",   // Like
     "#37bdf6ff", // Love
     "#c88de8ff", // Lust
@@ -239,6 +241,7 @@ const toggleRedact = (id: string) => {
     "indifferent",
     "disgust",
     "dislike",
+    "maybe",
     "like",
     "love",
     "lust",
@@ -271,12 +274,14 @@ const toggleRedact = (id: string) => {
     { name: "Lust", color: "#9467bd" },
     { name: "Love", color: "#aec7e8" },
     { name: "Like", color: "#1f77b4" },
+    { name: "Maybe", color: "#ffb347" },
     { name: "Dislike", color: "#ff7f0e" },
     { name: "Disgust", color: "#d62728" },
   ] : [
     { name: "Lust", color: "#c88de8ff" },
     { name: "Love", color: "#37bdf6ff" },
     { name: "Like", color: "#27ae60" },
+    { name: "Maybe", color: "#ffd700" },
     { name: "Dislike", color: "#fc8d59" },
     { name: "Disgust", color: "#e74c3c" },
   ], [colourblindMode]);
@@ -879,7 +884,7 @@ const scoredSelections = useMemo(() => {
                 textShadow: "0px 1px 0px rgba(0,0,0,0.6)",
               }}
             >
-              v0.29.8
+              v0.30.0
             </span>
           </div>
 

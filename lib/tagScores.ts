@@ -9,7 +9,7 @@ export type TagBreakdown = {
 };
 
 // Positive and negative reactions
-const POSITIVE = new Set<Reaction>(["like", "love", "lust"] as Reaction[]);
+const POSITIVE = new Set<Reaction>(["maybe", "like", "love", "lust"] as Reaction[]);
 const NEGATIVE = new Set<Reaction>(["disgust", "dislike"] as Reaction[]);
 
 // Include indifferent internally (but can be ignored in UI if desired)
@@ -17,6 +17,7 @@ const ALL_REACTIONS: Reaction[] = [
     "indifferent",
     "disgust",
     "dislike",
+    "maybe",
     "like",
     "love",
     "lust",

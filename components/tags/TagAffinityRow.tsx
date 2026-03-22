@@ -22,6 +22,7 @@ export default function TagAffinityRow({ tag, open, onToggle, favorites, toggleF
     const buckets: Record<ReactionKey, any[]> = {
         disgust: [],
         dislike: [],
+        maybe: [],
         like: [],
         love: [],
         lust: [],

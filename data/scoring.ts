@@ -3,13 +3,14 @@
 export type CategoryId = 1 | 2 | 3 | 4 | 5 | 6;
 
 /** UI answer values */
-export type PositiveAnswer = "like" | "love" | "lust";
-export type Reaction = "disgust" | "dislike" | "indifferent" | "like" | "love" | "lust";
+export type PositiveAnswer = "maybe" | "like" | "love" | "lust";
+export type Reaction = "disgust" | "dislike" | "indifferent" | "maybe" | "like" | "love" | "lust";
 
 export const REACTION_SCORES: Record<Reaction, number> = {
     disgust: -2,
     dislike: -1,
     indifferent: 0,
+    maybe: 0.5,
     like: 1,
     love: 2,
     lust: 3,
@@ -20,31 +21,37 @@ export const CATEGORY_POINTS: Record<
     Record<PositiveAnswer, number>
 > = {
     1: {
+        maybe: 0,
         like: 0,
         "love": 0,
         lust: 1,
     },
     2: {
+        maybe: 2,
         like: 5,
         "love": 7,
         lust: 8,
     },
     3: {
+        maybe: 6,
         like: 12,
         "love": 16,
         lust: 18,
     },
     4: {
+        maybe: 10,
         like: 20,
         "love": 25,
         lust: 30,
     },
     5: {
+        maybe: 17,
         like: 35,
         "love": 45,
         lust: 50,
     },
     6: {
+        maybe: 0,
         like: 0,
         "love": 0,
         lust: 0, // category 6 never gives points
