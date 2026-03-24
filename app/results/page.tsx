@@ -12,10 +12,17 @@ import { computeScore, THRESHOLDS } from "@/data/scoring";
 import { ROLE_SYMBOLS,  } from "@/data/roleSymbols";
 import TagAffinityDrilldown from "@/components/tags/TagAffinityDrilldown";
 import { narrowTagsCheck } from "@/lib/utils";
+import { encodeSelections, decodeSelections } from "@/lib/utils";
 import { NARROW_TAGS } from "@/data/narrowTags";
 import { WelcomeSlideshow } from "@/components/onboarding";
 import { useSettings } from "@/components/SettingsContext";
-
+import { 
+  encryptMetadata, 
+  decryptMetadata, 
+  isEncrypted, 
+  wrapEncrypted, 
+  unwrapEncrypted 
+} from "@/lib/metadataEncryption";
 
 const broadOnlyIds = narrowTagsCheck(OPTIONS, NARROW_TAGS);
 const METER_MAX_POINTS = 9000;
@@ -127,18 +134,26 @@ const cancelPress = () => {
   if (timerRef.current) clearTimeout(timerRef.current);
 };
 
+const [renderedAt, setRenderedAt] = useState<string>("");
+
+const [redactedIds, setRedactedIds] = useState<Set<string>>(new Set());
+
+  // When viewing a shared seed we enter a non-destructive "seed mode".
+  // In this mode we do not modify the user's `combined-selections` in localStorage.
+  const [seedMode, setSeedMode] = useState(false);
+  // When true, redactions are read from the seed and cannot be changed by the viewer.
+  const [seedRedactionsLocked, setSeedRedactionsLocked] = useState(false);
+
 useEffect(() => {
   setClipId(`wiggle-${Math.random().toString(36).slice(2)}`);
-}, []);
-const [renderedAt, setRenderedAt] = useState<string>("");
+}, [seedMode]);
 
 useEffect(() => {
   setRenderedAt(new Date().toLocaleString());
 }, []);
 
-const [redactedIds, setRedactedIds] = useState<Set<string>>(new Set());
-
 const toggleRedact = (id: string) => {
+  if (seedRedactionsLocked) return; // locked when viewing a shared seed
   setRedactedIds(prev => {
     const next = new Set(prev);
     if (next.has(id)) next.delete(id);
@@ -346,6 +361,49 @@ const toggleRedact = (id: string) => {
   // ----------------------------
   useEffect(() => {
     const updateTagsFromStorage = () => {
+      // If a seed is present in the URL, decode it and enter non-destructive seed mode.
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const seed = params.get("s");
+        if (seed) {
+          try {
+            const { selections: seedSelections, redacted } = decodeSelections(seed);
+
+            // Build selections array for rendering (do NOT write to localStorage)
+            const userSelections = Object.entries(seedSelections).map(([id, value]) => ({
+              id,
+              tags: [],
+              value: value as Reaction,
+            }));
+
+            setSelections(userSelections);
+            setSeedMode(true);
+            setSeedRedactionsLocked(true);
+            setRedactedIds(new Set(redacted || []));
+
+            // Keep the seed param in the URL so refresh preserves seed view.
+            // (Do not write seed-derived selections to localStorage.)
+
+            // Compute tag breakdown from the seed selections and exit
+            const selectionsRecord: Record<string, Reaction> = {};
+            userSelections.forEach(sel => {
+              selectionsRecord[sel.id] = sel.value;
+            });
+
+            const { positive, negative } = computeTagScores(selectionsRecord);
+            setPositiveTags(positive);
+            setNegativeTags(negative);
+            return;
+          } catch (e) {
+            // malformed seed — fall back to localStorage
+            console.warn("Malformed seed in URL", e);
+          }
+        }
+      } catch (e) {
+        // ignore URL parsing errors
+      }
+
+      // No seed present; load user's normal combined-selections from localStorage
       const savedRaw = localStorage.getItem("combined-selections");
       if (!savedRaw) return;
 
@@ -456,6 +514,7 @@ const submitForm = async (event: React.FormEvent<HTMLFormElement>) => {
   // ----------------------------
   useEffect(() => {
   const handleStorage = (e: StorageEvent) => {
+    if (seedMode) return; // ignore storage events when viewing a shared seed
     if (e.key !== "combined-selections" || !e.newValue) return;
 
     try {
@@ -481,6 +540,18 @@ const submitForm = async (event: React.FormEvent<HTMLFormElement>) => {
   // ----------------------------
   useEffect(() => {
     const updateRolesFromStorage = () => {
+      // If we're in seed mode, derive roles from `selections` state instead of localStorage
+      if (seedMode) {
+        const selectedRoles = ROLES.filter(role => {
+          const sel = selections.find(s => s.id === role.id);
+          const reaction = sel?.value ?? "indifferent";
+          return reaction !== "indifferent";
+        });
+
+        setIdentityOptions(selectedRoles);
+        return;
+      }
+
       const savedRaw = localStorage.getItem("combined-selections");
       if (!savedRaw) return;
 
@@ -504,14 +575,14 @@ const submitForm = async (event: React.FormEvent<HTMLFormElement>) => {
     // Listen to storage events (other tabs/windows)
     window.addEventListener("storage", updateRolesFromStorage);
 
-    // Optional: listen in same tab whenever combined-selections changes
+    // Poll in same tab whenever combined-selections changes
     const interval = setInterval(updateRolesFromStorage, 500); // polls every 0.5s
 
     return () => {
       window.removeEventListener("storage", updateRolesFromStorage);
       clearInterval(interval);
     };
-  }, []);
+  }, [seedMode, selections]);
   
   // ----------------------------
 
@@ -614,6 +685,76 @@ const scoredSelections = useMemo(() => {
   }, [scoredSelections]);
 
             // ----------------------------
+            // PNG metadata functions
+            // ----------------------------
+            const addPngMetadata = (pngData: Uint8Array, keyword: string, text: string): Uint8Array => {
+              // Create tEXt chunk
+              const keywordBytes = new TextEncoder().encode(keyword);
+              const textBytes = new TextEncoder().encode(text);
+              const nullByte = new Uint8Array([0]);
+              
+              // Chunk data: keyword + null + text
+              const chunkData = new Uint8Array(keywordBytes.length + 1 + textBytes.length);
+              chunkData.set(keywordBytes, 0);
+              chunkData.set(nullByte, keywordBytes.length);
+              chunkData.set(textBytes, keywordBytes.length + 1);
+              
+              // Chunk length (4 bytes, big-endian)
+              const lengthBytes = new Uint8Array(4);
+              const length = chunkData.length;
+              lengthBytes[0] = (length >> 24) & 0xFF;
+              lengthBytes[1] = (length >> 16) & 0xFF;
+              lengthBytes[2] = (length >> 8) & 0xFF;
+              lengthBytes[3] = length & 0xFF;
+              
+              // Chunk type: "tEXt"
+              const typeBytes = new TextEncoder().encode('tEXt');
+              
+              // Calculate CRC
+              const crcData = new Uint8Array(typeBytes.length + chunkData.length);
+              crcData.set(typeBytes);
+              crcData.set(chunkData, typeBytes.length);
+              
+              const crc = crc32(crcData);
+              const crcBytes = new Uint8Array(4);
+              crcBytes[0] = (crc >> 24) & 0xFF;
+              crcBytes[1] = (crc >> 16) & 0xFF;
+              crcBytes[2] = (crc >> 8) & 0xFF;
+              crcBytes[3] = crc & 0xFF;
+              
+              // Find IEND chunk position (last 12 bytes)
+              const iendPos = pngData.length - 12;
+              
+              // Insert the text chunk before IEND
+              const result = new Uint8Array(pngData.length + lengthBytes.length + typeBytes.length + chunkData.length + crcBytes.length);
+              result.set(pngData.subarray(0, iendPos), 0);
+              result.set(lengthBytes, iendPos);
+              result.set(typeBytes, iendPos + lengthBytes.length);
+              result.set(chunkData, iendPos + lengthBytes.length + typeBytes.length);
+              result.set(crcBytes, iendPos + lengthBytes.length + typeBytes.length + chunkData.length);
+              result.set(pngData.subarray(iendPos), iendPos + lengthBytes.length + typeBytes.length + chunkData.length + crcBytes.length);
+              
+              return result;
+            };
+
+            const crc32 = (data: Uint8Array): number => {
+              const table = new Uint32Array(256);
+              for (let i = 0; i < 256; i++) {
+                let c = i;
+                for (let j = 0; j < 8; j++) {
+                  c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+                }
+                table[i] = c;
+              }
+              
+              let crc = 0xFFFFFFFF;
+              for (let i = 0; i < data.length; i++) {
+                crc = table[(crc ^ data[i]) & 0xFF] ^ (crc >>> 8);
+              }
+              return (crc ^ 0xFFFFFFFF) >>> 0;
+            };
+
+            // ----------------------------
             // Screenshot export
             // ----------------------------
             const exportScreenshot = async () => {
@@ -666,11 +807,209 @@ const scoredSelections = useMemo(() => {
 
             document.body.removeChild(wrapper);
 
+            // Collect metadata for embedding
+            const metadata = {
+              selections: selections.reduce((acc, sel) => {
+                if (sel.value && sel.value !== "indifferent") {
+                  acc[sel.id] = sel.value;
+                }
+                return acc;
+              }, {} as Record<string, Reaction>),
+              redacted: Array.from(redactedIds),
+              favorites,
+              roles: identityOptions.map(role => role.id),
+              score: scoreData.total,
+              timestamp: renderedAt,
+              version: "v0.31.0"
+            };
+
+            console.log('Embedding metadata:', metadata);
+
+            // Convert metadata to JSON
+            const metadataJson = JSON.stringify(metadata);
+
+            // Get PNG data from canvas
+            const pngDataUrl = canvas.toDataURL("image/png");
+            console.log('PNG data URL length:', pngDataUrl.length);
+            
+            // Convert data URL to Uint8Array
+            const base64Data = pngDataUrl.split(',')[1];
+            console.log('Base64 data length:', base64Data.length);
+            
+            const binaryString = atob(base64Data);
+            const uint8Array = new Uint8Array(binaryString.length);
+            for (let i = 0; i < binaryString.length; i++) {
+              uint8Array[i] = binaryString.charCodeAt(i);
+            }
+            console.log('Uint8Array length:', uint8Array.length);
+            console.log('PNG signature bytes:', Array.from(uint8Array.slice(0, 8)).map(b => b.toString(16).padStart(2, '0')).join(' '));
+
+            // Encrypt metadata before embedding
+            let encryptedMetadata: string;
+            try {
+              const encrypted = await encryptMetadata(metadataJson);
+              encryptedMetadata = wrapEncrypted(encrypted);
+              console.log('Metadata encrypted successfully');
+            } catch (error) {
+              console.error('Failed to encrypt metadata:', error);
+              alert('Failed to encrypt metadata. Please try again.');
+              return;
+            }
+
+            // Add encrypted metadata as PNG text chunk
+            const modifiedArray = addPngMetadata(uint8Array, 'corruchart-data', encryptedMetadata);
+            console.log('Modified array length:', modifiedArray.length);
+
+            // Create final blob
+            const finalBlob = new Blob([modifiedArray as any], { type: 'image/png' });
+            console.log('Final blob size:', finalBlob.size);
+
             // Trigger download
             const link = document.createElement("a");
             link.download = "corruchart-results.png";
-            link.href = canvas.toDataURL("image/png");
+            link.href = URL.createObjectURL(finalBlob);
             link.click();
+            };
+
+            const importFromImage = async (event: React.ChangeEvent<HTMLInputElement>) => {
+              const file = event.target.files?.[0];
+              if (!file) return;
+
+              console.log('Importing file:', file.name, 'size:', file.size, 'type:', file.type);
+
+              try {
+                const arrayBuffer = await file.arrayBuffer();
+                console.log('ArrayBuffer size:', arrayBuffer.byteLength);
+                
+                const uint8Array = new Uint8Array(arrayBuffer);
+                console.log('Uint8Array length:', uint8Array.length);
+                console.log('First 8 bytes (PNG signature):', Array.from(uint8Array.slice(0, 8)).map(b => b.toString(16).padStart(2, '0')).join(' '));
+                
+                // Check if it's a valid PNG file
+                const pngSignature = [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A];
+                const isValidPng = uint8Array.length >= 8 && pngSignature.every((byte, i) => uint8Array[i] === byte);
+                console.log('Is valid PNG:', isValidPng);
+                
+                if (!isValidPng) {
+                  alert("Selected file is not a valid PNG image.");
+                  return;
+                }
+                
+                // Extract metadata from PNG
+                const extractedData = readPngMetadata(uint8Array, 'corruchart-data');
+                console.log('Extracted data from PNG:', extractedData?.substring(0, 50) + '...');
+                
+                if (!extractedData) {
+                  alert("No corruchart data found in this image.");
+                  return;
+                }
+                
+                // Check if metadata is encrypted and decrypt if needed
+                let metadataJson: string;
+                if (isEncrypted(extractedData)) {
+                  try {
+                    const encryptedData = unwrapEncrypted(extractedData);
+                    metadataJson = await decryptMetadata(encryptedData);
+                    console.log('Metadata decrypted successfully');
+                  } catch (decryptError) {
+                    console.error('Failed to decrypt metadata:', decryptError);
+                    alert("Failed to decrypt metadata. This image may be corrupted or from a different source.");
+                    return;
+                  }
+                } else {
+                  // Fallback for unencrypted metadata (legacy support)
+                  console.warn('Metadata is not encrypted. This is a legacy image.');
+                  metadataJson = extractedData;
+                }
+                
+                const metadata = JSON.parse(metadataJson);
+                console.log('Parsed metadata:', metadata);
+                
+                // Encode imported data as seed and redirect to imported page
+                const importedSelections = Object.fromEntries(
+                  Object.entries(metadata.selections).map(([id, value]) => [id, value as Reaction])
+                );
+                
+                const seed = encodeSelections(importedSelections, metadata.redacted || [], metadata.favorites || []);
+                const importedUrl = `/results/imported?s=${seed}`;
+                
+                console.log('Redirecting to imported results:', importedUrl);
+                window.location.href = importedUrl;
+              } catch (e) {
+                console.error("Failed to import from image:", e);
+                alert("Failed to import results from image. Please check the file and try again.");
+              }
+
+              // Reset file input
+              event.target.value = '';
+            };
+
+            const readPngMetadata = (pngData: Uint8Array, keyword: string): string | null => {
+              let pos = 8; // Skip PNG signature
+              
+              while (pos < pngData.length - 12) {
+                if (pos + 8 > pngData.length) break;
+                
+                const length = (pngData[pos] << 24) | (pngData[pos + 1] << 16) | (pngData[pos + 2] << 8) | pngData[pos + 3];
+                const type = String.fromCharCode(pngData[pos + 4], pngData[pos + 5], pngData[pos + 6], pngData[pos + 7]);
+                
+                if (type === 'tEXt') {
+                  const chunkData = pngData.subarray(pos + 8, pos + 8 + length);
+                  
+                  // Find null byte separator
+                  let nullPos = -1;
+                  for (let i = 0; i < chunkData.length; i++) {
+                    if (chunkData[i] === 0) {
+                      nullPos = i;
+                      break;
+                    }
+                  }
+                  
+                  if (nullPos !== -1) {
+                    const chunkKeyword = new TextDecoder().decode(chunkData.subarray(0, nullPos));
+                    if (chunkKeyword === keyword) {
+                      const text = new TextDecoder().decode(chunkData.subarray(nullPos + 1));
+                      return text;
+                    }
+                  }
+                }
+                
+                if (type === 'IEND') break;
+                pos += length + 12;
+              }
+              
+              return null;
+            };
+
+            // ----------------------------
+            // Generate share URL
+            // ----------------------------
+            const generateShareUrl = async () => {
+              try {
+                const map: Record<string, string> = {};
+                selections.forEach(s => {
+                  if (s?.value && s.value !== "indifferent") map[s.id] = s.value;
+                });
+
+                if (Object.keys(map).length === 0) {
+                  alert("No selections to share.");
+                  return;
+                }
+
+                const seed = encodeSelections(map as any, Array.from(redactedIds));
+                const url = `${window.location.origin}${window.location.pathname}?s=${seed}`;
+
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                  await navigator.clipboard.writeText(url);
+                  alert("Share URL copied to clipboard.");
+                } else {
+                  // Fallback
+                  window.prompt("Copy this URL to share:", url);
+                }
+              } catch (e) {
+                console.error("Failed to generate share URL:", e);
+                alert("Failed to generate share URL.");
+              }
             };
 
 
@@ -739,8 +1078,19 @@ const scoredSelections = useMemo(() => {
                     onClick={exportScreenshot}
                     className="px-3 py-1 rounded bg-neutral-900 text-neutral-200 text-sm hover:bg-neutral-800 cursor-pointer flex items-center justify-center h-8"
                 >
-                    Export Screenshot
+                    Export Image
                 </button>
+
+                {/* Import from Image */}
+                <label className="px-3 py-1 rounded bg-neutral-900 text-neutral-200 text-sm hover:bg-neutral-800 cursor-pointer flex items-center justify-center h-8">
+                    Import from Image
+                    <input
+                        type="file"
+                        accept="image/png"
+                        onChange={importFromImage}
+                        className="hidden"
+                    />
+                </label>
 
                 {/* Info/Help button (Standardized size) */}
                 <button
@@ -888,7 +1238,7 @@ const scoredSelections = useMemo(() => {
                 textShadow: "0px 1px 0px rgba(0,0,0,0.6)",
               }}
             >
-              v0.30.0
+              v0.31.0
             </span>
           </div>
 
@@ -1195,7 +1545,11 @@ const scoredSelections = useMemo(() => {
 
   {openTagInfo?.tag === "__fav_help" && (
     <div className="absolute -top-28 left-1/2 transform -translate-x-1/2 z-50 w-64 p-3 bg-neutral-900 text-gray-200 rounded shadow-lg text-center text-sm border border-neutral-700">
-      Double-click a label to remove it from your pinned. Click and hold a label to redact it.
+      {seedMode ? (
+        "Viewing shared results: pinned items cannot be modified here."
+      ) : (
+        "Double-click a label to remove it from your pinned. Click and hold a label to redact it."
+      )}
     </div>
   )}
 
@@ -1258,12 +1612,12 @@ const scoredSelections = useMemo(() => {
             <div
               key={option.id}
               onClick={() => setOpenDescription(option.id)}
-              onDoubleClick={() => toggleFavorite(option.id)}
+              onDoubleClick={() => { if (!seedMode) toggleFavorite(option.id); }}
               onPointerDown={() => startPress(option.id)}
               onPointerUp={cancelPress}
               onPointerLeave={cancelPress}
               className="px-3 py-1 rounded cursor-pointer select-none shadow-sm text-sm font-medium transition-transform active:scale-95 active:opacity-75 flex items-center gap-2 bg-neutral-800 border border-neutral-700"
-              title="Double-click to remove • Hold to redact"
+              title={seedMode ? "Pinned (locked in shared view)" : "Double-click to remove • Hold to redact"}
             >
               <span
                 style={{
@@ -1277,7 +1631,7 @@ const scoredSelections = useMemo(() => {
     );
   })}
 </div>
-  )}
+)}
 </section>
 )}
 
@@ -1338,7 +1692,7 @@ const scoredSelections = useMemo(() => {
 </div>
             {openTagInfo?.tag === "__positive_help" && (
               <div className="absolute -top-32 left-1/2 transform -translate-x-1/2 z-50 w-64 p-3 bg-neutral-900 text-gray-200 rounded shadow-lg text-center text-sm border border-neutral-700">
-                These are the tags you reacted most positively to. From here you can add and remove up to 30 interests to your favorites.
+                These are the tags you reacted most positively to. From here you can add and remove up to 28 interests to your favorites.
               </div>
             )}
 
@@ -1349,6 +1703,8 @@ const scoredSelections = useMemo(() => {
             toggleFavorite={toggleFavorite}
             searchQuery={tagSearchQuery}
             forceCloseSignal={drilldownCloseSignal}
+            seedMode={seedMode}
+            redacted={Array.from(redactedIds)}
             />
 
 
@@ -1376,9 +1732,9 @@ const scoredSelections = useMemo(() => {
     {/* Slideshow */}
     <WelcomeSlideshow 
       images={[
-        "images/favourite-interests.gif",
+        "images/pins.gif",
         "images/search-interests.gif",
-        "images/redact-favourites.gif",
+        "images/redact.gif",
         "images/remove-favourites.gif",
       ]} 
     />

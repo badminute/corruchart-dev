@@ -13,6 +13,8 @@ interface TagAffinityDrilldownProps {
     toggleFavorite: (id: string) => void;
     searchQuery?: string;
     forceCloseSignal?: number;
+    seedMode?: boolean;
+    redacted?: string[];
 }
 
 
@@ -22,6 +24,8 @@ export default function TagAffinityDrilldown({
   toggleFavorite,
   searchQuery = "",
   forceCloseSignal,
+  seedMode = false,
+  redacted = [],
 }: TagAffinityDrilldownProps) {
     const { colourblindMode } = useSettings();
     const reactionColors = useMemo(() => getReactionColors(colourblindMode), [colourblindMode]);
@@ -29,6 +33,7 @@ export default function TagAffinityDrilldown({
     const [activeReaction, setActiveReaction] = useState<ReactionKey | null>(null);
     const q = searchQuery.trim().toLowerCase();
     const isFavorite = (id: string) => favorites.includes(id);
+    const redactedSet = new Set(redacted || []);
 
     useLayoutEffect(() => {
         setOpenTag(null);
@@ -50,13 +55,16 @@ export default function TagAffinityDrilldown({
 
             Object.entries(tag.reactions).forEach(([r, opts]) => {
                 const key = r.toLowerCase() as ReactionKey;
-                if (REACTIONS.includes(key)) buckets[key] = opts;
+              if (REACTIONS.includes(key)) {
+                // filter out redacted option ids so they aren't visible in seed view
+                buckets[key] = (opts || []).filter(opt => !redactedSet.has(opt.id));
+              }
             });
 
             map[tag.tag] = buckets;
         });
         return map;
-    }, [tags]);
+    }, [tags, redacted]);
 
     // Calculate flipUp when a drilldown opens
     useLayoutEffect(() => {
@@ -72,7 +80,13 @@ export default function TagAffinityDrilldown({
 
     return (
   <div className="grid grid-cols-2 gap-4">
-    {tags.map((tag, index) => {
+    {tags
+  .filter(tag => {
+    const buckets = bucketsByTag[tag.tag];
+    const total = Object.values(buckets).reduce((s, a) => s + a.length, 0);
+    return total > 0;
+  })
+  .map((tag, index) => {
       const buckets = bucketsByTag[tag.tag];
       const tagHasMatch =
         q &&
@@ -80,8 +94,9 @@ export default function TagAffinityDrilldown({
           bucket.some(opt => opt.label.toLowerCase().includes(q))
         );
       const total = Object.values(buckets).reduce((sum, arr) => sum + arr.length, 0);
-      if (total === 0) return null;
-
+      if (total === 0) {
+        return <div key={tag.tag} className="invisible h-6" />;
+        }
       const isLeftColumn = index % 2 === 0;
 
       return (
@@ -94,12 +109,11 @@ export default function TagAffinityDrilldown({
         >
           <div
             className={`flex items-center h-4 w-full`}
-            style={{ flexDirection: isLeftColumn ? "row" : "row-reverse" }}
           >
             {/* Tag name */}
             <div
-              className={`font-semibold text-sm px-2 truncate ${
-                isLeftColumn ? "text-right" : "text-left"
+            className={`font-semibold text-sm px-2 truncate shrink-0 ${
+                isLeftColumn ? "text-right mr-2" : "text-left ml-2 order-last"
               } ${tagHasMatch ? "text-yellow-300" : "text-neutral-200"}`}
             >
               {tag.tag.toUpperCase()}
@@ -172,7 +186,7 @@ export default function TagAffinityDrilldown({
 
                 <ul className="space-y-0.5 pl-2">
                   {buckets[activeReaction].map(opt => {
-                    const showStar = ["like", "love", "lust", "maybe", "dislike", "disgust"].includes(activeReaction);
+                    const showStar = ["like", "love", "lust", "maybe", "dislike", "disgust"].includes(activeReaction) && !seedMode;
                     return (
                       <li key={opt.id} className="flex justify-between items-center text-neutral-300">
                         <span className="truncate pr-2">
@@ -187,7 +201,10 @@ export default function TagAffinityDrilldown({
 
                         {showStar && (
                           <button
-                            onClick={() => toggleFavorite(opt.id)}
+                            onClick={() => {
+                              if (seedMode) return;
+                              toggleFavorite(opt.id);
+                            }}
                             className={
                               isFavorite(opt.id)
                                 ? "text-yellow-400 cursor-pointer shrink-0"

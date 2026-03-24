@@ -200,11 +200,42 @@ export default function Page() {
         setShowWelcome(false);
         localStorage.setItem("corruchart-welcome-last-shown", Date.now().toString());
     };
+    
+    // Form submission handler
+    const submitFeedbackForm = async (event: React.FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+      const form = event.currentTarget;
+      const formData = new FormData(form);
+
+      try {
+        const response = await fetch("https://formsubmit.co/ajax/badminute@protonmail.com", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (response.ok) {
+          alert("Feedback sent! Thank you.");
+          form.reset();
+          setShowFeedback(false);
+          setShowFeedbackModal(false);
+        } else {
+          alert("Error submitting form.");
+        }
+      } catch (err) {
+        console.error("Failed to submit form:", err);
+        alert("Failed to send feedback. Please try again.");
+      }
+    };
     // -----------------------
 
     const [showChangelog, setShowChangelog] = useState(false);
-    const CHANGELOG_VERSION = "0.29.8";
+    const CHANGELOG_VERSION = "0.31.0";
     const [hasNewUpdate, setHasNewUpdate] = useState(false);
+    const [showFeedback, setShowFeedback] = useState(false);
+    const [feedbackPos, setFeedbackPos] = useState<{ x: number; y: number } | null>(null);
+    const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  
+    const feedbackDragRef = useRef<{ x: number; y: number; mouseX: number; mouseY: number } | null>(null);
 
   /** SET ALL TO (Forbidden only) */
   const [setAllState, setSetAllState] = useState(0);
@@ -376,6 +407,17 @@ useEffect(() => {
   }
 }, [options]);
 
+useEffect(() => {
+  const checkSize = () => {
+    // threshold ~ when right panel starts feeling cramped
+    const hasRoom = window.innerWidth >= 1100;
+  };
+
+  checkSize();
+  window.addEventListener("resize", checkSize);
+  return () => window.removeEventListener("resize", checkSize);
+}, []);
+
   const toggleGroup = (groupId: string) => {
     setGroupStates((prev) => {
       const next = { ...prev };
@@ -524,20 +566,31 @@ useEffect(() => {
    {/* CHANGELOG MODAL */}
 {showChangelog && (
   <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4">
-    <div className="bg-neutral-900 border border-neutral-800 p-6 rounded-2xl w-full max-w-4xl h-[650px] shadow-2xl flex flex-col">
+    <div className="bg-neutral-900 border border-neutral-800 p-6 rounded-2xl w-full max-w-6xl h-[650px] shadow-2xl flex flex-row gap-6">
       
-      {/* Header */}
-      <h2 className="text-2xl font-bold text-center text-violet-400 mb-4">
-        Changelog
-      </h2>
+     {/* LEFT SIDE */}
+        <div className="flex-1 flex flex-col">
+        {/* Header */}
+        <h2 className="text-2xl font-bold text-center text-violet-400 mb-4">
+          Changelog
+        </h2>
 
-      {/* Description */}
-      <div className="text-gray-400 text-center text-lg mb-4">
-        <p>Recent changes, additions, and improvements.</p>
-      </div>
+        {/* Description */}
+        <div className="text-gray-400 text-center text-lg mb-4">
+          <p>Recent changes, additions, and improvements.</p>
+        </div>
 
-      {/* CHANGELOG CONTENT */}
-      <div className="flex-1 overflow-y-auto pr-2 space-y-6 text-gray-300">
+        {/* CHANGELOG CONTENT */}
+        <div className="flex-1 overflow-y-auto pr-2 space-y-6 text-gray-300">
+        <div>
+          <h3 className="text-lg font-semibold text-white">
+            v0.31.0 — Results Sharing
+          </h3>
+          <ul className="list-disc ml-6 mt-2 space-y-1">
+            <li>Results are now stored in the metadata of the 'Export Image' image file and when downloaded, can be imported on the Results page to import interactable results of the image! Information and redactions stored in the image metadata are obscured through AES-GCM and XOR encryption (fallback). Here's hoping that platforms don't scrub the metadata of shared image files.</li>
+            <li>Added a feedback button to the changelog modal on the chart page itself.</li>
+          </ul>
+        </div>
         <div>
           <h3 className="text-lg font-semibold text-white">
             v0.30.0 — QOL Update 1
@@ -547,7 +600,7 @@ useEffect(() => {
             <li>Number of variants are shown next to each interest.</li>
             <li>A new star to indicate maybe/interested.</li>
             <li>A warning is now shown when applied filter is preventing variants from being swapped.</li>
-            <li>A filter for newly added interests so you can easily do new additions instead of having to look for them.</li>
+            <li>A filter for newly added interests so you can easily weigh on new additions instead of having to look for them.</li>
           </ul>
         </div>
         <div>
@@ -644,13 +697,72 @@ useEffect(() => {
       </div>
 
       {/* Button — identical to Guide modal */}
-      <button
-        onClick={() => setShowChangelog(false)}
-        className="w-full py-3 mt-4 bg-neutral-800 hover:bg-violet-500/30 cursor-pointer text-white font-semibold rounded-xl transition-colors"
-      >
-        CLOSE
-      </button>
 
+        <div className="flex gap-2 mt-4">
+          <button
+            onClick={() => setShowFeedbackModal(true)}
+            className="flex-1 py-3 bg-neutral-800 hover:bg-violet-500/30 cursor-pointer text-white font-semibold rounded-xl transition-colors"
+          >
+            Give Feedback
+          </button>
+
+          <button
+            onClick={() => setShowChangelog(false)}
+            className="flex-1 py-3 bg-neutral-800 hover:bg-violet-500/30 cursor-pointer text-white font-semibold rounded-xl transition-colors"
+          >
+            CLOSE
+          </button>
+        </div>
+      </div>
+
+      {/* Feedback Modal */}
+      {showFeedbackModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-neutral-900 border border-neutral-700 rounded-xl p-6 max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <h3 className="text-lg font-bold text-violet-400 mb-4">Send Feedback</h3>
+
+            <form
+              id="feedbackForm"
+              onSubmit={submitFeedbackForm}
+              action="https://formsubmit.co/badminute@protonmail.com"
+              method="POST"
+              className="flex flex-col gap-2"
+            >
+              {/* FormSubmit Configuration */}
+              <input type="hidden" name="_subject" value="New Corruchart Feedback!" />
+              <input type="hidden" name="_captcha" value="false" />
+              <input type="hidden" name="_template" value="table" />
+
+              <input type="text" name="name" placeholder="Nickname" className="px-2 py-1 rounded text-white bg-neutral-800 text-sm" required />
+              <input type="email" name="email" placeholder="Email (Possibly Get a Reply)" className="px-2 py-1 rounded text-white bg-neutral-800 text-sm" />
+              <input type="text" name="honeypot" style={{ display: "none" }} />
+              <textarea
+                name="message"
+                placeholder="Your feedback (suggestions, typos, improvements, adjustments, ideas, kisses, etc.)"
+                className="px-2 py-1 rounded text-white bg-neutral-800 text-sm resize-y min-h-[10rem] max-h-96 overflow-y-auto"
+                required
+              />
+
+              <div className="flex gap-2 mt-4">
+                <button
+                  type="button"
+                  onClick={() => setShowFeedbackModal(false)}
+                  className="flex-1 px-3 py-2 rounded cursor-pointer bg-neutral-700 text-white hover:bg-neutral-600 transition-colors text-sm font-semibold"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 px-3 py-2 rounded cursor-pointer bg-green-800 text-white hover:bg-green-600 transition-colors text-sm font-semibold"
+                >
+                  Send
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    
     </div>
   </div>
 )}
@@ -677,13 +789,14 @@ useEffect(() => {
           images={[
             "images/potion-tips.png", 
             "images/cycle.gif",
-            "images/dark-reader.gif", 
             "images/descriptions.gif",
             "images/swappables.gif",
-            "images/scroll.gif",
+            "images/filters-preventing.gif",
             "images/interests-bulk.gif",
+            "images/dark-reader.gif", 
+            "images/scroll.gif",
             "images/reset-interests.gif",
-            "images/filters-preventing.gif"
+
           ]} 
         />
       </div>
@@ -734,7 +847,7 @@ useEffect(() => {
             `}
             >
             <span className="font-bold text-neutral-200">
-                Changelog
+                Changelog & Feedback
             </span>
 
             {hasNewUpdate && (
@@ -929,7 +1042,7 @@ useEffect(() => {
               showNewFilter ? "bg-purple-600 text-white" : "bg-neutral-900 text-purple-400 hover:bg-neutral-800"
             }`}
           >
-            <span className="text-sm">v0.29.6-0.30.0</span>
+            <span className="text-sm">v0.29.6-0.31.0</span>
           </button>
         </div>
       </div>
