@@ -729,7 +729,7 @@ useEffect(() => {
               className="flex flex-col gap-2"
             >
               {/* FormSubmit Configuration */}
-              <input type="hidden" name="_subject" value="New Corruchart Feedback!" />
+              <input type="hidden" name="_subject" value={`Corruchart Feedback - ${new Date().toLocaleDateString()}`} />
               <input type="hidden" name="_captcha" value="false" />
               <input type="hidden" name="_template" value="table" />
 
