@@ -587,7 +587,7 @@ useEffect(() => {
             v0.31.0 — Results Sharing
           </h3>
           <ul className="list-disc ml-6 mt-2 space-y-1">
-            <li>Results are now stored in the metadata of the 'Export Image' image file and when downloaded, can be imported on the Results page to import interactable results of the image! Information and redactions stored in the image metadata are obscured through AES-GCM and XOR encryption (fallback). Here's hoping that platforms don't scrub the metadata of shared image files.</li>
+            <li>Results are now stored in the metadata of the exported image. This image file can be imported on the Results page to give you interactive results. All information and redactions within the image metadata are secured using AES-GCM encryption, with XOR encryption as a fallback. Here's hoping that platforms don't scrub the metadata of shared image files.</li>
             <li>Added a feedback button to the changelog modal on the chart page itself.</li>
           </ul>
         </div>
