@@ -820,7 +820,7 @@ const scoredSelections = useMemo(() => {
               roles: identityOptions.map(role => role.id),
               score: scoreData.total,
               timestamp: renderedAt,
-              version: "v0.31.0"
+              version: "v0.32.0"
             };
 
             console.log('Embedding metadata:', metadata);
@@ -1238,7 +1238,7 @@ const scoredSelections = useMemo(() => {
                 textShadow: "0px 1px 0px rgba(0,0,0,0.6)",
               }}
             >
-              v0.31.0
+              v0.32.0
             </span>
           </div>
 

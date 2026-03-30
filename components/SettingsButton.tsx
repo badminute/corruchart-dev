@@ -6,7 +6,7 @@ import { useSettings } from "./SettingsContext";
 export default function SettingsButton() {
   const [open, setOpen] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
-  const { colourblindMode, setColourblindMode } = useSettings();
+  const { colourblindMode, setColourblindMode, reverseColorCycle, setReverseColorCycle, scrollCycling, setScrollCycling } = useSettings();
 
 // Load saved setting once
 useEffect(() => {
@@ -85,6 +85,36 @@ useEffect(() => {
               `}
             >
               Colorblind Mode: {colourblindMode ? "ON" : "OFF"}
+            </button>
+
+            {/* Reverse Color Cycle Toggle */}
+            <button
+              onClick={() => setReverseColorCycle(!reverseColorCycle)}
+              className={`
+                w-full text-left cursor-pointer px-3 py-2 rounded
+                font-medium transition
+                ${reverseColorCycle
+                  ? "bg-neutral-900 text-gray-100 hover:bg-neutral-800"
+                  : "bg-neutral-800 text-gray-300 hover:bg-neutral-700"
+                }
+              `}
+            >
+              Reverse Color Cycle: {reverseColorCycle ? "ON" : "OFF"}
+            </button>
+
+            {/* Scroll Cycling Toggle */}
+            <button
+              onClick={() => setScrollCycling(!scrollCycling)}
+              className={`
+                w-full text-left cursor-pointer px-3 py-2 rounded
+                font-medium transition
+                ${scrollCycling
+                  ? "bg-neutral-900 text-gray-100 hover:bg-neutral-800"
+                  : "bg-neutral-800 text-gray-300 hover:bg-neutral-700"
+                }
+              `}
+            >
+              Scroll Cycling: {scrollCycling ? "ON" : "OFF"}
             </button>
 
             {/* Future settings can go here */}

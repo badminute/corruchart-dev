@@ -47,7 +47,7 @@ function OptionItem({
     cycleColor,
     getPlusImage,
 }: Props) {
-    const { colourblindMode } = useSettings();
+    const { colourblindMode, scrollCycling } = useSettings();
     const labelRef = useRef<HTMLButtonElement | null>(null);
 
     // ✅ LOCAL (per-item) animation refs
@@ -143,7 +143,7 @@ function OptionItem({
     const starRef = useRef<HTMLDivElement | null>(null);
         useEffect(() => {
             const el = starRef.current;
-            if (!el) return;
+            if (!el || !scrollCycling) return;
 
             const onWheel = (e: WheelEvent) => {
                 // Ignore horizontal scrolling
@@ -166,7 +166,7 @@ function OptionItem({
             return () => {
                 el.removeEventListener("wheel", onWheel);
             };
-        }, [index, cycleColor]);
+        }, [index, cycleColor, scrollCycling]);
 
     return (
         <div className="relative">

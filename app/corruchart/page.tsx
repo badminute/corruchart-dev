@@ -26,7 +26,7 @@ type OptionWithCategory = BaseOption & {
 type GroupState = "include" | "exclude";
 
 const COLOR_NAMES = [
-  "indifferent",
+  "indifferent/unset",
   "disgust",
   "dislike",
   "maybe",
@@ -49,7 +49,7 @@ const STATE_TO_VALUE = [
 ] as const;
 
 export default function Page() {
-  const { colourblindMode } = useSettings();
+  const { colourblindMode, reverseColorCycle } = useSettings();
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   /** html2canvas-safe hex colors */
@@ -149,6 +149,7 @@ export default function Page() {
     const [states, setStates] = useState<number[]>([]);
     const [query, setQuery] = useState("");
     const [colorFilter, setColorFilter] = useState<Set<number>>(new Set());
+    const [colorFilterAnchored, setColorFilterAnchored] = useState<Record<number, Set<string>>>({});
     const [showNewFilter, setShowNewFilter] = useState(false);
     const [groupStates, setGroupStates] = useState<Record<string, GroupState>>({});
     const [showCategory6, setShowCategory6] = useState(false);
@@ -229,7 +230,7 @@ export default function Page() {
     // -----------------------
 
     const [showChangelog, setShowChangelog] = useState(false);
-    const CHANGELOG_VERSION = "0.31.0";
+    const CHANGELOG_VERSION = "0.32.0";
     const [hasNewUpdate, setHasNewUpdate] = useState(false);
     const [showFeedback, setShowFeedback] = useState(false);
     const [feedbackPos, setFeedbackPos] = useState<{ x: number; y: number } | null>(null);
@@ -239,31 +240,56 @@ export default function Page() {
 
   /** SET ALL TO (Forbidden only) */
   const [setAllState, setSetAllState] = useState(0);
+  const [inResetMode, setInResetMode] = useState(false);
 
   const cycleSetAllState = () => {
-    setSetAllState((prev) => (prev + 1) % COLOR_HEX.length);
+    if (inResetMode) {
+      // Cycle from reset mode back to state 0
+      setInResetMode(false);
+      setSetAllState(0);
+    } else if (setAllState === COLOR_HEX.length - 1) {
+      // Cycle from last state to reset mode
+      setInResetMode(true);
+    } else {
+      // Cycle through normal states
+      setSetAllState((prev) => (prev + 1) % COLOR_HEX.length);
+    }
   };
 
   const applySetAllState = () => {
-    const colorName = COLOR_NAMES[setAllState];
+    if (inResetMode) {
+      if (
+        !confirm(
+          `Reset ALL interests to INDIFFERENT?\n\nThis cannot be undone.`
+        )
+      ) {
+        return;
+      }
 
-    if (
-      !confirm(
-        `Set ALL VISIBLE interests to "${colorName.toUpperCase()}"?\n\nThis cannot be undone.`
-      )
-    ) {
-      return;
-    }
-
-    setStates((prev) => {
-      const next = [...prev];
-
-      filtered.forEach(({ index }) => {
-        next[index] = setAllState;
+      setStates((prev) => {
+        return new Array(prev.length).fill(0); // Reset all to indifferent
       });
+    } else {
+      const colorName = COLOR_NAMES[setAllState];
 
-      return next;
-    });
+      if (
+        !confirm(
+          `Set ALL VISIBLE interests to "${colorName.toUpperCase()}"?\n\nThis cannot be undone.`
+        )
+      ) {
+        return;
+      }
+
+      setStates((prev) => {
+        const next = [...prev];
+
+        filtered.forEach(({ index }) => {
+          next[index] = setAllState;
+        });
+
+        return next;
+      });
+    }
   };
 
   // Auto-hide tooltip after 20 seconds
@@ -326,10 +352,11 @@ export default function Page() {
   }, [states, options]);
 
   const cycleColor = (index: number, dir: 1 | -1 = 1) => {
+    const finalDir = reverseColorCycle ? (-dir as 1 | -1) : dir;
     setStates(prev => {
       const next = [...prev];
       next[index] =
-        (next[index] + dir + COLOR_HEX.length) % COLOR_HEX.length;
+        (next[index] + finalDir + COLOR_HEX.length) % COLOR_HEX.length;
 
       // Trigger "+" for positive states
       if (next[index] >= 3) {
@@ -377,7 +404,30 @@ export default function Page() {
   const toggleColor = (colorIndex: number) => {
     setColorFilter((prev) => {
       const next = new Set(prev);
-      next.has(colorIndex) ? next.delete(colorIndex) : next.add(colorIndex);
+      const togglingOn = !next.has(colorIndex);
+
+      if (togglingOn) {
+        next.add(colorIndex);
+        setColorFilterAnchored((prevAnchored) => {
+          const anchored = { ...prevAnchored };
+          const matchingIds = new Set(
+            options
+              .map((option, i) => ({ option, state: states[i] % COLOR_HEX.length }))
+              .filter((item) => item.state === colorIndex)
+              .map((item) => item.option.id)
+          );
+          anchored[colorIndex] = matchingIds;
+          return anchored;
+        });
+      } else {
+        next.delete(colorIndex);
+        setColorFilterAnchored((prevAnchored) => {
+          const anchored = { ...prevAnchored };
+          delete anchored[colorIndex];
+          return anchored;
+        });
+      }
+
       return next;
     });
     // Clear new filter when color filter is used
@@ -387,8 +437,11 @@ export default function Page() {
   /** Toggle new filter */
   const toggleNewFilter = () => {
     setShowNewFilter(!showNewFilter);
-    // Clear color filters when new filter is activated
-    if (!showNewFilter) setColorFilter(new Set());
+    // Clear color filters and anchoring when new filter is activated
+    if (!showNewFilter) {
+      setColorFilter(new Set());
+      setColorFilterAnchored({});
+    }
   };
 
 useEffect(() => {
@@ -462,7 +515,11 @@ useEffect(() => {
 
         const matchesColor =
             colorFilter.size === 0 ||
-            colorFilter.has(states[index] % COLOR_HEX.length);
+            Array.from(colorFilter).some((filterIndex) => {
+              const anchored = colorFilterAnchored[filterIndex];
+              const currentState = states[index] % COLOR_HEX.length;
+              return (anchored?.has(option.id) ?? false) || currentState === filterIndex;
+            });
 
         const matchesGroup =
             (!Object.values(groupStates).includes("include") ||
@@ -522,6 +579,7 @@ useEffect(() => {
     query,
     states,
     colorFilter,
+    colorFilterAnchored,
     groupStates,
     showCategory6,
     showNewFilter,
@@ -538,7 +596,11 @@ useEffect(() => {
 
     const matchesColor =
       colorFilter.size === 0 ||
-      colorFilter.has(states[index] % COLOR_HEX.length);
+      Array.from(colorFilter).some((filterIndex) => {
+        const anchored = colorFilterAnchored[filterIndex];
+        const currentState = states[index] % COLOR_HEX.length;
+        return (anchored?.has(option.id) ?? false) || currentState === filterIndex;
+      });
 
     const matchesGroup =
       (!Object.values(groupStates).includes("include") ||
@@ -582,6 +644,16 @@ useEffect(() => {
 
         {/* CHANGELOG CONTENT */}
         <div className="flex-1 overflow-y-auto pr-2 space-y-6 text-gray-300">
+        <div>
+          <h3 className="text-lg font-semibold text-white">
+            v0.32.0 — QOL Update 2
+          </h3>
+          <ul className="list-disc ml-6 mt-2 space-y-1">
+            <li>The indifferent/unset filter actually helps now.</li>
+            <li>Added a reverse color cycling toggle and scroll cycling toggle to the settings menu.</li>
+            <li>Added a new SET ALL VISIBLE TO cycle to RESET ALL interests regardless of filter.</li>
+          </ul>
+        </div>
         <div>
           <h3 className="text-lg font-semibold text-white">
             v0.31.0 — Results Sharing
@@ -790,12 +862,13 @@ useEffect(() => {
             "images/potion-tips.png", 
             "images/cycle.gif",
             "images/descriptions.gif",
-            "images/swappables.gif",
+            "images/variants.gif",
+            "images/variants-continued.gif",
             "images/filters-preventing.gif",
             "images/interests-bulk.gif",
             "images/dark-reader.gif", 
             "images/scroll.gif",
-            "images/reset-interests.gif",
+            "images/resetting-interests.gif",
 
           ]} 
         />
@@ -888,20 +961,22 @@ useEffect(() => {
                 "
               >
                 <span className="text-sm font-semibold text-gray-300">
-                  SET ALL VISIBLE TO
+                  {inResetMode ? "RESET ALL" : "SET ALL VISIBLE TO"}
                 </span>
 
-                <svg
-                  className="cursor-pointer"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill={COLOR_HEX[setAllState]}
-                  stroke="#000"
-                  strokeWidth="0.5"
-                >
-                  <path d="M12 2.5l2.9 6.1 6.7.6-5 4.4 1.5 6.5L12 16.8 5.9 20.1l1.5-6.5-5-4.4 6.7-.6L12 2.5z" />
-                </svg>
+                {!inResetMode && (
+                  <svg
+                    className="cursor-pointer"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill={COLOR_HEX[setAllState]}
+                    stroke="#000"
+                    strokeWidth="0.5"
+                  >
+                    <path d="M12 2.5l2.9 6.1 6.7.6-5 4.4 1.5 6.5L12 16.8 5.9 20.1l1.5-6.5-5-4.4 6.7-.6L12 2.5z" />
+                  </svg>
+                )}
               </button>
 
               {/* Apply button */}

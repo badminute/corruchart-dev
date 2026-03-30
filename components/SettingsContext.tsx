@@ -5,12 +5,18 @@ import { createContext, useContext, useState, useEffect } from "react";
 interface SettingsContextType {
   colourblindMode: boolean;
   setColourblindMode: (mode: boolean) => void;
+  reverseColorCycle: boolean;
+  setReverseColorCycle: (mode: boolean) => void;
+  scrollCycling: boolean;
+  setScrollCycling: (mode: boolean) => void;
 }
 
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
 
 export function SettingsProvider({ children }: { children: React.ReactNode }) {
   const [colourblindMode, setColourblindModeState] = useState(false);
+  const [reverseColorCycle, setReverseColorCycleState] = useState(false);
+  const [scrollCycling, setScrollCyclingState] = useState(true);
 
   // Load from localStorage on mount
   useEffect(() => {
@@ -18,6 +24,14 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
       const saved = localStorage.getItem("colourblindMode");
       if (saved === "true") {
         setColourblindModeState(true);
+      }
+      const savedReverse = localStorage.getItem("reverseColorCycle");
+      if (savedReverse === "true") {
+        setReverseColorCycleState(true);
+      }
+      const savedScroll = localStorage.getItem("scrollCycling");
+      if (savedScroll === "false") {
+        setScrollCyclingState(false);
       }
     }
   }, []);
@@ -35,8 +49,18 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem("colourblindMode", mode ? "true" : "false");
   };
 
+  const setReverseColorCycle = (mode: boolean) => {
+    setReverseColorCycleState(mode);
+    localStorage.setItem("reverseColorCycle", mode ? "true" : "false");
+  };
+
+  const setScrollCycling = (mode: boolean) => {
+    setScrollCyclingState(mode);
+    localStorage.setItem("scrollCycling", mode ? "true" : "false");
+  };
+
   return (
-    <SettingsContext.Provider value={{ colourblindMode, setColourblindMode }}>
+    <SettingsContext.Provider value={{ colourblindMode, setColourblindMode, reverseColorCycle, setReverseColorCycle, scrollCycling, setScrollCycling }}>
       {children}
     </SettingsContext.Provider>
   );

@@ -934,7 +934,7 @@ function ImportedResultsContent() {
                 textShadow: "0px 1px 0px rgba(0,0,0,0.6)",
               }}
             >
-              v0.31.0
+              v0.32.0
             </span>
           </div>
 

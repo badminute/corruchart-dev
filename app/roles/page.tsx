@@ -118,7 +118,7 @@ export default function Page() {
     };
 
     const resetAll = () => {
-        if (confirm("Reset all selections to 'I do not identify as'?")) {
+        if (confirm("Reset all selections?")) {
             setStates(Array(options.length).fill(0));
             setColorFilter(new Set());
         }
