@@ -1302,7 +1302,7 @@ useEffect(() => {
               showNewFilter ? "bg-purple-600 text-white" : "bg-neutral-900 text-purple-400 hover:bg-neutral-800"
             }`}
           >
-            <span className="text-sm">v0.29.6-0.31.0</span>
+            <span className="text-sm">v0.29.6-0.33.0</span>
           </button>
         </div>
       </div>
