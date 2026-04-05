@@ -201,7 +201,170 @@ export default function Page() {
         setShowWelcome(false);
         localStorage.setItem("corruchart-welcome-last-shown", Date.now().toString());
     };
-    
+
+    const parseCsvLine = (line: string) => {
+      const values: string[] = [];
+      let current = "";
+      let inQuotes = false;
+
+      for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+
+        if (char === '"') {
+          if (inQuotes && i + 1 < line.length && line[i + 1] === '"') {
+            current += '"';
+            i += 1;
+          } else {
+            inQuotes = !inQuotes;
+          }
+        } else if (char === "," && !inQuotes) {
+          values.push(current);
+          current = "";
+        } else {
+          current += char;
+        }
+      }
+
+      values.push(current);
+      return values;
+    };
+
+    const parseCsv = (csvText: string) => {
+      const rows: Record<string, string>[] = [];
+      const lines = csvText
+        .trim()
+        .split(/\r?\n/)
+        .map((line) => line.trim())
+        .filter(Boolean);
+
+      if (lines.length <= 1) return rows;
+
+      const headers = parseCsvLine(lines[0]);
+      for (let i = 1; i < lines.length; i++) {
+        const values = parseCsvLine(lines[i]);
+        const row: Record<string, string> = {};
+        headers.forEach((header, index) => {
+          row[header.trim()] = values[index] ?? "";
+        });
+        rows.push(row);
+      }
+      return rows;
+    };
+
+    const importSelectionsFromFile = async (file: File | null) => {
+      if (!file) return;
+      let raw = "";
+
+      try {
+        raw = await file.text();
+      } catch (e) {
+        alert("Unable to read the import file.");
+        return;
+      }
+
+      const allowedValues = new Set(["indifferent", "disgust", "dislike", "maybe", "like", "love", "lust"]);
+      const importedSelections: Record<string, string> = {};
+      let importedFavorites: string[] = [];
+      let importedRoles: string[] = [];
+
+      if (file.name.toLowerCase().endsWith(".json") || file.type.includes("json")) {
+        let payload: any;
+        try {
+          payload = JSON.parse(raw);
+        } catch {
+          alert("Invalid JSON file.");
+          return;
+        }
+
+        if (payload && typeof payload === "object") {
+          if (payload.selections && typeof payload.selections === "object") {
+            Object.entries(payload.selections).forEach(([key, value]) => {
+              if (typeof value === "string") importedSelections[key] = value.trim().toLowerCase();
+            });
+          } else {
+            Object.entries(payload).forEach(([key, value]) => {
+              if (typeof value === "string") importedSelections[key] = value.trim().toLowerCase();
+            });
+          }
+
+          if (Array.isArray(payload.favorites)) {
+            importedFavorites = payload.favorites.filter((item: any): item is string => typeof item === "string");
+          }
+
+          if (Array.isArray(payload.roles)) {
+            importedRoles = payload.roles.filter((item: any): item is string => typeof item === "string");
+          }
+        }
+      } else if (file.name.toLowerCase().endsWith(".csv") || file.type.includes("csv")) {
+        const rows = parseCsv(raw);
+        rows.forEach((row) => {
+          if (!row.id) return;
+          const value = row.value?.trim().toLowerCase();
+          if (value && allowedValues.has(value)) {
+            importedSelections[row.id] = value;
+          }
+        });
+      } else {
+        alert("Unsupported import file type. Use JSON or CSV.");
+        return;
+      }
+
+      const normalizedSelections: Record<string, string> = {};
+      Object.entries(importedSelections).forEach(([id, value]) => {
+        if (allowedValues.has(value)) {
+          normalizedSelections[id] = value;
+        }
+      });
+
+      if (Object.keys(normalizedSelections).length === 0 && importedRoles.length === 0) {
+        alert("No valid selections or roles found in the import file.");
+        return;
+      }
+
+      const existingRaw = localStorage.getItem(RESULTS_KEY);
+      const existingFavoritesRaw = localStorage.getItem("corruchart-favorites");
+      if ((existingRaw && existingRaw !== "{}") || existingFavoritesRaw) {
+        const confirmed = window.confirm(
+          "Importing this file will overwrite your current Corruchart selections and favorites. Continue?"
+        );
+        if (!confirmed) return;
+      }
+
+      const roleSelections = importedRoles.reduce((acc, roleId) => {
+        acc[roleId] = "like";
+        return acc;
+      }, {} as Record<string, string>);
+
+      const mergedSelections = {
+        ...normalizedSelections,
+        ...roleSelections,
+      };
+
+      localStorage.setItem(RESULTS_KEY, JSON.stringify(mergedSelections));
+
+      if (importedFavorites.length > 0) {
+        localStorage.setItem("corruchart-favorites", JSON.stringify(importedFavorites));
+      } else {
+        localStorage.removeItem("corruchart-favorites");
+      }
+
+      const nextStates = options.map((option) => {
+        const reaction = mergedSelections[option.id] ?? "indifferent";
+        switch (reaction) {
+          case "disgust": return 1;
+          case "dislike": return 2;
+          case "maybe": return 3;
+          case "like": return 4;
+          case "love": return 5;
+          case "lust": return 6;
+          default: return 0;
+        }
+      });
+
+      setStates(nextStates);
+      alert("Imported selections successfully.");
+    };
+
     // Form submission handler
     const submitFeedbackForm = async (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
@@ -230,7 +393,7 @@ export default function Page() {
     // -----------------------
 
     const [showChangelog, setShowChangelog] = useState(false);
-    const CHANGELOG_VERSION = "0.32.0";
+    const CHANGELOG_VERSION = "0.33.0";
     const [hasNewUpdate, setHasNewUpdate] = useState(false);
     const [showFeedback, setShowFeedback] = useState(false);
     const [feedbackPos, setFeedbackPos] = useState<{ x: number; y: number } | null>(null);
@@ -646,6 +809,16 @@ useEffect(() => {
         <div className="flex-1 overflow-y-auto pr-2 space-y-6 text-gray-300">
         <div>
           <h3 className="text-lg font-semibold text-white">
+            v0.33.0 — Results Sharing 2
+          </h3>
+          <ul className="list-disc ml-6 mt-2 space-y-1">
+            <li>Exported image results now use steganography as a reliable fallback when the metadata is scrubbed.</li>
+            <li>JSON and CSV can now be exported and imported.</li>
+            <li>Added these interests: ANWO, Asian Domination (Riced), Aspie Gooning, Auto-cannibalism, Auto-vore, Big Cocks, Black Domination (Blacked), Bloated Bellies, Cringemoji, Digestion Noises, Erectile Dysfunction, Excessive Precum, Forced Masculinization, Healdomming, Indigestion, Isekai Theme, Kuudere, Latino Domination (Bronzed), Leg Humping, LNWO, Mass Vore, Object Vore, Oneshota, Pole Dancing, Pretending It's Straight, Sexual Worsening, Small Cocks, Small Penis Appreciation, Table Humping, Tooning, Twerking Sex, White Domination (Bleached), and WWO!</li>
+          </ul>
+        </div>
+        <div>
+          <h3 className="text-lg font-semibold text-white">
             v0.32.0 — QOL Update 2
           </h3>
           <ul className="list-disc ml-6 mt-2 space-y-1">
@@ -909,6 +1082,18 @@ useEffect(() => {
             >
                 <span className="font-bold text-neutral-200">Guide</span>
             </button>
+
+            <label
+              className="px-4 py-2.5 rounded bg-neutral-900 text-neutral-400 hover:bg-neutral-800 cursor-pointer flex items-center justify-center text-sm gap-1"
+            >
+              <span className="font-bold text-neutral-200">Import</span>
+              <input
+                type="file"
+                accept=".json,.csv,application/json,text/csv"
+                onChange={(event) => importSelectionsFromFile(event.target.files?.[0] ?? null)}
+                className="hidden"
+              />
+            </label>
 
             <button
             type="button"

@@ -25,6 +25,10 @@ import {
   wrapEncrypted, 
   unwrapEncrypted 
 } from "@/lib/metadataEncryption";
+import {
+  addPngMetadata,
+  encodeStegoOnCanvas,
+} from "@/lib/imageMetadata";
 
 const broadOnlyIds = narrowTagsCheck(OPTIONS, NARROW_TAGS);
 const METER_MAX_POINTS = 9000;
@@ -64,11 +68,26 @@ function ImportedResultsContent() {
   const [feedbackOpen, setFeedbackOpen] = useState(false);
   const [popupPos, setPopupPos] = useState<{ x: number; y: number } | null>(null);
   const dragStartRef = useRef<{ x: number; y: number; mouseX: number; mouseY: number } | null>(null);
+  const [isExportMenuOpen, setIsExportMenuOpen] = useState(false);
+  const exportMenuRef = useRef<HTMLDivElement | null>(null);
   const [isWelcomeOpen, setIsWelcomeOpen] = useState(false); // Don't show welcome for imported results
   const [isTagSearchOpen, setIsTagSearchOpen] = useState(false);
   const [tagSearchQuery, setTagSearchQuery] = useState("");
   const [drilldownCloseSignal, setDrilldownCloseSignal] = useState(0);
   const [renderedAt, setRenderedAt] = useState<string>("");
+
+  useEffect(() => {
+    if (!isExportMenuOpen) return;
+
+    const handleOutsideClick = (event: MouseEvent) => {
+      if (exportMenuRef.current && !exportMenuRef.current.contains(event.target as Node)) {
+        setIsExportMenuOpen(false);
+      }
+    };
+
+    window.addEventListener("mousedown", handleOutsideClick);
+    return () => window.removeEventListener("mousedown", handleOutsideClick);
+  }, [isExportMenuOpen]);
 
   const [redactedIds, setRedactedIds] = useState<Set<string>>(new Set());
 
@@ -473,76 +492,6 @@ function ImportedResultsContent() {
   }, [scoredSelections]);
 
   // ----------------------------
-  // PNG metadata functions (same as main page)
-  // ----------------------------
-  const addPngMetadata = (pngData: Uint8Array, keyword: string, text: string): Uint8Array => {
-    // Create tEXt chunk
-    const keywordBytes = new TextEncoder().encode(keyword);
-    const textBytes = new TextEncoder().encode(text);
-    const nullByte = new Uint8Array([0]);
-
-    // Chunk data: keyword + null + text
-    const chunkData = new Uint8Array(keywordBytes.length + 1 + textBytes.length);
-    chunkData.set(keywordBytes, 0);
-    chunkData.set(nullByte, keywordBytes.length);
-    chunkData.set(textBytes, keywordBytes.length + 1);
-
-    // Chunk length (4 bytes, big-endian)
-    const lengthBytes = new Uint8Array(4);
-    const length = chunkData.length;
-    lengthBytes[0] = (length >> 24) & 0xFF;
-    lengthBytes[1] = (length >> 16) & 0xFF;
-    lengthBytes[2] = (length >> 8) & 0xFF;
-    lengthBytes[3] = length & 0xFF;
-
-    // Chunk type: "tEXt"
-    const typeBytes = new TextEncoder().encode('tEXt');
-
-    // Calculate CRC
-    const crcData = new Uint8Array(typeBytes.length + chunkData.length);
-    crcData.set(typeBytes);
-    crcData.set(chunkData, typeBytes.length);
-
-    const crc = crc32(crcData);
-    const crcBytes = new Uint8Array(4);
-    crcBytes[0] = (crc >> 24) & 0xFF;
-    crcBytes[1] = (crc >> 16) & 0xFF;
-    crcBytes[2] = (crc >> 8) & 0xFF;
-    crcBytes[3] = crc & 0xFF;
-
-    // Find IEND chunk position (last 12 bytes)
-    const iendPos = pngData.length - 12;
-
-    // Insert the text chunk before IEND
-    const result = new Uint8Array(pngData.length + lengthBytes.length + typeBytes.length + chunkData.length + crcBytes.length);
-    result.set(pngData.subarray(0, iendPos), 0);
-    result.set(lengthBytes, iendPos);
-    result.set(typeBytes, iendPos + lengthBytes.length);
-    result.set(chunkData, iendPos + lengthBytes.length + typeBytes.length);
-    result.set(crcBytes, iendPos + lengthBytes.length + typeBytes.length + chunkData.length);
-    result.set(pngData.subarray(iendPos), iendPos + lengthBytes.length + typeBytes.length + chunkData.length + crcBytes.length);
-
-    return result;
-  };
-
-  const crc32 = (data: Uint8Array): number => {
-    const table = new Uint32Array(256);
-    for (let i = 0; i < 256; i++) {
-      let c = i;
-      for (let j = 0; j < 8; j++) {
-        c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
-      }
-      table[i] = c;
-    }
-
-    let crc = 0xFFFFFFFF;
-    for (let i = 0; i < data.length; i++) {
-      crc = table[(crc ^ data[i]) & 0xFF] ^ (crc >>> 8);
-    }
-    return (crc ^ 0xFFFFFFFF) >>> 0;
-  };
-
-  // ----------------------------
   // Screenshot export (works with imported data)
   // ----------------------------
   const exportScreenshot = async () => {
@@ -608,7 +557,7 @@ function ImportedResultsContent() {
       roles: identityOptions.map(role => role.id),
       score: scoreData.total,
       timestamp: renderedAt,
-      version: "v0.31.0"
+      version: "v0.33.0"
     };
 
     console.log('Embedding metadata:', metadata);
@@ -616,8 +565,28 @@ function ImportedResultsContent() {
     // Convert metadata to JSON
     const metadataJson = JSON.stringify(metadata);
 
+    // Encrypt metadata before embedding
+    let encryptedMetadata: string;
+    try {
+      const encrypted = await encryptMetadata(metadataJson);
+      encryptedMetadata = wrapEncrypted(encrypted);
+      console.log('Metadata encrypted successfully');
+    } catch (error) {
+      console.error('Failed to encrypt metadata:', error);
+      alert('Failed to encrypt metadata. Please try again.');
+      return;
+    }
+
+    try {
+      encodeStegoOnCanvas(canvas, encryptedMetadata);
+    } catch (error) {
+      console.error('Failed to encode steganography payload:', error);
+      alert('Failed to encode hidden image metadata. Please try again.');
+      return;
+    }
+
     // Get PNG data from canvas
-    const pngDataUrl = canvas.toDataURL("image/png");
+    const pngDataUrl = canvas.toDataURL('image/png');
     console.log('PNG data URL length:', pngDataUrl.length);
 
     // Convert data URL to Uint8Array
@@ -632,18 +601,6 @@ function ImportedResultsContent() {
     console.log('Uint8Array length:', uint8Array.length);
     console.log('PNG signature bytes:', Array.from(uint8Array.slice(0, 8)).map(b => b.toString(16).padStart(2, '0')).join(' '));
 
-    // Encrypt metadata before embedding
-    let encryptedMetadata: string;
-    try {
-      const encrypted = await encryptMetadata(metadataJson);
-      encryptedMetadata = wrapEncrypted(encrypted);
-      console.log('Metadata encrypted successfully');
-    } catch (error) {
-      console.error('Failed to encrypt metadata:', error);
-      alert('Failed to encrypt metadata. Please try again.');
-      return;
-    }
-
     // Add encrypted metadata as PNG text chunk
     const modifiedArray = addPngMetadata(uint8Array, 'corruchart-data', encryptedMetadata);
     console.log('Modified array length:', modifiedArray.length);
@@ -657,6 +614,61 @@ function ImportedResultsContent() {
     link.download = "corruchart-results.png";
     link.href = URL.createObjectURL(finalBlob);
     link.click();
+  };
+
+  const collectExportMetadata = () => ({
+    selections: selections.reduce((acc, sel) => {
+      if (sel.value && sel.value !== "indifferent" && !redactedIds.has(sel.id)) {
+        acc[sel.id] = sel.value;
+      }
+      return acc;
+    }, {} as Record<string, Reaction>),
+    redactedCount: redactedIds.size,
+    favorites,
+    roles: identityOptions.map(role => role.id),
+    score: scoreData.total,
+    timestamp: renderedAt,
+    version: "v0.33.0"
+  });
+
+  const downloadBlob = (blob: Blob, filename: string) => {
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  };
+
+  const exportResultsAsJson = () => {
+    const payload = collectExportMetadata();
+    downloadBlob(new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" }), "corruchart-results.json");
+    setIsExportMenuOpen(false);
+  };
+
+  const exportResultsAsCsv = () => {
+    const rows = selections
+      .filter(sel => sel.value && sel.value !== "indifferent" && !redactedIds.has(sel.id))
+      .map(sel => {
+        const option = OPTIONS.find(o => o.id === sel.id);
+        return {
+          id: sel.id,
+          label: option?.label ?? sel.id,
+          value: sel.value,
+        };
+      });
+
+    if (rows.length === 0) {
+      alert("No selections to export.");
+      return;
+    }
+
+    const escapeCsv = (value: string) => `"${value.replace(/"/g, '""')}"`;
+    const csv = ["id,label,value", ...rows.map(row => [escapeCsv(row.id), escapeCsv(row.label), escapeCsv(row.value)].join(","))].join("\n");
+    downloadBlob(new Blob([csv], { type: "text/csv" }), "corruchart-results.csv");
+    setIsExportMenuOpen(false);
   };
 
   // ----------------------------
@@ -778,14 +790,43 @@ function ImportedResultsContent() {
     >
       {/* Actions */}
       <div className="flex gap-2 -mt-6 mb-6 items-center flex-wrap relative">
-        {/* Export Image */}
-        <button
-          type="button"
-          onClick={exportScreenshot}
-          className="px-3 py-1 rounded bg-neutral-900 text-neutral-200 text-sm hover:bg-neutral-800 cursor-pointer flex items-center justify-center h-8"
-        >
-          Export Image
-        </button>
+        <div ref={exportMenuRef} className="relative inline-flex">
+          <button
+            type="button"
+            onClick={exportScreenshot}
+            className="px-3 py-1 rounded-l bg-neutral-900 text-neutral-200 text-sm hover:bg-neutral-800 cursor-pointer flex items-center justify-center h-8"
+          >
+            Export Image
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsExportMenuOpen(prev => !prev)}
+            className="px-2 py-1 rounded-r bg-neutral-900 text-neutral-200 text-sm hover:bg-neutral-800 border-l border-neutral-700 cursor-pointer flex items-center justify-center h-8"
+            aria-expanded={isExportMenuOpen}
+            aria-label="More export options"
+          >
+            <span className="text-xs">▾</span>
+          </button>
+
+          {isExportMenuOpen && (
+            <div className="absolute left-4 mt-9 w-44 rounded border cursor-pointer border-neutral-700 bg-neutral-900 shadow-lg z-20">
+              <button
+                type="button"
+                onClick={exportResultsAsCsv}
+                className="w-full text-left px-3 py-2 text-sm cursor-pointer text-neutral-200 hover:bg-neutral-800"
+              >
+                Export CSV
+              </button>
+              <button
+                type="button"
+                onClick={exportResultsAsJson}
+                className="w-full text-left px-3 py-2 text-sm cursor-pointer text-neutral-200 hover:bg-neutral-800"
+              >
+                Export JSON
+              </button>
+            </div>
+          )}
+        </div>
 
         {/* Info/Help button (Standardized size) */}
         <button
@@ -934,7 +975,7 @@ function ImportedResultsContent() {
                 textShadow: "0px 1px 0px rgba(0,0,0,0.6)",
               }}
             >
-              v0.32.0
+              v0.33.0
             </span>
           </div>
 
