@@ -593,18 +593,11 @@ export default function Page() {
 
       return next;
     });
-    // Clear new filter when color filter is used
-    if (showNewFilter) setShowNewFilter(false);
   };
 
   /** Toggle new filter */
   const toggleNewFilter = () => {
     setShowNewFilter(!showNewFilter);
-    // Clear color filters and anchoring when new filter is activated
-    if (!showNewFilter) {
-      setColorFilter(new Set());
-      setColorFilterAnchored({});
-    }
   };
 
 useEffect(() => {
