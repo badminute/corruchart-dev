@@ -828,15 +828,6 @@ function ImportedResultsContent() {
           )}
         </div>
 
-        {/* Info/Help button (Standardized size) */}
-        <button
-          type="button"
-          onClick={() => setShowWelcome(true)}
-          className="px-4 py-1 rounded bg-neutral-900 text-neutral-200 text-sm hover:bg-neutral-800 cursor-pointer flex items-center justify-center h-8 gap-1"
-        >
-          <span className="font-bold">Guide</span>
-        </button>
-
         {/* Feedback button */}
         <button
           type="button"
@@ -1448,16 +1439,6 @@ function ImportedResultsContent() {
                       These are imported results from an exported image. You can view the affinities and pinned items, but cannot modify them.
                     </p>
                   </div>
-
-                  {/* Slideshow */}
-                  <WelcomeSlideshow
-                    images={[
-                      "images/favourite-interests.gif",
-                      "images/search-interests.gif",
-                      "images/redact-favourites.gif",
-                      "images/remove-favourites.gif",
-                    ]}
-                  />
                 </div>
 
                 {/* Button — always visible */}
