@@ -63,7 +63,7 @@ export default function ResultsPage() {
     const [isExportMenuOpen, setIsExportMenuOpen] = useState(false);
     const exportMenuRef = useRef<HTMLDivElement | null>(null);
     const [isWelcomeOpen, setIsWelcomeOpen] = useState(true);
-    const [isTagSearchOpen, setIsTagSearchOpen] = useState(false);
+    const [isTagSearchOpen, setIsTagSearchOpen] = useState(true);
     const [tagSearchQuery, setTagSearchQuery] = useState("");
     const [drilldownCloseSignal, setDrilldownCloseSignal] = useState(0);
 
@@ -772,7 +772,7 @@ const scoredSelections = useMemo(() => {
               roles: identityOptions.map(role => role.id),
               score: scoreData.total,
               timestamp: renderedAt,
-              version: "v0.33.0"
+              version: "v0.33.1"
             };
 
             console.log('Embedding metadata:', metadata);
@@ -1265,7 +1265,7 @@ const scoredSelections = useMemo(() => {
                 textShadow: "0px 1px 0px rgba(0,0,0,0.6)",
               }}
             >
-              v0.33.0
+              v0.33.1
             </span>
           </div>
 
@@ -1655,12 +1655,12 @@ const scoredSelections = useMemo(() => {
                 {redactedIds.has(option.id) ? "█████" : option.label}
               </span>
             </div>
-    );
-  })}
-</div>
-)}
-</section>
-)}
+            );
+        })}
+        </div>
+        )}
+        </section>
+        )}
 
        {/* TAG AFFINITIES */}
           <section className="space-y-6 relative">
@@ -1698,7 +1698,7 @@ const scoredSelections = useMemo(() => {
       autoFocus
       value={tagSearchQuery}
       onChange={e => setTagSearchQuery(e.target.value)}
-      placeholder="Search tag options…"
+      placeholder="Search tag affinities..."
       className="ml-2 px-2 py-1 rounded bg-neutral-800 text-white outline-none"
       style={{ height: "28px" }} // match buttons' height for alignment
     />

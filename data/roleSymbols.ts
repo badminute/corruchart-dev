@@ -56,6 +56,8 @@ export const ROLE_SYMBOLS: Record<string, { symbol: string; color?: string }> = 
     "prince-dominant": { symbol: "🤴", color: "#f7cf4d" },   // Prince (Dominant)
     "princess": { symbol: "👸", color: "#f7cf4d" },   // Princess
     "princess-dominant": { symbol: "👸", color: "#f7cf4d" },   // Princess (Dominant)
+    "keyholder": { symbol: "🔑", color: "#f7cf4d" },   // Princess (Dominant)
+    "locked": { symbol: "🔒", color: "#f7cf4d" },   // Princess (Dominant)
 
         // GENDER EXPRESSION
     "androgynous-gender-exp": { symbol: "⚧", color: "#a578ce" },  // Androgynous

@@ -23,6 +23,7 @@ type Props = {
     activePluses: any[];
     activeVariant: Record<string, number>;
     isOptionVisible: (option: OptionWithCategory) => boolean;
+    getFilterBlockReasons: (option: OptionWithCategory) => string[];
     openDescription: string | null;
     setOpenDescription: (id: string | null) => void;
     setActiveVariant: React.Dispatch<React.SetStateAction<Record<string, number>>>;
@@ -36,6 +37,7 @@ export default function OptionsGrid({
     activePluses,
     activeVariant,
     isOptionVisible,
+    getFilterBlockReasons,
     openDescription,
     setOpenDescription,
     setActiveVariant,
@@ -76,6 +78,7 @@ export default function OptionsGrid({
                         activePluses={activePluses}
                         activeVariant={activeVariant}
                         isOptionVisible={isOptionVisible}
+                        getFilterBlockReasons={getFilterBlockReasons}
                         description={DESCRIPTIONS[option.id]}
                         openDescription={openDescription}
                         setOpenDescription={setOpenDescription}

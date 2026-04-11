@@ -20,6 +20,7 @@ type Props = {
     setActiveVariant: React.Dispatch<React.SetStateAction<Record<string, number>>>;
     cycleColor: (index: number, dir?: 1 | -1) => void;
     getPlusImage: (option: any, state: number) => string;
+    getFilterBlockReasons: (option: any) => string[];
 };
 
 // Haptic feedback helper with pattern support
@@ -46,8 +47,9 @@ function OptionItem({
     setActiveVariant,
     cycleColor,
     getPlusImage,
+    getFilterBlockReasons,
 }: Props) {
-    const { colourblindMode, scrollCycling } = useSettings();
+    const { colourblindMode, scrollCycling, variantSwapEnabled } = useSettings();
     const labelRef = useRef<HTMLButtonElement | null>(null);
 
     // ✅ LOCAL (per-item) animation refs
@@ -120,10 +122,74 @@ function OptionItem({
         "scat": "#9b774e", // poo poo
         "septic-tanks": "#9b774e", // poo poo
         "soiling": "#9b774e", // poo poo
+        "poop-desperation": "#9b774e", // poo poo
     };
 
-    const isVariantBlockedByFilters = (candidateOption: any) => {
-        return !isOptionVisible(candidateOption);
+    const findNextVisibleVariant = (currentIndex: number) => {
+        const total = slot.options.length;
+        for (let offset = 1; offset < total; offset++) {
+            const nextIndex = (currentIndex + offset) % total;
+            const candidateOption = slot.options[nextIndex];
+            if (isOptionVisible(candidateOption)) {
+                return { nextIndex, candidateOption };
+            }
+        }
+        return null;
+    };
+
+    const buildBlockedWarningMessage = (
+        blockedCandidates: Array<{ name: string; reasons: string[] }>
+    ) => {
+        if (blockedCandidates.length === 0) {
+            return "No visible variants available under current filters.";
+        }
+
+        const groupBlocked = blockedCandidates.filter((candidate) =>
+            candidate.reasons.some(
+                (reason) => reason.startsWith("excluded tags") || reason.startsWith("required tags")
+            )
+        );
+
+        if (groupBlocked.length > 0) {
+            const details = groupBlocked
+                .map(
+                    (candidate) =>
+                        `${candidate.name} (${candidate.reasons.join(", ")})`
+                )
+                .join("; ");
+            return `Cannot swap variants because the following options are hidden by group filters: ${details}.`;
+        }
+
+        const allReasons = Array.from(
+            new Set(blockedCandidates.flatMap((candidate) => candidate.reasons))
+        ).filter(Boolean);
+
+        if (allReasons.length === 0) {
+            return "No visible variants available under current filters.";
+        }
+
+        return `No visible variants available because ${allReasons.join(", ")}.`;
+    };
+
+    const swapToNextVisibleVariant = () => {
+        const currentIndex = activeVariant[slot.slotId] ?? 0;
+        const next = findNextVisibleVariant(currentIndex);
+
+        if (next) {
+            setActiveVariant((prev) => ({ ...prev, [slot.slotId]: next.nextIndex }));
+            return true;
+        }
+
+        const blockedCandidates = slot.options
+            .filter((_, i) => i !== currentIndex)
+            .map((candidate) => ({
+                name: candidate.label,
+                reasons: getFilterBlockReasons(candidate),
+            }))
+            .filter((candidate) => candidate.reasons.length > 0);
+
+        setVariantBlockedWarning(buildBlockedWarningMessage(blockedCandidates));
+        return false;
     };
 
     // Pick gradient or fallback color
@@ -227,22 +293,19 @@ function OptionItem({
                                 {slot.options.length}
                             </span>
                             <span
-                                className="absolute -top-1 -left-1 text-[12px] text-gray-400 cursor-pointer select-none z-10"
+                                className={`absolute -top-1 -left-1 text-[12px] select-none z-10 ${variantSwapEnabled ? "text-gray-400 opacity-100 cursor-pointer" : "text-gray-400 opacity-50"}`}
                                 onClick={(e) => {
                                     e.stopPropagation();
 
-                                    const activeIndex = activeVariant[slot.slotId] ?? 0;
-                                    const nextIndex = (activeIndex + 1) % slot.options.length;
-                                    const nextOption = slot.options[nextIndex];
+                                            if (!variantSwapEnabled) {
+                                        return;
+                                    }
 
-                                    // Check if the next variant is blocked by group filters (exclude/include)
-                                    if (isVariantBlockedByFilters(nextOption)) {
-                                        setVariantBlockedWarning("cannot swap variants due to enabled filters!");
+                                    if (!swapToNextVisibleVariant()) {
                                         triggerHaptic([15, 15]);
                                         return;
                                     }
 
-                                    setActiveVariant(prev => ({ ...prev, [slot.slotId]: nextIndex }));
                                     triggerHaptic([30, 20, 30]);
                                 }}
                             >
@@ -269,20 +332,11 @@ function OptionItem({
                             didLongPressRef.current = true;
                             labelRef.current?.classList.remove("holding");
 
-                            const currentIndex = activeVariant[slot.slotId] ?? 0;
-                            const nextIndex = (currentIndex + 1) % slot.options.length;
-                            const nextOption = slot.options[nextIndex];
-
-                            if (isVariantBlockedByFilters(nextOption)) {
-                                setVariantBlockedWarning("cannot swap variants due to enabled filters!");
+                            if (!swapToNextVisibleVariant()) {
                                 triggerHaptic([15, 15]);
                                 return;
                             }
 
-                            setActiveVariant(prev => ({
-                                ...prev,
-                                [slot.slotId]: nextIndex,
-                            }));
                             triggerHaptic(50); // short click vibration
                         }, 400);
                     }}

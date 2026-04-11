@@ -52,7 +52,7 @@ function ImportedResultsContent() {
   const seed = searchParams.get('s');
 
   // ----------------------------
-  // STATE
+  // STATES
   // ----------------------------
   const [selections, setSelections] = useState<any[]>([]);
   const [identityOptions, setIdentityOptions] = useState<typeof ROLES>([]);
@@ -71,7 +71,7 @@ function ImportedResultsContent() {
   const [isExportMenuOpen, setIsExportMenuOpen] = useState(false);
   const exportMenuRef = useRef<HTMLDivElement | null>(null);
   const [isWelcomeOpen, setIsWelcomeOpen] = useState(false); // Don't show welcome for imported results
-  const [isTagSearchOpen, setIsTagSearchOpen] = useState(false);
+  const [isTagSearchOpen, setIsTagSearchOpen] = useState(true);
   const [tagSearchQuery, setTagSearchQuery] = useState("");
   const [drilldownCloseSignal, setDrilldownCloseSignal] = useState(0);
   const [renderedAt, setRenderedAt] = useState<string>("");
@@ -557,7 +557,7 @@ function ImportedResultsContent() {
       roles: identityOptions.map(role => role.id),
       score: scoreData.total,
       timestamp: renderedAt,
-      version: "v0.33.0"
+      version: "v0.33.1"
     };
 
     console.log('Embedding metadata:', metadata);
@@ -628,7 +628,7 @@ function ImportedResultsContent() {
     roles: identityOptions.map(role => role.id),
     score: scoreData.total,
     timestamp: renderedAt,
-    version: "v0.33.0"
+    version: "v0.33.1"
   });
 
   const downloadBlob = (blob: Blob, filename: string) => {
@@ -966,7 +966,7 @@ function ImportedResultsContent() {
                 textShadow: "0px 1px 0px rgba(0,0,0,0.6)",
               }}
             >
-              v0.33.0
+              v0.33.1
             </span>
           </div>
 
@@ -1383,7 +1383,7 @@ function ImportedResultsContent() {
                 autoFocus
                 value={tagSearchQuery}
                 onChange={e => setTagSearchQuery(e.target.value)}
-                placeholder="Search tag options…"
+                placeholder="Search tag affinities..."
                 className="ml-2 px-2 py-1 rounded bg-neutral-800 text-white outline-none"
                 style={{ height: "28px" }} // match buttons' height for alignment
               />

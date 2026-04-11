@@ -6,7 +6,7 @@ import { useSettings } from "./SettingsContext";
 export default function SettingsButton() {
   const [open, setOpen] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
-  const { colourblindMode, setColourblindMode, reverseColorCycle, setReverseColorCycle, scrollCycling, setScrollCycling } = useSettings();
+  const { colourblindMode, setColourblindMode, reverseColorCycle, setReverseColorCycle, scrollCycling, setScrollCycling, variantSwapEnabled, setVariantSwapEnabled } = useSettings();
 
 // Load saved setting once
 useEffect(() => {
@@ -117,7 +117,20 @@ useEffect(() => {
               Scroll Cycling: {scrollCycling ? "ON" : "OFF"}
             </button>
 
-            {/* Future settings can go here */}
+            {/* Variant Swap Toggle */}
+            <button
+              onClick={() => setVariantSwapEnabled(!variantSwapEnabled)}
+              className={`
+                w-full text-left cursor-pointer px-3 py-2 rounded
+                font-medium transition
+                ${variantSwapEnabled
+                  ? "bg-neutral-900 text-gray-100 hover:bg-neutral-800"
+                  : "bg-neutral-800 text-gray-300 hover:bg-neutral-700"
+                }
+              `}
+            >
+              Variant Swap: {variantSwapEnabled ? "ON" : "OFF"}
+            </button>
           </div>
         </div>
       )}

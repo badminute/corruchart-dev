@@ -36,7 +36,16 @@ const COLOR_NAMES = [
 ] as const;
 
 const RESULTS_KEY = "combined-selections";
+const FILTERS_KEY = "corruchart-filters";
 
+type PersistedFilterState = {
+  query?: string;
+  colorFilter?: number[];
+  colorFilterAnchored?: Record<number, string[]>;
+  showNewFilter?: boolean;
+  groupStates?: Record<string, GroupState>;
+  showNarrowGroups?: boolean;
+};
 
 const STATE_TO_VALUE = [
   "indifferent",
@@ -164,7 +173,53 @@ export default function Page() {
         });
         return map;
     }, [options]);
-  
+
+    const parseAnchoredFilters = (value: any): Record<number, Set<string>> => {
+      const anchored: Record<number, Set<string>> = {};
+      if (!value || typeof value !== "object") return anchored;
+
+      Object.entries(value).forEach(([key, ids]) => {
+        const index = Number(key);
+        if (Number.isNaN(index) || !Array.isArray(ids)) return;
+        anchored[index] = new Set(ids.filter((id) => typeof id === "string"));
+      });
+
+      return anchored;
+    };
+
+    useEffect(() => {
+      const savedRaw = localStorage.getItem(FILTERS_KEY);
+      if (!savedRaw) return;
+
+      try {
+        const saved = JSON.parse(savedRaw) as PersistedFilterState;
+
+        if (typeof saved.query === "string") setQuery(saved.query);
+        if (Array.isArray(saved.colorFilter)) setColorFilter(new Set(saved.colorFilter.filter((value) => typeof value === "number")));
+        if (saved.colorFilterAnchored) setColorFilterAnchored(parseAnchoredFilters(saved.colorFilterAnchored));
+        if (typeof saved.showNewFilter === "boolean") setShowNewFilter(saved.showNewFilter);
+        if (saved.groupStates && typeof saved.groupStates === "object") setGroupStates(saved.groupStates);
+        if (typeof saved.showNarrowGroups === "boolean") setShowNarrowGroups(saved.showNarrowGroups);
+      } catch {
+        // Ignore invalid persisted filter state
+      }
+    }, []);
+
+    useEffect(() => {
+      const persisted: PersistedFilterState = {
+        query,
+        colorFilter: Array.from(colorFilter),
+        colorFilterAnchored: Object.fromEntries(
+          Object.entries(colorFilterAnchored).map(([key, value]) => [key, Array.from(value)])
+        ) as Record<number, string[]>,
+        showNewFilter,
+        groupStates,
+        showNarrowGroups,
+      };
+
+      localStorage.setItem(FILTERS_KEY, JSON.stringify(persisted));
+    }, [query, colorFilter, colorFilterAnchored, showNewFilter, groupStates, showNarrowGroups]);
+
     // TIPS MODAL
     const [showWelcome, setShowWelcome] = useState(false);
 
@@ -405,17 +460,22 @@ export default function Page() {
   const [setAllState, setSetAllState] = useState(0);
   const [inResetMode, setInResetMode] = useState(false);
 
-  const cycleSetAllState = () => {
-    if (inResetMode) {
-      // Cycle from reset mode back to state 0
-      setInResetMode(false);
-      setSetAllState(0);
-    } else if (setAllState === COLOR_HEX.length - 1) {
-      // Cycle from last state to reset mode
+  const cycleSetAllState = (dir: 1 | -1 = 1) => {
+    const currentIndex = inResetMode ? COLOR_HEX.length : setAllState;
+    const nextIndex = currentIndex + dir;
+    const normalizedIndex =
+      nextIndex < 0
+        ? COLOR_HEX.length
+        : nextIndex > COLOR_HEX.length
+        ? 0
+        : nextIndex;
+
+    if (normalizedIndex === COLOR_HEX.length) {
       setInResetMode(true);
+      setSetAllState(0);
     } else {
-      // Cycle through normal states
-      setSetAllState((prev) => (prev + 1) % COLOR_HEX.length);
+      setInResetMode(false);
+      setSetAllState(normalizedIndex);
     }
   };
 
@@ -776,6 +836,61 @@ useEffect(() => {
     );
   };
 
+  const getFilterBlockReasons = (option: OptionWithCategory) => {
+    const reasons: string[] = [];
+    const index = optionIndexById[option.id];
+    const queryTrimmed = query.trim().toLowerCase();
+
+    const matchesText =
+      !query ||
+      option.label.toLowerCase().includes(queryTrimmed) ||
+      (option.aka ?? []).some((a) => a.toLowerCase().includes(queryTrimmed));
+
+    if (!matchesText) {
+      reasons.push("search query");
+    }
+
+    const matchesColor =
+      colorFilter.size === 0 ||
+      Array.from(colorFilter).some((filterIndex) => {
+        const anchored = colorFilterAnchored[filterIndex];
+        const currentState = states[index] % COLOR_HEX.length;
+        return (anchored?.has(option.id) ?? false) || currentState === filterIndex;
+      });
+
+    if (!matchesColor) {
+      const activeColorNames = Array.from(colorFilter).map(
+        (filterIndex) => COLOR_NAMES[filterIndex] ?? `state ${filterIndex}`
+      );
+      reasons.push(`color filter (${activeColorNames.join(", ")})`);
+    }
+
+    const hasIncludeFilters = Object.values(groupStates).includes("include");
+    const excludedTags = option.tags.filter((cat) => groupStates[cat] === "exclude");
+    const includedTags = option.tags.filter((cat) => groupStates[cat] === "include");
+
+    if (excludedTags.length > 0) {
+      reasons.push(`excluded tags: ${excludedTags.join(", ")}`);
+    } else if (hasIncludeFilters && includedTags.length === 0) {
+      const activeIncludes = Object.entries(groupStates)
+        .filter(([, state]) => state === "include")
+        .map(([cat]) => cat);
+      if (activeIncludes.length > 0) {
+        reasons.push(`required tags: ${activeIncludes.join(", ")}`);
+      }
+    }
+
+    if (!showCategory6 && option.category === 6) {
+      reasons.push("forbidden interests filter");
+    }
+
+    if (showNewFilter && !newOptions.includes(option.id)) {
+      reasons.push("new options filter");
+    }
+
+    return reasons;
+  };
+
   if (!states.length) return null;
 
   return (
@@ -800,6 +915,17 @@ useEffect(() => {
 
         {/* CHANGELOG CONTENT */}
         <div className="flex-1 overflow-y-auto pr-2 space-y-6 text-gray-300">
+        <div>
+          <h3 className="text-lg font-semibold text-white">
+            v0.33.1 — The Batch Update 2
+          </h3>
+          <ul className="list-disc ml-6 mt-2 space-y-1">
+            <li>Added these interests: Animal on Human Vore, Armor, Artificial Intelligences, Artistic Displays, Bikini Armor, Blandification, Blindness, Bubble Censorship, Bubble Encasement, Clothing Transformation, Clownification, Cock Rings, Corsetting, Cum Transformation, Deafness, Digital Manipulation, Dildo Riding, Excessive Kiss Marks, Extreme Corsetting, Frilly Armor, Genital Modifications, Hoop Transformation, Human on Animal Vore, Liquid Latex, Mascot Costumes, Mob Face, Mutual Chastity Play, NPCification, Ojou-sama, Omnipotence, Plant Monstergirls, Plushification, Puppeteering, Purification, Quicksand, Reverse Spitroasting, Sexual Ballet, Sexual Gameplay Mechanics, Sexual Pranks, Soft Material Play, Teleportation, Testicle Cuffs, Toon Force, Toonification, Ugly Gentlemen, and Whipped Cream!</li>
+            <li>Added these roles: Keyholder and Locked!</li>
+            <li>Variant swapping can skip unavailable variants now, and shows what is being blocked and by what. This should lube up variant swapping.</li>
+            <li>Reset all now has a grey star next to it and swap all can be cycled with left and right click.</li>
+          </ul>
+        </div>
         <div>
           <h3 className="text-lg font-semibold text-white">
             v0.33.0 — Results Sharing 2
@@ -1128,7 +1254,11 @@ useEffect(() => {
             >
               {/* SET ALL TO star */}
               <button
-                onClick={cycleSetAllState}
+                onClick={() => cycleSetAllState(1)}
+                onContextMenu={(e) => {
+                  e.preventDefault();
+                  cycleSetAllState(-1);
+                }}
                 className="
                   flex items-center gap-2
                   px-3 py-2
@@ -1139,7 +1269,7 @@ useEffect(() => {
                 "
               >
                 <span className="text-sm font-semibold text-gray-300">
-                  {inResetMode ? "RESET ALL" : "SET ALL VISIBLE TO"}
+                  {inResetMode ? "RESET ALL TO ★" : "SET ALL VISIBLE TO"}
                 </span>
 
                 {!inResetMode && (
@@ -1295,7 +1425,7 @@ useEffect(() => {
               showNewFilter ? "bg-purple-600 text-white" : "bg-neutral-900 text-purple-400 hover:bg-neutral-800"
             }`}
           >
-            <span className="text-sm">v0.29.6-0.33.0</span>
+            <span className="text-sm">v0.29.8-0.33.1</span>
           </button>
         </div>
       </div>
@@ -1307,6 +1437,7 @@ useEffect(() => {
               activePluses={activePluses}
               activeVariant={activeVariant}
               isOptionVisible={isOptionVisible}
+              getFilterBlockReasons={getFilterBlockReasons}
               openDescription={openDescription}
               setOpenDescription={setOpenDescription}
               setActiveVariant={setActiveVariant}

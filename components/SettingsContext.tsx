@@ -9,6 +9,8 @@ interface SettingsContextType {
   setReverseColorCycle: (mode: boolean) => void;
   scrollCycling: boolean;
   setScrollCycling: (mode: boolean) => void;
+  variantSwapEnabled: boolean;
+  setVariantSwapEnabled: (enabled: boolean) => void;
 }
 
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
@@ -17,6 +19,7 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
   const [colourblindMode, setColourblindModeState] = useState(false);
   const [reverseColorCycle, setReverseColorCycleState] = useState(false);
   const [scrollCycling, setScrollCyclingState] = useState(true);
+  const [variantSwapEnabled, setVariantSwapEnabledState] = useState(false);
 
   // Load from localStorage on mount
   useEffect(() => {
@@ -32,6 +35,10 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
       const savedScroll = localStorage.getItem("scrollCycling");
       if (savedScroll === "false") {
         setScrollCyclingState(false);
+      }
+      const savedSwap = localStorage.getItem("variantSwapEnabled");
+      if (savedSwap === "true") {
+        setVariantSwapEnabledState(true);
       }
     }
   }, []);
@@ -59,8 +66,13 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem("scrollCycling", mode ? "true" : "false");
   };
 
+  const setVariantSwapEnabled = (enabled: boolean) => {
+    setVariantSwapEnabledState(enabled);
+    localStorage.setItem("variantSwapEnabled", enabled ? "true" : "false");
+  };
+
   return (
-    <SettingsContext.Provider value={{ colourblindMode, setColourblindMode, reverseColorCycle, setReverseColorCycle, scrollCycling, setScrollCycling }}>
+    <SettingsContext.Provider value={{ colourblindMode, setColourblindMode, reverseColorCycle, setReverseColorCycle, scrollCycling, setScrollCycling, variantSwapEnabled, setVariantSwapEnabled }}>
       {children}
     </SettingsContext.Provider>
   );

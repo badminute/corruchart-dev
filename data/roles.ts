@@ -50,6 +50,8 @@ export const ROLES: RoleOption[] = [
     { id: "furniture", label: "Furniture", aka: [], tags: ["Bondage & Discipline"], category: 2 },
     { id: "rope-bunny", label: "Rope Bunny", aka: [], tags: ["Bondage & Discipline"], category: 2 },
     { id: "rope-top", label: "Rope Top", aka: [], tags: ["Bondage & Discipline"], category: 2 },
+    { id: "keyholder", label: "Keyholder", aka: [], tags: ["Bondage & Discipline"], category: 2 },
+    { id: "locked", label: "Locked", aka: [], tags: ["Bondage & Discipline"], category: 2 },
 
 
     // BDSM ROLES Misc.
