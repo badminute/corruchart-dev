@@ -4,6 +4,7 @@ import { useState, useMemo, useRef, useLayoutEffect } from "react";
 import { REACTIONS, getReactionColors, ReactionKey } from "./reactionConfig";
 import { TagBreakdown } from "@/lib/tagScores";
 import { useSettings } from "../SettingsContext";
+import { GROUPS } from "@/data/groups";
 
 
 
@@ -29,6 +30,13 @@ export default function TagAffinityDrilldown({
 }: TagAffinityDrilldownProps) {
     const { colourblindMode } = useSettings();
     const reactionColors = useMemo(() => getReactionColors(colourblindMode), [colourblindMode]);
+    const groupNameMap = useMemo(() => {
+    const map: Record<string, string> = {};
+    GROUPS.forEach(g => {
+        map[g.id] = g.name;
+    });
+    return map;
+    }, []);
     const [openTag, setOpenTag] = useState<string | null>(null);
     const [activeReaction, setActiveReaction] = useState<ReactionKey | null>(null);
     const q = searchQuery.trim().toLowerCase();
@@ -116,7 +124,7 @@ export default function TagAffinityDrilldown({
                 isLeftColumn ? "text-right mr-2" : "text-left ml-2 order-last"
               } ${tagHasMatch ? "text-yellow-300" : "text-neutral-200"}`}
             >
-              {tag.tag.toUpperCase()}
+              {(groupNameMap[tag.tag] ?? tag.tag).toUpperCase()}
             </div>
 
             {/* Horizontal bar with per-option highlight */}
@@ -177,7 +185,9 @@ export default function TagAffinityDrilldown({
               <div className="mb-2">
                 {/* Contextual Title: Tag - Reaction (Count) */}
                 <div className="font-semibold mb-1 flex items-center gap-1.5 whitespace-nowrap">
-                  <span className="text-gray-400 capitalize">{tag.tag}</span>
+                  <span className="text-gray-400 capitalize">
+                    {groupNameMap[tag.tag] ?? tag.tag}
+                    </span>
                   <span className="text-neutral-600">—</span>
                   <span style={{ color: reactionColors[activeReaction!] }} className="capitalize">
                     {activeReaction} ({buckets[activeReaction].length})

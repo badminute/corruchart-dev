@@ -47,7 +47,9 @@ export const ROLE_SYMBOLS: Record<string, { symbol: string; color?: string }> = 
     "pony": { symbol: "🪅", color: "#b06bec" },   // Pony
     "feedee": { symbol: "🦃", color: "#885d45" },   // Feedee
     "feeder": { symbol: "🧑‍🍳", color: "#da3e3e" },   // Feeder
-    "nudist": { symbol: "🦵🏼 ", color: "#dbc292" },   // Nudist
+    "nudist": { symbol: "🦵🏼", color: "#dbc292" },   // Nudist
+    "looner-b2p": { symbol: "🎈", color: "#f35555" },   // Nudist
+    "looner-np": { symbol: "🎈", color: "#f35555" },   // Nudist
     "tiny": { symbol: "🧍", color: "#eca35e" },   // Tiny
     "giantess": { symbol: "🧍‍♀️", color: "#8e5abb" },   // Giantess
     "giant": { symbol: "🧍‍♂️", color: "#92c774" },   // Giant

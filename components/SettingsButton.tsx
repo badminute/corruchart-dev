@@ -114,7 +114,7 @@ useEffect(() => {
                 }
               `}
             >
-              Scroll Cycling: {scrollCycling ? "ON" : "OFF"}
+              Mouse Scroll Cycling: {scrollCycling ? "ON" : "OFF"}
             </button>
 
             {/* Variant Swap Toggle */}
@@ -129,7 +129,7 @@ useEffect(() => {
                 }
               `}
             >
-              Variant Swap: {variantSwapEnabled ? "ON" : "OFF"}
+              Clickable Swap Button (CHART): {variantSwapEnabled ? "ON" : "OFF"}
             </button>
           </div>
         </div>

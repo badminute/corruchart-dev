@@ -40,4 +40,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 prog/TODO
-data/all-interests.txt
+prog/names.txt
+prog/narrow.txt
+prog/broad.txt

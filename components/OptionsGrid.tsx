@@ -28,6 +28,7 @@ type Props = {
     setOpenDescription: (id: string | null) => void;
     setActiveVariant: React.Dispatch<React.SetStateAction<Record<string, number>>>;
     cycleColor: (index: number) => void;
+    compact?: boolean;
 };
 
 export default function OptionsGrid({
@@ -42,7 +43,9 @@ export default function OptionsGrid({
     setOpenDescription,
     setActiveVariant,
     cycleColor,
+    compact = false,
 }: Props) {
+    const gridGapClass = compact ? "gap-x-4 gap-y-2" : "gap-x-12 gap-y-4";
     const getPlusImage = useCallback(
         (option: OptionWithCategory, state: number) => {
             if (option.category === 5 || option.category === 6)
@@ -57,15 +60,9 @@ export default function OptionsGrid({
     return (
         <div style={{ backgroundColor: "#1F2023", color: "#9F86D8" }}>
             <div
-                className="
-                    grid
-                    gap-x-12 gap-y-4
-                    grid-cols-1
-                    sm:grid-cols-2
-                    md:grid-cols-3
-                    lg:grid-cols-4
-                    xl:grid-cols-5
-                "
+                className={
+                    `grid ${gridGapClass} grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5`
+                }
             >
                 {filtered.map(({ slot, option, index }) => (
                     <OptionItem

@@ -12,6 +12,7 @@ import OptionsGrid from "@/components/OptionsGrid";
 import { WelcomeSlideshow } from "@/components/onboarding";
 import { useSettings } from "@/components/SettingsContext";
 import { useNewOptions } from "@/components/NewOptionsList";
+import ChangelogFeedbackModal from "@/components/ChangelogFeedbackModal";
 
 // import base type
 import type { OptionData as BaseOption } from "@/data/options";
@@ -144,7 +145,11 @@ export default function Page() {
             options: opts.sort(
                 (a, b) => (a.variantOrder ?? 0) - (b.variantOrder ?? 0)
             ),
-        }));
+        })).sort((slotA, slotB) => {
+            const labelA = slotA.options[0]?.label ?? "";
+            const labelB = slotB.options[0]?.label ?? "";
+            return labelA.localeCompare(labelB);
+        });
     }, [options]);
 
     // curated list of new options
@@ -420,7 +425,7 @@ export default function Page() {
       alert("Imported selections successfully.");
     };
 
-    // Form submission handler
+    // Form submission handler for feedback
     const submitFeedbackForm = async (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
       const form = event.currentTarget;
@@ -450,9 +455,9 @@ export default function Page() {
     const [showChangelog, setShowChangelog] = useState(false);
     const CHANGELOG_VERSION = "0.33.0";
     const [hasNewUpdate, setHasNewUpdate] = useState(false);
+    const [showFeedbackModal, setShowFeedbackModal] = useState(false);
     const [showFeedback, setShowFeedback] = useState(false);
     const [feedbackPos, setFeedbackPos] = useState<{ x: number; y: number } | null>(null);
-    const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   
     const feedbackDragRef = useRef<{ x: number; y: number; mouseX: number; mouseY: number } | null>(null);
 
@@ -710,97 +715,91 @@ useEffect(() => {
 
   /** Filtered options */
         const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    const hasActiveFilters =
-        q ||
-        colorFilter.size > 0 ||
-        Object.keys(groupStates).length > 0 ||
-        !showCategory6 ||
-        showNewFilter;
+  const q = query.trim().toLowerCase();
 
-    return slots.flatMap((slot) => {
-        // Step 1: find ALL variants in this slot that match filters
-        const matchingVariants = slot.options.filter((option) => {
-        const index = optionIndexById[option.id];
+  const matchesAllFilters = (option: OptionWithCategory) => {
+    const index = optionIndexById[option.id];
 
-        const matchesText =
-        !q ||
-        option.label.toLowerCase().includes(q) ||
-        option.aka.some((a) => a.toLowerCase().includes(q));
+    const matchesText =
+      !q ||
+      option.label.toLowerCase().includes(q) ||
+      option.aka.some((a) => a.toLowerCase().includes(q));
 
+    const matchesColor =
+      colorFilter.size === 0 ||
+      Array.from(colorFilter).some((filterIndex) => {
+        const anchored = colorFilterAnchored[filterIndex];
+        const currentState = states[index] % COLOR_HEX.length;
+        return (anchored?.has(option.id) ?? false) || currentState === filterIndex;
+      });
 
-        const matchesColor =
-            colorFilter.size === 0 ||
-            Array.from(colorFilter).some((filterIndex) => {
-              const anchored = colorFilterAnchored[filterIndex];
-              const currentState = states[index] % COLOR_HEX.length;
-              return (anchored?.has(option.id) ?? false) || currentState === filterIndex;
-            });
+    const matchesGroup =
+      (!Object.values(groupStates).includes("include") ||
+        option.tags.some((cat) => groupStates[cat] === "include")) &&
+      !option.tags.some((cat) => groupStates[cat] === "exclude");
 
-        const matchesGroup =
-            (!Object.values(groupStates).includes("include") ||
-            option.tags.some((cat) => groupStates[cat] === "include")) &&
-            !option.tags.some((cat) => groupStates[cat] === "exclude");
+    const matchesCategory6 =
+      showCategory6 || option.category !== 6;
 
-        const matchesCategory6 =
-            showCategory6 || option.category !== 6;
+    const matchesNew =
+      !showNewFilter || newOptions.includes(option.id);
 
-        const matchesNew =
-            !showNewFilter ||
-            newOptions.includes(option.id);
+    return (
+      matchesText &&
+      matchesColor &&
+      matchesGroup &&
+      matchesCategory6 &&
+      matchesNew
+    );
+  };
 
-        return (
-            matchesText &&
-            matchesColor &&
-            matchesGroup &&
-            matchesCategory6 &&
-            matchesNew
-        );
-        });
+  // ⭐⭐⭐ KEY PART ⭐⭐⭐
+  // If New filter is on → IGNORE SLOTS COMPLETELY
+  if (showNewFilter) {
+    return options
+      .filter(matchesAllFilters)
+      .map((option) => ({
+        slot: { slotId: option.id, options: [option] },
+        option,
+        index: optionIndexById[option.id],
+      }));
+  }
 
-        // Step 2: if filters are active and nothing matched, hide slot
-        if (hasActiveFilters && matchingVariants.length === 0) {
-        return [];
-        }
+  // Normal (variant-aware) behavior
+  return slots.flatMap((slot) => {
+    const matchingVariants = slot.options.filter(matchesAllFilters);
 
-        // Step 3: decide which variant to show
-        let optionToShow: OptionWithCategory;
+    if (matchingVariants.length === 0) return [];
 
-        if (matchingVariants.length > 0) {
-        // Prefer the currently active variant if it matches
-        const activeIndex = activeVariant[slot.slotId] ?? 0;
-        const active = slot.options[activeIndex % slot.options.length];
+    const activeIndex = activeVariant[slot.slotId] ?? 0;
+    const active = slot.options[activeIndex % slot.options.length];
 
-        optionToShow = matchingVariants.includes(active)
-            ? active
-            : matchingVariants[0];
-        } else {
-        // No filters → normal behavior
-        const activeIndex = activeVariant[slot.slotId] ?? 0;
-        optionToShow = slot.options[activeIndex % slot.options.length];
-        }
+    const optionToShow = matchingVariants.includes(active)
+      ? active
+      : matchingVariants[0];
 
-        return [
-        {
-            slot,
-            option: optionToShow,
-            index: optionIndexById[optionToShow.id],
-        },
-        ];
-    });
-    }, [
-    slots,
-    activeVariant,
-    optionIndexById,
-    query,
-    states,
-    colorFilter,
-    colorFilterAnchored,
-    groupStates,
-    showCategory6,
-    showNewFilter,
-    newOptions,
-    ]);
+    return [
+      {
+        slot,
+        option: optionToShow,
+        index: optionIndexById[optionToShow.id],
+      },
+    ];
+  });
+}, [
+  slots,
+  options,
+  activeVariant,
+  optionIndexById,
+  query,
+  states,
+  colorFilter,
+  colorFilterAnchored,
+  groupStates,
+  showCategory6,
+  showNewFilter,
+  newOptions,
+]);
 
   const isOptionVisible = (option: OptionWithCategory) => {
     const index = optionIndexById[option.id];
@@ -896,240 +895,13 @@ useEffect(() => {
   return (
 <>
 
-   {/* CHANGELOG MODAL */}
-{showChangelog && (
-  <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4">
-    <div className="bg-neutral-900 border border-neutral-800 p-6 rounded-2xl w-full max-w-6xl h-[650px] shadow-2xl flex flex-row gap-6">
-      
-     {/* LEFT SIDE */}
-        <div className="flex-1 flex flex-col">
-        {/* Header */}
-        <h2 className="text-2xl font-bold text-center text-violet-400 mb-4">
-          Changelog
-        </h2>
-
-        {/* Description */}
-        <div className="text-gray-400 text-center text-lg mb-4">
-          <p>Recent changes, additions, and improvements.</p>
-        </div>
-
-        {/* CHANGELOG CONTENT */}
-        <div className="flex-1 overflow-y-auto pr-2 space-y-6 text-gray-300">
-        <div>
-          <h3 className="text-lg font-semibold text-white">
-            v0.33.1 — The Batch Update 2
-          </h3>
-          <ul className="list-disc ml-6 mt-2 space-y-1">
-            <li>Added these interests: Animal on Human Vore, Armor, Artificial Intelligences, Artistic Displays, Bikini Armor, Blandification, Blindness, Bubble Censorship, Bubble Encasement, Clothing Transformation, Clownification, Cock Rings, Corsetting, Cum Transformation, Deafness, Digital Manipulation, Dildo Riding, Excessive Kiss Marks, Extreme Corsetting, Frilly Armor, Genital Modifications, Hoop Transformation, Human on Animal Vore, Liquid Latex, Mascot Costumes, Mob Face, Mutual Chastity Play, NPCification, Ojou-sama, Omnipotence, Para-skirting, Plant Monstergirls, Plushification, Puppeteering, Purification, Queenification, Quicksand, Reverse Spitroasting, Sexual Ballet, Sexual Gameplay Mechanics, Sexual Pranks, Soft Material Play, Teleportation, Testicle Cuffs, Toon Force, Toonification, Ugly Gentlemen, and Whipped Cream!</li>
-            <li>Added these roles: Keyholder and Locked!</li>
-            <li>Variant swapping can skip unavailable variants now, and shows what is being blocked and by what. This should lube up variant swapping.</li>
-            <li>Reset all now has a grey star next to it and swap all can be cycled with left and right click.</li>
-          </ul>
-        </div>
-        <div>
-          <h3 className="text-lg font-semibold text-white">
-            v0.33.0 — Results Sharing 2
-          </h3>
-          <ul className="list-disc ml-6 mt-2 space-y-1">
-            <li>Exported image results now use steganography as a reliable fallback when the metadata is scrubbed.</li>
-            <li>JSON and CSV can now be exported and imported.</li>
-            <li>Added these interests: ANWO, Asian Domination (Riced), Aspie Gooning, Auto-cannibalism, Auto-vore, Big Cocks, Black Domination (Blacked), Bloated Bellies, Cringemoji, Digestion Noises, Erectile Dysfunction, Excessive Precum, Forced Masculinization, Healdomming, Indigestion, Isekai Theme, Kuudere, Latino Domination (Bronzed), Leg Humping, LNWO, Mass Vore, Object Vore, Oneshota, Pole Dancing, Pretending It's Straight, Sexual Worsening, Small Cocks, Small Penis Appreciation, Table Humping, Tooning, Twerking Sex, White Domination (Bleached), and WWO!</li>
-          </ul>
-        </div>
-        <div>
-          <h3 className="text-lg font-semibold text-white">
-            v0.32.0 — QOL Update 2
-          </h3>
-          <ul className="list-disc ml-6 mt-2 space-y-1">
-            <li>The indifferent/unset filter actually helps now.</li>
-            <li>Added a reverse color cycling toggle and scroll cycling toggle to the settings menu.</li>
-            <li>Added a new SET ALL VISIBLE TO cycle to RESET ALL interests regardless of filter.</li>
-          </ul>
-        </div>
-        <div>
-          <h3 className="text-lg font-semibold text-white">
-            v0.31.0 — Results Sharing
-          </h3>
-          <ul className="list-disc ml-6 mt-2 space-y-1">
-            <li>Results are now stored in the metadata of the exported image. This image file can be imported on the Results page to give you interactive results. All information and redactions within the image metadata are secured using AES-GCM encryption, with XOR encryption as a fallback. Here's hoping that platforms don't scrub the metadata of shared image files.</li>
-            <li>Added a feedback button to the changelog modal on the chart page itself.</li>
-          </ul>
-        </div>
-        <div>
-          <h3 className="text-lg font-semibold text-white">
-            v0.30.0 — QOL Update 1
-          </h3>
-          <ul className="list-disc ml-6 mt-2 space-y-1">
-            <li>Added these interests: Amateur Porn, Autofootjobs (Pussies), Autofootjobs (Cocks), Bratty Domination, Chasers, Chasing, Dykebreaking, Fat Femboys, Flat Thighs, Foot Fucking, Futanari Facefucking, Futanari Facesitting, Grossdom, Hyper Nipples, Karate Gi, Ladypots, Litter Pregnancies, Living Clothes, Male Omorashi, Manure, Milking Table, Monster Pregnancies, Muscular Thighs, Mutual Weight Gain, OTK Spanking, Overfull Balls, Pro-Amateur Porn, Professional Porn, Sloppy Blowjobs, Sloppy Blowjobs (Receiving), Soft Thighs, Tentaclothes, TERFbreaking, Through The Clothes, TNWO, and Twerking!</li>
-            <li>Number of variants are shown next to each interest.</li>
-            <li>A new star to indicate maybe/interested.</li>
-            <li>A warning is now shown when applied filter is preventing variants from being swapped.</li>
-            <li>A filter for newly added interests so you can easily weigh on new additions instead of having to look for them.</li>
-          </ul>
-        </div>
-        <div>
-          <h3 className="text-lg font-semibold text-white">
-            v0.29.8 — The Futa Update
-          </h3>
-          <ul className="list-disc ml-6 mt-2 space-y-1">
-            <li>Added these futa interests: Casual Erections (Futa), Centaur Futas, Embarrassed Nude Futa, Futa Autopaizuri, Futa Cock Comparison, Futa Daddies, Futa Doms, Futa Heat Transformation, Futa Masturbation Desperation, Futa Mommies, Futa NTR, Futa Pregnancies, Futa Rape, Futa Sex Toys, Futa Shame Transformation, Futa Subs, Futa Underwear Transformation, Futa Virus, Hyper Futas, Loli Futas, Magic Onaholes, Male Futas, Masturbation Desperation, Masturbation (Futa), Needy Futas, Small Futas, and Werefutas!</li>
-            <li>Added 'receiving' versions to these: Assjobs, Ballbusting, Blowjobs, and Deepthroat.</li>
-            <li>Added these interests: Adult Comics, Adult Games, Animal Ears, Animated Porn, Auctioning, Autofootjobs, Casual Erections, Clothed Female Nude Female, Cock Births, Cock Comparison, Deepthroating, Denim, Needy Girls, Needy Guys, Pelvic Curtain Dresses, Polynesian Sex, Self Impregnation, Stuck In A Floor, Stuck In A Wall, Womb Tattoo (Arousal), and Womb Tattoo (Curse)!</li>
-            <li>Adjusted the corruption score thresholds to account for score inflation.</li>
-          </ul>
-        </div>
-        <div>
-          <h3 className="text-lg font-semibold text-white">
-            v0.29.7 — The Batch Update
-          </h3>
-          <ul className="list-disc ml-6 mt-2 space-y-1">
-            <li>Added these interests: Alien Impregnation, Anal Birthing, Aphrodisiac Spores, Bodily Fluids Into Food/Drinks, Bodily Fluids Into Food/Drinks (NC), Brain Fucking, Budding Breasts, Cigarette Burns, Clothes Theft, Cockroaches, Doll Anatomy, Ear Fucking (Pleasure), Ear Fucking (Gore), Ear Whispers & Blowing, Eyesocket Fucking, Face Play & Distortion, Femdom (Brutal), Finger Lacing, Finger-Toe Lacing, Foot Gagging, Forced Detransition, Fractionation Hypnosis, Frilly Clothing, Gothic Lolita, Heterochromia, Hothusbanding, Human Ashtray, Human Incubator, Hypnotic Eyes, Loli Pregnancies, Mastectomy, Nipple Births, Nudism, Nullification, Ovary Removal, Penis Flies, Piss Drinking, Plant Vore, Pre-Trans Selfcest, Split Tongues, Stomach Growling, Stranded Island Theme, Throat Impregnation, and Toe Lacing!</li>
-            <li>Added these censorship interests: Humiliation Censorship (Cocks), Humiliation Censorship (General), Humiliation Censorship (Silhouettes & Bars), and Humiliation Censorship (Text & Symbols)</li>
-            <li>Added these macrophilia interests: Giant (Unaware), Giant (Cruel), Giant (Gentle), and Giant (Growth)</li>
-            <li>Added various 'receiving' versions of acts.</li>
-            <li>Added these roles: Tiny, Princess, Sugar Baby, Nudist, and Giantess</li>
-            <li>Cleaned up Macrophilia tag.</li>
-          </ul>
-        </div>
-        <div>
-          <h3 className="text-lg font-semibold text-white">
-            v0.29.6 — The Incest Update
-          </h3>
-          <ul className="list-disc ml-6 mt-2 space-y-1">
-            <li>Added these interests: Younger Brother x Older Sister Incest, Younger Sister x Older Brother Incest, Second Cousin Incest, Same Sex Incest, Same Age Incest, Half Sibling Incest, Full Blooded Incest, Age Gaps (Siblings), and Stranded Island Incest!</li>
-          </ul>
-        </div>
-        <div>
-          <h3 className="text-lg font-semibold text-white">
-            v0.29.5 — The Men's Update
-          </h3>
-          <ul className="list-disc ml-6 mt-2 space-y-1">
-            <li>Added these interests: Slim Pecs, Jacked Pecs, Shelf Pecs, Soft Pecs, Princes, Bifauxnen, Bishounen, Bishie Princes, Chest Scars, Clothed Male Nude Male, Embarrassed Nude Male, Femboy Pregancies, Genderbend Servitude, Blueberry Boys, Shota Pregnancies, T-Dick Pumping, Magical Boys, Maledom (Brutal), and Distressed Dudes!</li>
-            <li>Added a Colorblind Mode in Options.</li>
-          </ul>
-        </div>
-        <div>
-          <h3 className="text-lg font-semibold text-white">
-            v0.29.4 — The Poop Update
-          </h3>
-          <ul className="list-disc ml-6 mt-2 space-y-1">
-            <li>Added a Poop tag!</li>
-            <li>Added these interests: Coprophagia, Fecal Transfer, Hyperscat, Hypermess, Scat Smearing, Scat Cooking, Candy Scat, Soiling, Messing, Septic Tanks, and Scat Sex!</li>
-            <li>A new colourscheme for forbidden corruption reached.</li>
-            <li>Increased corruption amounts for several interests.</li>
-          </ul>
-        </div>
-
-        <div>
-          <h3 className="text-lg font-semibold text-white">
-            v0.29.3 — The Changelog Update
-          </h3>
-          <ul className="list-disc ml-6 mt-2 space-y-1">
-            <li>Added a changelog, expect plenty of new things to show here!</li>
-            <li>Added these interests: Pillow Humping, Gumjobs, and Wide Tongues.</li>
-            <li>Separated BBW/BHM, SSBW/SSBHM</li>
-            <li>Description and label chiseling.</li>
-          </ul>
-        </div>
-
-        <div>
-          <h3 className="text-lg font-semibold text-white">
-            v0.29.2
-          </h3>
-          <ul className="list-disc ml-6 mt-2 space-y-1">
-            <li>Added a legend for tag affinities.</li>
-          </ul>
-        </div>
-
-        <div>
-          <h3 className="text-lg font-semibold text-white">
-            v0.29.1
-          </h3>
-          <ul className="list-disc ml-6 mt-2 space-y-1">
-            <li>Little bits and bobs of chiseling.</li>
-          </ul>
-        </div>
-
-        <div>
-          <h3 className="text-lg font-semibold text-white">
-            v0.29.0
-          </h3>
-          <ul className="list-disc ml-6 mt-2 space-y-1">
-            <li>Added a search button for tag affinities.</li>
-          </ul>
-        </div>
-      </div>
-
-      {/* Button — identical to Guide modal */}
-
-        <div className="flex gap-2 mt-4">
-          <button
-            onClick={() => setShowFeedbackModal(true)}
-            className="flex-1 py-3 bg-neutral-800 hover:bg-violet-500/30 cursor-pointer text-white font-semibold rounded-xl transition-colors"
-          >
-            Give Feedback
-          </button>
-
-          <button
-            onClick={() => setShowChangelog(false)}
-            className="flex-1 py-3 bg-neutral-800 hover:bg-violet-500/30 cursor-pointer text-white font-semibold rounded-xl transition-colors"
-          >
-            CLOSE
-          </button>
-        </div>
-      </div>
-
-      {/* Feedback Modal */}
-      {showFeedbackModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-neutral-900 border border-neutral-700 rounded-xl p-6 max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
-            <h3 className="text-lg font-bold text-violet-400 mb-4">Send Feedback</h3>
-
-            <form
-              id="feedbackForm"
-              onSubmit={submitFeedbackForm}
-              action="https://formsubmit.co/badminute@protonmail.com"
-              method="POST"
-              className="flex flex-col gap-2"
-            >
-              {/* FormSubmit Configuration */}
-              <input type="hidden" name="_subject" value={`Corruchart Feedback - ${new Date().toLocaleDateString()}`} />
-              <input type="hidden" name="_captcha" value="false" />
-              <input type="hidden" name="_template" value="table" />
-
-              <input type="text" name="name" placeholder="Nickname" className="px-2 py-1 rounded text-white bg-neutral-800 text-sm" required />
-              <input type="email" name="email" placeholder="Email (Possibly Get a Reply)" className="px-2 py-1 rounded text-white bg-neutral-800 text-sm" />
-              <input type="text" name="honeypot" style={{ display: "none" }} />
-              <textarea
-                name="message"
-                placeholder="Your feedback (suggestions, typos, improvements, adjustments, ideas, kisses, etc.)"
-                className="px-2 py-1 rounded text-white bg-neutral-800 text-sm resize-y min-h-[10rem] max-h-96 overflow-y-auto"
-                required
-              />
-
-              <div className="flex gap-2 mt-4">
-                <button
-                  type="button"
-                  onClick={() => setShowFeedbackModal(false)}
-                  className="flex-1 px-3 py-2 rounded cursor-pointer bg-neutral-700 text-white hover:bg-neutral-600 transition-colors text-sm font-semibold"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 px-3 py-2 rounded cursor-pointer bg-green-800 text-white hover:bg-green-600 transition-colors text-sm font-semibold"
-                >
-                  Send
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-    
-    </div>
-  </div>
-)}
+      <ChangelogFeedbackModal
+        showChangelog={showChangelog}
+        setShowChangelog={setShowChangelog}
+        onFeedbackSubmit={submitFeedbackForm}
+        hasNewUpdate={hasNewUpdate}
+        setHasNewUpdate={setHasNewUpdate}
+      />
 
 
       {/* MODAL OVERLAY */}
@@ -1213,6 +985,7 @@ useEffect(() => {
                 className="hidden"
               />
             </label>
+
 
             <button
             type="button"
@@ -1313,11 +1086,19 @@ useEffect(() => {
                 </div>
 
           <Link
+            href="/test"
+            className="px-4 py-2 rounded bg-neutral-900 text-neutral-200 hover:bg-violet-500/30 hover:text-neutral-300 cursor-pointer"
+          >
+            Sets Mode
+          </Link>
+
+          <Link
             href="/roles"
             className="px-4 py-2 rounded bg-neutral-900 text-neutral-200 hover:bg-violet-500/30 hover:text-neutral-300 cursor-pointer"
           >
             Next
           </Link>
+
 
           <span className="text-gray-400">
             Showing {filtered.length} / {slots.length}
@@ -1425,7 +1206,7 @@ useEffect(() => {
               showNewFilter ? "bg-purple-600 text-white" : "bg-neutral-900 text-purple-400 hover:bg-neutral-800"
             }`}
           >
-            <span className="text-sm">v0.29.8-0.33.1</span>
+            <span className="text-sm">v0.33.0-0.34.0(NEW!)</span>
           </button>
         </div>
       </div>

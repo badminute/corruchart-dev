@@ -46,7 +46,7 @@ export default function HomePage() {
                                 textShadow: "0px 1px 0px rgba(0,0,0,0.6)",
                             }}
                         >
-                            v0.33.1
+                            v0.34.0
                         </span>
                     </div>
 
@@ -69,28 +69,32 @@ export default function HomePage() {
                         Disclaimer: This tool is designed for fun and educational purposes, NONE of the interests (especially the taboo ones) are endorsed and/or condoned by the creator of this tool. <u><b>This tool does not gather any information from the user (it is clientside only) with the sole exception being the feedback form which is completely optional and anonymous.</b></u> The interests available are interests that real people have (even if you don't believe it). The creator assumes no responsibility for any consequences that arise from the use of this tool. Please exercise discretion when using it and sharing results. <u><b>Only proceed if you are 18 years of age or older.</b></u>
                     </p>
 
-                    {/* START Button */}
-                    <Link
-                        href="/corruchart"
-                        className="
-                            relative inline-flex items-center justify-center px-8 py-4 text-xl font-bold text-white
-                            bg-gray-400 rounded-sm overflow-hidden
-                            drop-shadow-[0_4px_0px_rgba(0,0,0,0.6)]
-                            border-3 border-black
-                            focus:outline-none
-                            w-auto
-                            max-w-xs sm:max-w-none
-                            before:absolute before:inset-0 before:bg-violet-400 before:translate-x-[-100%] before:transition-transform before:duration-300
-                            hover:before:translate-x-0
-                        "
-                    >
-                        <span
-                            className="relative z-10 text-black drop-shadow-[0_0_10px_rgba(255,255,255,0.3)] animate-glow"
-                            style={{ fontFamily: "'Cinzel', serif", fontWeight: 600 }}
+                    {/* START Buttons */}
+                    <div className="grid gap-4 w-full sm:w-auto sm:grid-cols-2">
+                        <Link
+                            href="/test"
+                            className="relative inline-flex items-center justify-center px-8 py-4 text-xl font-bold text-white bg-gray-400 rounded-sm overflow-hidden drop-shadow-[0_4px_0px_rgba(0,0,0,0.6)] border-3 border-black focus:outline-none before:absolute before:inset-0 before:bg-violet-400 before:translate-x-[-100%] before:transition-transform before:duration-300 hover:before:translate-x-0"
                         >
-                            START
-                        </span>
-                    </Link>
+                            <span
+                                className="relative z-10 text-black drop-shadow-[0_0_10px_rgba(255,255,255,0.3)] animate-glow"
+                                style={{ fontFamily: "'Cinzel', serif", fontWeight: 600 }}
+                            >
+                                START (SETS MODE)
+                            </span>
+                        </Link>
+
+                        <Link
+                            href="/corruchart"
+                            className="relative inline-flex items-center justify-center px-8 py-4 text-xl font-bold text-white bg-gray-400 rounded-sm overflow-hidden drop-shadow-[0_4px_0px_rgba(0,0,0,0.6)] border-3 border-black focus:outline-none before:absolute before:inset-0 before:bg-violet-400 before:translate-x-[-100%] before:transition-transform before:duration-300 hover:before:translate-x-0"
+                        >
+                            <span
+                                className="relative z-10 text-black drop-shadow-[0_0_10px_rgba(255,255,255,0.3)] animate-glow"
+                                style={{ fontFamily: "'Cinzel', serif", fontWeight: 600 }}
+                            >
+                                START (CHART MODE)
+                            </span>
+                        </Link>
+                    </div>
                 </div>
             </div>
 

@@ -772,7 +772,7 @@ const scoredSelections = useMemo(() => {
               roles: identityOptions.map(role => role.id),
               score: scoreData.total,
               timestamp: renderedAt,
-              version: "v0.33.1"
+              version: "v0.34.0"
             };
 
             console.log('Embedding metadata:', metadata);
@@ -966,7 +966,8 @@ const scoredSelections = useMemo(() => {
                 );
                 
                 const seed = encodeSelections(importedSelections, metadata.redacted || [], metadata.favorites || []);
-                const importedUrl = `/results/imported?s=${seed}`;
+                window.sessionStorage.setItem("importedSeed", seed);
+                const importedUrl = `/results/imported`;
                 
                 console.log('Redirecting to imported results:', importedUrl);
                 window.location.href = importedUrl;
@@ -1265,7 +1266,7 @@ const scoredSelections = useMemo(() => {
                 textShadow: "0px 1px 0px rgba(0,0,0,0.6)",
               }}
             >
-              v0.33.1
+              v0.34.0
             </span>
           </div>
 
@@ -1664,11 +1665,14 @@ const scoredSelections = useMemo(() => {
 
        {/* TAG AFFINITIES */}
           <section className="space-y-6 relative">
-        <div className="flex items-center justify-center gap-2 mb-4">
-        <h3 className="text-xl font-semibold" style={{ textShadow: "2px 2px 0px rgba(0,0,0,0.3)" }}>
-            Tag Affinities
-        </h3>
-
+{/* Header row */}
+<div className="flex items-center justify-center gap-2 mb-2">
+  <h3
+    className="text-xl font-semibold"
+    style={{ textShadow: "2px 2px 0px rgba(0,0,0,0.3)" }}
+  >
+    Tag Affinities
+  </h3>
 
   {/* Help button */}
   <span
@@ -1678,12 +1682,12 @@ const scoredSelections = useMemo(() => {
       )
     }
     className="w-4 h-4 flex items-center justify-center rounded-full text-[9px] font-bold bg-neutral-800 text-gray-300 border border-neutral-600 cursor-pointer"
-    title="Show help for positive tags"
+    title="Show help for tag affinities"
   >
     ?
   </span>
 
-  {/* Search button */}
+  {/* Search toggle button */}
   <button
     onClick={() => setIsTagSearchOpen(v => !v)}
     className="text-neutral-400 cursor-pointer hover:text-white text-lg px-2"
@@ -1691,19 +1695,20 @@ const scoredSelections = useMemo(() => {
   >
     🔍
   </button>
+</div>
 
-  {/* Search Input — only shows when open, positioned to the right */}
-  {isTagSearchOpen && (
+{/* Search Input — now below header */}
+{isTagSearchOpen && (
+  <div className="flex justify-center mb-3">
     <input
       autoFocus
       value={tagSearchQuery}
       onChange={e => setTagSearchQuery(e.target.value)}
-      placeholder="Search tag affinities..."
-      className="ml-2 px-2 py-1 rounded bg-neutral-800 text-white outline-none"
-      style={{ height: "28px" }} // match buttons' height for alignment
+      placeholder="Search interests and pin..."
+      className="w-64 px-3 py-1.5 rounded bg-neutral-800 text-white outline-none"
     />
-  )}
-</div>
+  </div>
+)}
 
     {/* Tag Affinity Legend */}
     <div className="flex justify-center flex-wrap gap-4 text-sm text-neutral-300 mt-2">
@@ -1719,7 +1724,7 @@ const scoredSelections = useMemo(() => {
 </div>
             {openTagInfo?.tag === "__positive_help" && (
               <div className="absolute -top-32 left-1/2 transform -translate-x-1/2 z-50 w-64 p-3 bg-neutral-900 text-gray-200 rounded shadow-lg text-center text-sm border border-neutral-700">
-                These are the tags you reacted most positively to. From here you can add and remove up to 28 interests to your favorites.
+                These are the interests you reacted to. From here you can pin up to 28 interests both positive and negative.
               </div>
             )}
 

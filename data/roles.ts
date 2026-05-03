@@ -211,6 +211,8 @@ export const ROLES: RoleOption[] = [
     { id: "feeder", label: "Feeder", aka: [], tags: ["Fun Roles"], category: 3, variantGroup: "feeder-variants", variantOrder: 0 },
     { id: "feedee", label: "Feedee", aka: [], tags: ["Fun Roles"], category: 3, variantGroup: "feeder-variants", variantOrder: 1 },
     { id: "nudist", label: "Nudist", aka: [], tags: ["Fun Roles"], category: 3 },
+    { id: "looner-b2p", label: "Looner (B2P)", aka: [], tags: ["Fun Roles"], category: 2, variantGroup: "looner-variants", variantOrder: 1 },
+    { id: "looner-np", label: "Looner (NP)", aka: [], tags: ["Fun Roles"], category: 2, variantGroup: "looner-variants", variantOrder: 0 },
     { id: "cannibal", label: "Cannibal", aka: [], tags: ["Fun Roles"], category: 6 },
 
 ];

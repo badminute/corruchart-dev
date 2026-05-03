@@ -49,7 +49,22 @@ export default function ImportedResultsPage() {
 function ImportedResultsContent() {
   const { colourblindMode } = useSettings();
   const searchParams = useSearchParams();
-  const seed = searchParams.get('s');
+  const [seed, setSeed] = useState<string | null>(null);
+
+  useEffect(() => {
+    const querySeed = searchParams.get("s");
+    if (querySeed) {
+      setSeed(querySeed);
+      window.sessionStorage.removeItem("importedSeed");
+      return;
+    }
+
+    const storedSeed = window.sessionStorage.getItem("importedSeed");
+    if (storedSeed) {
+      setSeed(storedSeed);
+      window.sessionStorage.removeItem("importedSeed");
+    }
+  }, [searchParams]);
 
   // ----------------------------
   // STATES
@@ -557,7 +572,7 @@ function ImportedResultsContent() {
       roles: identityOptions.map(role => role.id),
       score: scoreData.total,
       timestamp: renderedAt,
-      version: "v0.33.1"
+      version: "v0.34.0"
     };
 
     console.log('Embedding metadata:', metadata);
@@ -628,7 +643,7 @@ function ImportedResultsContent() {
     roles: identityOptions.map(role => role.id),
     score: scoreData.total,
     timestamp: renderedAt,
-    version: "v0.33.1"
+    version: "v0.34.0"
   });
 
   const downloadBlob = (blob: Blob, filename: string) => {
@@ -966,7 +981,7 @@ function ImportedResultsContent() {
                 textShadow: "0px 1px 0px rgba(0,0,0,0.6)",
               }}
             >
-              v0.33.1
+              v0.34.0
             </span>
           </div>
 
@@ -1363,7 +1378,7 @@ function ImportedResultsContent() {
                 )
               }
               className="w-4 h-4 flex items-center justify-center rounded-full text-[9px] font-bold bg-neutral-800 text-gray-300 border border-neutral-600 cursor-pointer"
-              title="Show help for positive tags"
+              title="Show help for tag affinities"
             >
               ?
             </span>
@@ -1372,7 +1387,7 @@ function ImportedResultsContent() {
             <button
               onClick={() => setIsTagSearchOpen(v => !v)}
               className="text-neutral-400 cursor-pointer hover:text-white text-lg px-2"
-              aria-label="Search tags"
+              aria-label="Search interests"
             >
               🔍
             </button>
@@ -1436,7 +1451,7 @@ function ImportedResultsContent() {
                   {/* Description */}
                   <div className="text-gray-400 text-center text-xl mb-4">
                     <p>
-                      These are imported results from an exported image. You can view the affinities and pinned items, but cannot modify them.
+                      These are the interests you reacted to. From here you can pin up to 28 interests both positive and negative.
                     </p>
                   </div>
                 </div>
