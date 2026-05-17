@@ -48,8 +48,8 @@ export const ROLES: RoleOption[] = [
     { id: "prisoner", label: "Prisoner", aka: [], tags: ["Bondage & Discipline"], category: 3 },
     { id: "captor", label: "Captor", aka: [], tags: ["Bondage & Discipline"], category: 3 },
     { id: "furniture", label: "Furniture", aka: [], tags: ["Bondage & Discipline"], category: 2 },
-    { id: "rope-bunny", label: "Rope Bunny", aka: [], tags: ["Bondage & Discipline"], category: 2 },
-    { id: "rope-top", label: "Rope Top", aka: [], tags: ["Bondage & Discipline"], category: 2 },
+    { id: "rope-bunny", label: "Rope Bunny (Rope Bottom)", aka: ["Rope Kitten", "Rope Bottom"], tags: ["Bondage & Discipline"], category: 2 },
+    { id: "rope-top", label: "Rigger (Rope Top)", aka: ["Rope Artist", "Rope Top"], tags: ["Bondage & Discipline"], category: 2 },
     { id: "keyholder", label: "Keyholder", aka: [], tags: ["Bondage & Discipline"], category: 2 },
     { id: "locked", label: "Locked", aka: [], tags: ["Bondage & Discipline"], category: 2 },
 
@@ -177,7 +177,7 @@ export const ROLES: RoleOption[] = [
 
     // FUN ROLES
     { id: "2d-only", label: "2D ONLY", aka: [], tags: ["Fun Roles"], category: 3 },
-    { id: "adult-baby-option", label: "Adult Baby", aka: ["AB"], tags: ["Fun Roles"], category: 3, variantGroup: "abdls", variantOrder: 0 },
+    { id: "adult-baby-role", label: "Adult Baby", aka: ["AB"], tags: ["Fun Roles"], category: 3, variantGroup: "abdls", variantOrder: 0 },
     { id: "diaper-lover", label: "Diaper Lover", aka: ["DL"], tags: ["Fun Roles"], category: 3, variantGroup: "abdls", variantOrder: 1 },
     { id: "bull", label: "Bull", aka: ["Stallion"], tags: ["Fun Roles"], category: 4, variantGroup: "thirds", variantOrder: 0 },
     { id: "cuckcake", label: "Cuckcake", aka: [], tags: ["Fun Roles"], category: 4, variantGroup: "thirds", variantOrder: 1 },

@@ -572,7 +572,7 @@ function ImportedResultsContent() {
       roles: identityOptions.map(role => role.id),
       score: scoreData.total,
       timestamp: renderedAt,
-      version: "v0.34.0"
+      version: "v0.34.1"
     };
 
     console.log('Embedding metadata:', metadata);
@@ -643,7 +643,7 @@ function ImportedResultsContent() {
     roles: identityOptions.map(role => role.id),
     score: scoreData.total,
     timestamp: renderedAt,
-    version: "v0.34.0"
+    version: "v0.34.1"
   });
 
   const downloadBlob = (blob: Blob, filename: string) => {
@@ -981,7 +981,7 @@ function ImportedResultsContent() {
                 textShadow: "0px 1px 0px rgba(0,0,0,0.6)",
               }}
             >
-              v0.34.0
+              v0.34.1
             </span>
           </div>
 

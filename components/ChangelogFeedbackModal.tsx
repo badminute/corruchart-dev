@@ -54,6 +54,13 @@ export default function ChangelogFeedbackModal({
                 <>
                     {/* 🔽 CHANGELOG CONTENT 🔽 */}
                 <h3 className="text-lg font-semibold text-white">
+                    v0.34.1 — Polishing Descriptions  
+                </h3>
+                  <ul className="list-disc ml-6 mt-2 space-y-1">
+                    <li>Polished about 80% of the descriptions.</li>
+                    <li>Added these roles: Looner (NP) and Looner (B2P)!</li>
+                  </ul>
+                <h3 className="text-lg font-semibold text-white">
                     v0.34.0 — <b>MASSIVE</b>: The Sets Update  
                 </h3>
                   <ul className="list-disc ml-6 mt-2 space-y-1">

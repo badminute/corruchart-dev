@@ -58,8 +58,8 @@ export const ROLE_SYMBOLS: Record<string, { symbol: string; color?: string }> = 
     "prince-dominant": { symbol: "🤴", color: "#f7cf4d" },   // Prince (Dominant)
     "princess": { symbol: "👸", color: "#f7cf4d" },   // Princess
     "princess-dominant": { symbol: "👸", color: "#f7cf4d" },   // Princess (Dominant)
-    "keyholder": { symbol: "🔑", color: "#f7cf4d" },   // Princess (Dominant)
-    "locked": { symbol: "🔒", color: "#f7cf4d" },   // Princess (Dominant)
+    "keyholder": { symbol: "🔑", color: "#f7cf4d" },   // Keyholder
+    "locked": { symbol: "🔒", color: "#f7cf4d" },   // Locked
 
         // GENDER EXPRESSION
     "androgynous-gender-exp": { symbol: "⚧", color: "#a578ce" },  // Androgynous
@@ -197,8 +197,8 @@ export const ROLE_SYMBOLS: Record<string, { symbol: string; color?: string }> = 
     "hucow": { symbol: "🐮", color: "#aaaaaa" },   // Hucow
     "cum-slut": { symbol: "🤤", color: "#e2e2e2" },   // Hucow
     "2d-only": { symbol: "✎", color: "#59b465" },   // 2D ONLY
-    "adult-baby-option": { symbol: "🍼", color: "#FFE5D9" },   // Adult Baby
-    "diaper-lover": { symbol: "🚼", color: "#48a6f2" },   // Adult Baby
+    "adult-baby-role": { symbol: "🍼", color: "#FFE5D9" },   // Adult Baby
+    "diaper-lover": { symbol: "🚼", color: "#48a6f2" },   // Diaper Lover
 
 };
 
