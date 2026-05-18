@@ -2069,6 +2069,7 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 "faceless",
 "fat-mlp",
 "fat-mlp",
+"fat-pokemon",
 "ferals",
 "fuckplants",
 "genies",

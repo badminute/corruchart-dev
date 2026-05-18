@@ -2,6 +2,14 @@
 import { useMemo } from "react";
 
 export const NEW_OPTION_IDS = [
+        // 0.34.1
+        "cock-milking-milked-r",
+        "cock-milking-milker",
+        "fat-pokemon",
+        "feederism-stuffing-r",
+        "feederism-stuffing",
+        "gagging-r",
+
         // 0.34.0
         "alpha-couple-dynamic",
         "auto-thighjobs",

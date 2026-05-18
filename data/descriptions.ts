@@ -378,7 +378,7 @@ export const DESCRIPTIONS: Record<string, string> = {
     "cum-inflation-light": "A notable amount of semen filling an individual's body, creating notable bodily inflation.",
     "cum-into-food-drinks-nc": "Ejaculation into or onto food which is then consumed unknowingly and/or forcibly.",
     "cum-into-food-drinks": "Ejaculation into or onto food which is then consumed.",
-    "cum-on-clothes": "Cumming onto clothing, sometimes by more than one person.",
+    "cum-on-clothes": "The appearance of cum on clothing and cumming onto clothing, sometimes by more than one person.",
     "cum-sharking": "The criminal activity of ejaculating on strangers in public typically in a stealthy way, sometimes steathily pulling up clothes before doing so.",
     "cum-slut": "A person who loves semen, on them, in them, and things to do with it.",
     "cum-swapping": "The activity of swapping semen from one mouth to another, usually through kissing or spitting into an open mouth.",
@@ -446,6 +446,7 @@ export const DESCRIPTIONS: Record<string, string> = {
     "doll-monstergirls": "Dolls that were once inanimate, now alive, have an obsession with being loved, so they passively charm an owner until they are at the mercy of the doll's lustful desires.",
     "doll-toy-transformation": "Transformations where an individual is turned into a lifeless doll or toy.",
     "domination": "Dominating another, typically in a sexual way.",
+    "dommebreaking": "Scenarios where an individual sexually dominates, 'converts' or 'breaks' a 'dominant' into a submissive.",
     "dorses": "Mid-transformation human-horse hybrids.",
     "double-penetration": "Two penises/dildos penetrating the same oriface.",
     "dragon-monsterboys": "Prideful, powerful dragon-human hybrids who see humans as worthless, yet they still find instinctual interest in humans, keeping them as subservient treasure unless they find a human more powerful than themselves, then the roles reverse.",
@@ -463,7 +464,6 @@ export const DESCRIPTIONS: Record<string, string> = {
     "dwarf-monstergirls": "Dextrous, short statured humanoids, often skilled in crafts and mining; industrious and lustful.",
     "dwarves": "Stout, hardy humanoids, typically depicted as strong, rugged, and crafty.",
     "dykebreaking": "Scenarios where a man sexually dominates, 'converts' or 'breaks' a self-identified lesbian through rape, forced submission, or non-consensual acts.",
-    "dommebreaking": "Scenarios where an individual sexually dominates, 'converts' or 'breaks' a 'dominant' into a submissive.",
     "e-boys": "The aesthetic of internet-styled, soft or alternative men.",
     "e-girls": "The aesthetic of internet-styled, expressive or alternative women.",
     "ear-fucking-gore": "Gory penetration of the ear canal, usually causing damage or extreme pain.",
@@ -528,11 +528,12 @@ export const DESCRIPTIONS: Record<string, string> = {
     "farting": "Farts, either ones own or someone elses, things like the smell, sound, or act itself.",
     "fat-femboys": "Femboys with larger than average weight.",
     "fat-mlp": "Overweight ponies from My Little Pony.",
+    "fat-pokemon": "Overweight Pokémon.",
     "fatfurs": "Overweight anthropomorphic furry characters.",
     "fear-play": "Arousal from fear and play involving fear.",
     "fecal-transfer": "The act of transferring poop from one's oriface to another's oriface.",
-    "feederism-stuffing": "Feeding someone to excess.",
     "feederism-stuffing-r": "Being fed to excess.",
+    "feederism-stuffing": "Feeding someone to excess.",
     "feet": "Feet and various aspects of feet: toes, soles, shape, size, appearance, etc.",
     "felching": "The act of eating semen out of a person's anus.",
     "female-anthros": "Anthropomorphic female characters.",
@@ -637,8 +638,8 @@ export const DESCRIPTIONS: Record<string, string> = {
     "futanari-facesitting": "The act of a futa sitting on another person's face.",
     "futas-pussyless": "Futanari characters with a penis but no vagina (futas without dual genitalia).",
     "futas": "Feminine presenting individuals with both male and female genitalia.",
-    "gagging": "Making someone gag, typically with a penis, toy, hand, or foot.",
     "gagging-r": "Being made to gag, typically with a penis, toy, hand, or foot.",
+    "gagging": "Making someone gag, typically with a penis, toy, hand, or foot.",
     "gags": "Tools used to restrict speech, emphasize a dynamic, and sometimes to produce drool.",
     "gangbang-by-smaller": "Sex involving more than 4 people, typically with one individual being used by the smaller sized rest.",
     "gangbangs": "Sex involving more than 4 people, typically with one individual being used by the rest.",
@@ -1160,7 +1161,6 @@ export const DESCRIPTIONS: Record<string, string> = {
     "precum": "Clear, pre-ejaculate produced by cocks when aroused.",
     "predator-vore": "Being the consumer (predator) rather than the consumed (prey). Focuses on the power, sensation, or intimacy of swallowing/eating another being, typically in a non-fatal, often eroticized manner.",
     "predicament-bondage": "Bondage from accidental predicaments. (ex: getting stuck from crawling through a tunnel)",
-    "risky-sex": "Sex with the risk of causing a pregnancy.",
     "pregnancy": "Pregnancy in general, belly play, being pregnant, etc.",
     "pregnant-bellies": "Visibly pregnant bellies and bodies.",
     "pregnant-sex": "Having sex while pregnant or having sex with a pregnant person.",
@@ -1219,6 +1219,7 @@ export const DESCRIPTIONS: Record<string, string> = {
     "reversed-gender-roles": "Scenarios where gender roles are reversed.",
     "rimming-r": "Having your anus orally stimulated by someone.",
     "rimming": "Providing oral stimulation to someone's anus (licking, tonguing, etc.).",
+    "risky-sex": "Sex with the risk of causing a pregnancy.",
     "rituals": "Scenarios involving ritual, ceremonial, or occult practices.",
     "roboguro": "Gore of mechanical beings, especially androids.",
     "role-reversal": "The subversion of traditional gender roles not just in the bedroom, but outside of it as well.",
@@ -1564,11 +1565,6 @@ export const DESCRIPTIONS: Record<string, string> = {
     "zombie-monstergirls": "An undead human monstergirl guided by pure instinct, to find a partner and drain their essence to maintain their bodies. They are ravenously lustful and beyond reason or rationality.",
     "zoophilia": "Attraction to non-human animals.",
     "zoosadism": "Arousal from inflicting pain on non-human animals.",
-
-
-
-
-
 
 
     //--------------------------------------
