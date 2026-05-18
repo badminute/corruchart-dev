@@ -57,7 +57,7 @@ export default function ChangelogFeedbackModal({
                     v0.34.1 — Polishing Descriptions  
                 </h3>
                   <ul className="list-disc ml-6 mt-2 space-y-1">
-                    <li>Polished about 80% of the descriptions.</li>
+                    <li>Polished ~80% of the descriptions, fixing typos, rephrasing, trimming, etc.</li>
                   </ul>
                 <h3 className="text-lg font-semibold text-white">
                     v0.34.0 — <b>MASSIVE</b>: The Sets Update  
