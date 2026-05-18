@@ -453,7 +453,7 @@ export default function Page() {
     // -----------------------
 
     const [showChangelog, setShowChangelog] = useState(false);
-    const CHANGELOG_VERSION = "0.33.0";
+    const CHANGELOG_VERSION = "0.34.1";
     const [hasNewUpdate, setHasNewUpdate] = useState(false);
     const [showFeedbackModal, setShowFeedbackModal] = useState(false);
     const [showFeedback, setShowFeedback] = useState(false);
@@ -1206,7 +1206,7 @@ useEffect(() => {
               showNewFilter ? "bg-purple-600 text-white" : "bg-neutral-900 text-purple-400 hover:bg-neutral-800"
             }`}
           >
-            <span className="text-sm">v0.33.0-0.34.0(NEW!)</span>
+            <span className="text-sm">v0.33.0-0.34.1(NEW!)</span>
           </button>
         </div>
       </div>
