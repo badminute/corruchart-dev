@@ -10,9 +10,9 @@ import { TEST_PAGE_SETS, DEFAULT_TEST_PAGE_CHUNK_SIZE, TEST_PAGE_OPTION_IDS } fr
 import type { TestPageSet } from "@/data/testPages";
 import SettingsButton from "@/components/SettingsButton";
 import OptionsGrid from "@/components/OptionsGrid";
-import { WelcomeSlideshow } from "@/components/onboarding";
 import { useSettings } from "@/components/SettingsContext";
 import ChangelogFeedbackModal from "@/components/ChangelogFeedbackModal";
+import GuideModal from "@/components/GuideModal";
 import type { Option as BaseOption } from "@/types/option";
 import { logMissingTestPageSetOptionIds } from "@/data/testPages";
 
@@ -658,44 +658,21 @@ const mergedTestPages = useMemo<TestPageSet[]>(() => {
       </main>
 
       {showWelcome && (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
-    <div className="bg-neutral-900 border border-neutral-800 p-6 rounded-2xl w-full max-w-4xl h-[650px] shadow-2xl flex flex-col">
-
-      {/* Header */}
-      <h2 className="text-2xl font-bold text-center text-violet-400 mb-4">
-        Assessment Section
-      </h2>
-
-      {/* Description */}
-      <div className="text-gray-400 text-center text-lg mb-4">
-        <p>Here are some usage tips to make things smoother.</p>
-      </div>
-
-      {/* Slideshow */}
-     <div className="flex-1 min-h-0 h-full">
-        <WelcomeSlideshow
-          images={[
-            "images/potion-tips.png",
-            "images/cycle.gif",
-            "images/descriptions.gif",
-          ]}
-        />
-      </div>
-
-      {/* Button */}
-      <button
-        type="button"
-        onClick={() => {
-          setShowWelcome(false);
-          localStorage.setItem("test-welcome-last-shown", Date.now().toString());
-        }}
-        className="w-full py-3 mt-4 bg-neutral-800 hover:bg-violet-500/30 cursor-pointer text-white font-semibold rounded-xl transition-colors"
-      >
-        ASSESS
-      </button>
-
-    </div>
-  </div>
+  <GuideModal
+    isOpen={showWelcome}
+    onClose={() => {
+      setShowWelcome(false);
+      localStorage.setItem("test-welcome-last-shown", Date.now().toString());
+    }}
+    title="Assessment Section"
+    description="Here are some usage tips to make things smoother."
+    buttonLabel="ASSESS"
+    tips={[
+          { title: "Corruption Values and Potion Types", images: ["images/potion-tips.png"] },
+          { title: "Cycling Interests from Disgust to Lust", images: ["images/cycle.gif"] },
+          { title: "Descriptions", images: ["images/descriptions.gif"] },
+    ]}
+  />
 )}
 
       {showSetsModal && (

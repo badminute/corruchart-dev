@@ -9,10 +9,10 @@ import { OPTIONS } from "@/data/options";
 import { DESCRIPTIONS } from "@/data/descriptions";
 import SettingsButton from "@/components/SettingsButton";
 import OptionsGrid from "@/components/OptionsGrid";
-import { WelcomeSlideshow } from "@/components/onboarding";
 import { useSettings } from "@/components/SettingsContext";
 import { useNewOptions } from "@/components/NewOptionsList";
 import ChangelogFeedbackModal from "@/components/ChangelogFeedbackModal";
+import GuideModal from "@/components/GuideModal";
 
 // import base type
 import type { OptionData as BaseOption } from "@/data/options";
@@ -904,51 +904,24 @@ useEffect(() => {
       />
 
 
-      {/* MODAL OVERLAY */}
-{showWelcome && (
-  <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4">
-    <div className="bg-neutral-900 border border-neutral-800 p-6 rounded-2xl w-full max-w-4xl h-[650px] shadow-2xl flex flex-col">
-      
-      {/* Header */}
-      <h2 className="text-2xl font-bold text-center text-violet-400 mb-4">
-        Corruchart Section
-      </h2>
-
-      {/* Description */}
-      <div className="text-gray-400 text-center text-lg mb-4">
-        <p>Here are some usage tips to make things smoother.</p>
-      </div>
-
-      {/* Slideshow */}
-      <div className="flex-1">
-        <WelcomeSlideshow 
-          images={[
-            "images/potion-tips.png", 
-            "images/cycle.gif",
-            "images/descriptions.gif",
-            "images/variants.gif",
-            "images/variants-continued.gif",
-            "images/filters-preventing.gif",
-            "images/interests-bulk.gif",
-            "images/dark-reader.gif", 
-            "images/scroll.gif",
-            "images/resetting-interests.gif",
-
-          ]} 
-        />
-      </div>
-
-      {/* Button */}
-      <button
-        onClick={closeWelcome}
-        className="w-full py-3 mt-4 bg-neutral-800 hover:bg-violet-500/30 cursor-pointer text-white font-semibold rounded-xl transition-colors"
-            >
-                CHART
-            </button>
-
-            </div>
-        </div>
-        )}
+      <GuideModal
+        isOpen={showWelcome}
+        onClose={closeWelcome}
+        title="Corruchart Section"
+        description="Here are some usage tips to make things smoother."
+        buttonLabel="CHART"
+        tips={[
+          { title: "Corruption Values and Potion Types", images: ["images/potion-tips.png"] },
+          { title: "Cycling Interests from Disgust to Lust", images: ["images/cycle.gif"] },
+          { title: "Descriptions", images: ["images/descriptions.gif"] },
+          { title: "Cycling Variants", images: ["images/variants.gif", "images/variants-continued.gif"] },
+          { title: "Filters Can Prevent Variant Swapping", images: ["images/filters-preventing.gif"] },
+          { title: "Setting Interests in Bulk", images: ["images/interests-bulk.gif"] },
+          { title: "Dark Reader Is Incompatible", images: ["images/dark-reader.gif"] },
+          { title: "Mouse Scroll Cycling", images: ["images/scroll.gif"] },
+          { title: "Resetting Interests", images: ["images/resetting-interests.gif"] },
+        ]}
+      />
 
 
 

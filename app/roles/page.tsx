@@ -7,8 +7,8 @@ import { ROLES } from "@/data/roles";
 import type { RoleOption } from "@/data/roles";
 import { ROLE_SYMBOLS } from "@/data/roleSymbols";
 import { DESCRIPTIONS } from "@/data/descriptions";
-import { WelcomeSlideshow } from "@/components/onboarding";
 import { useSettings } from "@/components/SettingsContext";
+import GuideModal from "@/components/GuideModal";
 
 export default function Page() {
     const options: RoleOption[] = ROLES;
@@ -173,40 +173,18 @@ export default function Page() {
         <>
             {/* MODAL OVERLAY */}
             {showWelcome && (
-            <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4">
-                <div className="bg-neutral-900 border border-neutral-800 p-6 rounded-2xl w-full max-w-4xl h-[650px] shadow-2xl flex flex-col">
-                
-                {/* Header */}
-                <h2 className="text-2xl font-bold text-center text-violet-400 mb-4">
-                    Roles Section
-                </h2>
-
-                {/* Description */}
-                <div className="text-gray-400 text-center text-xl mb-4">
-                    <p>Here are some usage tips to make things smoother.</p>
-                </div>
-
-                {/* Slideshow */}
-                <div className="flex-1">
-                    <WelcomeSlideshow 
-                    images={[
-                        "images/select-roles.gif", 
-                        "images/role-descriptions.gif",
-                        "images/swap-roles.gif",
-                    ]} 
-                    />
-                </div>
-
-                {/* Button */}
-                <button
-                    onClick={closeWelcome}
-                    className="w-full py-3 mt-4 bg-neutral-800 hover:bg-violet-500/30 cursor-pointer text-white font-semibold rounded-xl transition-colors"
-                >
-                    ROLES
-                </button>
-
-                </div>
-            </div>
+            <GuideModal
+              isOpen={showWelcome}
+              onClose={closeWelcome}
+              title="Roles Section"
+              description="Here are some usage tips to make things smoother."
+              buttonLabel="ROLES"
+              tips={[
+                { title: "Selecting Roles", images: ["images/select-roles.gif"] },
+                { title: "Role Descriptions", images: ["images/role-descriptions.gif"] },
+                { title: "Swapping Role Variants", images: ["images/swap-roles.gif"] },
+              ]}
+            />
             )}
 
 

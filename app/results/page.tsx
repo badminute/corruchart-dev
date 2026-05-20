@@ -14,8 +14,8 @@ import TagAffinityDrilldown from "@/components/tags/TagAffinityDrilldown";
 import { narrowTagsCheck } from "@/lib/utils";
 import { encodeSelections, decodeSelections } from "@/lib/utils";
 import { NARROW_TAGS } from "@/data/narrowTags";
-import { WelcomeSlideshow } from "@/components/onboarding";
 import { useSettings } from "@/components/SettingsContext";
+import GuideModal from "@/components/GuideModal";
 import { 
   encryptMetadata, 
   decryptMetadata, 
@@ -1742,50 +1742,23 @@ const scoredSelections = useMemo(() => {
 
       {/* MODAL OVERLAY */}
         {showWelcome && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4">
-        <div className="bg-neutral-900 border border-neutral-800 p-6 rounded-2xl w-full max-w-4xl + max-h-[90vh] shadow-2xl flex flex-col">
-  
-  {/* Header */}
-  <h2 className="text-2xl font-bold text-center text-violet-400 mb-4">
-    Results Section
-  </h2>
-
-  {/* Scrollable Content Area */}
-  <div className="flex-1 overflow-y-auto">
-    
-    {/* Description */}
-    <div className="text-gray-400 text-center text-xl mb-4">
-      <p>
-        Your results are computed based on your responses to specific interests. Your affinities
-        are based on the tags that the interests are in. You can customize your results a bit more, here are ways to do that.
-      </p>
-    </div>
-
-    {/* Slideshow */}
-    <WelcomeSlideshow 
-      images={[
-        "images/pins.gif",
-        "images/search-interests.gif",
-        "images/redact.gif",
-        "images/export-image.gif",
-        "images/remove-favourites.gif",
-        "images/empty-chart-import-now.gif",
-        "images/export-csv-and-json.gif",
-      ]} 
-    />
-  </div>
-
-  {/* Button — always visible */}
-  <button
-    onClick={closeWelcome}
-    className="w-full py-3 mt-4 bg-neutral-800 hover:bg-violet-500/30 cursor-pointer text-white font-semibold rounded-xl transition-colors"
-  >
-    RESULTS
-  </button>
-</div>
-
-  </div>
-)}
+        <GuideModal
+          isOpen={showWelcome}
+          onClose={closeWelcome}
+          title="Results Section"
+          description="Your results are computed based on your responses to specific interests. Your affinities are based on the tags that the interests are in. You can customize your results a bit more, here are ways to do that."
+          buttonLabel="RESULTS"
+          tips={[
+            { title: "IMPORTANT: Export Image (with Results Embedded)", images: ["images/export-image.gif"] },
+            { title: "Pinning Noteworthy Interests", images: ["images/pins.gif"] },
+            { title: "Searching Affinities to Pin", images: ["images/search-interests.gif"] },
+            { title: "Redacting Pins", images: ["images/redact.gif"] },
+            { title: "Removing Pins", images: ["images/remove-favourites.gif"] },
+            { title: "Export CSV and JSON: Save For Later & Transfer Progress (PC -> Mobile, etc.)", images: ["images/empty-chart-import-now.gif"] },
+            { title: "Import Results via CSV & JSON", images: ["images/export-csv-and-json.gif"] },
+          ]}
+        />
+        )}
 
           </section>
       </div>
