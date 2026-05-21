@@ -208,8 +208,13 @@ const mergedTestPages = useMemo<TestPageSet[]>(() => {
     }
   }, []);
 
-  // HAS USER SEEN THE GUIDE TIPS?
-  useEffect(() => {
+    // HAS USER SEEN THE GUIDE?
+    useEffect(() => {
+    // No highlighted tips = no NEW state
+    if (GUIDE_TIPS_TO_HIGHLIGHT.length === 0) {
+        setHasNewGuide(false);
+        return;
+    }
     const seen = localStorage.getItem("test-guide-seen");
     if (seen !== GUIDE_VERSION) {
       setHasNewGuide(true);
