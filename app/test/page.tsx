@@ -15,6 +15,7 @@ import ChangelogFeedbackModal from "@/components/ChangelogFeedbackModal";
 import GuideModal from "@/components/GuideModal";
 import type { Option as BaseOption } from "@/types/option";
 import { logMissingTestPageSetOptionIds } from "@/data/testPages";
+import { TAG_DESCRIPTIONS } from "@/data/tagDescriptions";
 
 logMissingTestPageSetOptionIds();
 const COLOR_NAMES = [
@@ -642,9 +643,8 @@ const mergedTestPages = useMemo<TestPageSet[]>(() => {
                     </button>
                   </div>
                   <p className="mt-3 text-gray-300">
-                    {tagMetaById[openTagDescription]?.name
-                      ? `This tag represents the ${tagMetaById[openTagDescription]!.name} category.`
-                      : "No description available for this tag."}
+                    {TAG_DESCRIPTIONS[openTagDescription] ??
+                    "No description available for this tag."}
                   </p>
                 </div>
               )}
