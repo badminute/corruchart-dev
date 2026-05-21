@@ -30,16 +30,26 @@ export default function GuideModal({
   onMarkSeen,
 }: GuideModalProps) {
   const [selectedTipIndex, setSelectedTipIndex] = useState<number | null>(null);
+  const [viewedNewTips, setViewedNewTips] = useState<Set<number>>(new Set());
 
   const handleClose = () => {
-    if (newTipIndices.length > 0 && onMarkSeen) {
-      onMarkSeen();
-    }
     onClose();
   };
 
   const handleTipClick = (index: number) => {
     setSelectedTipIndex(index);
+    
+    // Mark this new tip as viewed if it's in the new tips list
+    if (newTipIndices.includes(index)) {
+      const updated = new Set(viewedNewTips);
+      updated.add(index);
+      setViewedNewTips(updated);
+      
+      // If all new tips have been viewed, mark as seen
+      if (updated.size === newTipIndices.length && onMarkSeen) {
+        onMarkSeen();
+      }
+    }
   };
 
   if (!isOpen) return null;
@@ -67,12 +77,15 @@ export default function GuideModal({
             <div className="grid grid-cols-2 gap-1.5">
                 {tips.map((tip, index) => {
                   const isNew = newTipIndices.includes(index);
+                  const hasBeenViewed = viewedNewTips.has(index);
+                  const shouldShowHighlight = isNew && !hasBeenViewed;
+                  
                   return (
                     <button
                       key={index}
                       onClick={() => handleTipClick(index)}
                       className={`text-left px-3 py-2 bg-neutral-800 hover:bg-violet-500/30 text-gray-200 hover:text-white rounded-md transition-colors cursor-pointer border border-neutral-700 hover:border-violet-500/50 text-sm leading-snug ${
-                        isNew ? "ring-2 ring-violet-400" : ""
+                        shouldShowHighlight ? "ring-2 ring-violet-400" : ""
                       }`}
                     >
                       <span className="text-violet-400 font-semibold">
@@ -81,7 +94,7 @@ export default function GuideModal({
                       <span className="inline-flex items-center gap-2">
                     <span>{tip.title}</span>
 
-                    {isNew && (
+                    {shouldShowHighlight && (
                         <span className="text-[10px] font-bold text-violet-300 bg-violet-500/20 px-1.5 py-0.5 rounded">
                         NEW!
                         </span>

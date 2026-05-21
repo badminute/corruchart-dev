@@ -39,7 +39,7 @@ const COLOR_NAMES = [
 const RESULTS_KEY = "combined-selections";
 const FILTERS_KEY = "corruchart-filters";
 const GUIDE_VERSION = "0.35.0";
-const GUIDE_TIPS_TO_HIGHLIGHT = [0, 2, 7, 8]; // Empty array means all tips are considered "new"
+const GUIDE_TIPS_TO_HIGHLIGHT = []; // Empty array means all tips are considered "new"
 
 type PersistedFilterState = {
   query?: string;
@@ -249,11 +249,20 @@ export default function Page() {
     }
     }, []);
 
-    // HAS USER SEEN THE GUIDE TIPS?
+    // HAS USER SEEN THE GUIDE?
     useEffect(() => {
+    // No highlighted tips = no NEW state
+    if (GUIDE_TIPS_TO_HIGHLIGHT.length === 0) {
+        setHasNewGuide(false);
+        return;
+    }
+
     const seen = localStorage.getItem("corruchart-guide-seen");
+
     if (seen !== GUIDE_VERSION) {
-    setHasNewGuide(true);
+        setHasNewGuide(true);
+    } else {
+        setHasNewGuide(false);
     }
     }, []);
 

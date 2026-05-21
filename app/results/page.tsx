@@ -138,11 +138,20 @@ const tagSearchResults = useMemo(() => {
         }
     }, []);
 
-    // HAS USER SEEN THE GUIDE TIPS?
+    // HAS USER SEEN THE GUIDE?
     useEffect(() => {
+        // No highlighted tips = no NEW state
+        if (GUIDE_TIPS_TO_HIGHLIGHT.length === 0) {
+            setHasNewGuide(false);
+            return;
+        }
+
         const seen = localStorage.getItem("results-guide-seen");
+
         if (seen !== GUIDE_VERSION) {
             setHasNewGuide(true);
+        } else {
+            setHasNewGuide(false);
         }
     }, []);
 
@@ -155,13 +164,11 @@ const tagSearchResults = useMemo(() => {
         setHasNewGuide(false);
     };
 
-
     // Update your close function
     const closeWelcome = () => {
         setShowWelcome(false);
         localStorage.setItem("results-welcome-last-shown", Date.now().toString());
     };
-    // -----------------------
 
 
 const startPress = (id: string) => {

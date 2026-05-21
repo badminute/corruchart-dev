@@ -40,11 +40,20 @@ export default function Page() {
         }
     }, []);
 
-    // HAS USER SEEN THE GUIDE TIPS?
+    // HAS USER SEEN THE GUIDE?
     useEffect(() => {
+        // No highlighted tips = no NEW state
+        if (GUIDE_TIPS_TO_HIGHLIGHT.length === 0) {
+            setHasNewGuide(false);
+            return;
+        }
+
         const seen = localStorage.getItem("roles-guide-seen");
+
         if (seen !== GUIDE_VERSION) {
             setHasNewGuide(true);
+        } else {
+            setHasNewGuide(false);
         }
     }, []);
 
@@ -61,7 +70,6 @@ export default function Page() {
         setShowWelcome(false);
         localStorage.setItem("roles-welcome-last-shown", Date.now().toString());
     };
-    // -----------------------
 
     const EXCLUSIVE_CATEGORIES = ["Sex Experience", "Sexual Orientation", "Body Count", "Hentai Doujinshi Read", "Hentai Anime Watched", "Hentai Games Played", "Porn Stash", "Porn Experience", "Gender", "Erotic Novels Read", "Sex", "Sex Roles", "Gender Expression"];
     const customColor: Record<string, string> = {
