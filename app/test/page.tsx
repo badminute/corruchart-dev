@@ -92,6 +92,7 @@ export default function TestPage() {
   const [activePluses, setActivePluses] = useState<{ index: number; id: string; state: number }[]>([]);
   const [activeVariant, setActiveVariant] = useState<Record<string, number>>({});
   const [currentPage, setCurrentPage] = useState(0);
+  const [isPageInitialized, setIsPageInitialized] = useState(false);
   const [openDescription, setOpenDescription] = useState<string | null>(null);
   const [openTagDescription, setOpenTagDescription] = useState<string | null>(null);
 
@@ -309,12 +310,16 @@ const mergedTestPages = useMemo<TestPageSet[]>(() => {
 
     useEffect(() => {
     const savedSetId = localStorage.getItem(CURRENT_SET_KEY);
-    if (!savedSetId) return;
+    if (!savedSetId) {
+      setIsPageInitialized(true);
+      return;
+    }
 
     const index = mergedTestPages.findIndex(s => s.id === savedSetId);
     if (index >= 0) {
     setCurrentPage(index);
     }
+    setIsPageInitialized(true);
     }, [mergedTestPages]);
 
     useEffect(() => {
@@ -524,6 +529,8 @@ const mergedTestPages = useMemo<TestPageSet[]>(() => {
             </div>
           </div>
 
+          {isPageInitialized && (
+            <>
           <section className="p-6 mb-8">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <button
@@ -684,6 +691,8 @@ const mergedTestPages = useMemo<TestPageSet[]>(() => {
             cycleColor={updateOptionState}
             compact
           />
+            </>
+          )}
         </div>
       </main>
 

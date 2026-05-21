@@ -173,6 +173,8 @@ export default function Page() {
     const [activeVariant, setActiveVariant] = useState<Record<string, number>>({});
     type ActivePlus = { index: number; id: string; state: number }; // ✅ must include state
     const [activePluses, setActivePluses] = useState<ActivePlus[]>([]);
+    const [isExportMenuOpen, setIsExportMenuOpen] = useState(false);
+    const exportMenuRef = useRef<HTMLDivElement | null>(null);
     const optionIndexById = useMemo(() => {
         const map: Record<string, number> = {};
         options.forEach((opt, i) => {
@@ -180,6 +182,19 @@ export default function Page() {
         });
         return map;
     }, [options]);
+
+    useEffect(() => {
+      if (!isExportMenuOpen) return;
+
+      const handleOutsideClick = (event: MouseEvent) => {
+        if (exportMenuRef.current && !exportMenuRef.current.contains(event.target as Node)) {
+          setIsExportMenuOpen(false);
+        }
+      };
+
+      window.addEventListener("mousedown", handleOutsideClick);
+      return () => window.removeEventListener("mousedown", handleOutsideClick);
+    }, [isExportMenuOpen]);
 
     const parseAnchoredFilters = (value: any): Record<number, Set<string>> => {
       const anchored: Record<number, Set<string>> = {};
@@ -452,6 +467,63 @@ export default function Page() {
 
       setStates(nextStates);
       alert("Imported selections successfully.");
+    };
+
+    // Export functions
+    const downloadBlob = (blob: Blob, filename: string) => {
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    };
+
+    const exportSelectionsAsJson = () => {
+      const selections = options.reduce((acc, option, i) => {
+        const value = STATE_TO_VALUE[states[i]];
+        if (value && value !== "indifferent") {
+          acc[option.id] = value;
+        }
+        return acc;
+      }, {} as Record<string, string>);
+
+      const payload = {
+        selections,
+        timestamp: new Date().toISOString(),
+        version: "v0.34.1"
+      };
+
+      downloadBlob(new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" }), "corruchart-selections.json");
+      setIsExportMenuOpen(false);
+    };
+
+    const exportSelectionsAsCsv = () => {
+      const rows = options
+        .map((option, i) => {
+          const value = STATE_TO_VALUE[states[i]];
+          if (value && value !== "indifferent") {
+            return {
+              id: option.id,
+              label: option.label,
+              value: value,
+            };
+          }
+          return null;
+        })
+        .filter((row) => row !== null) as { id: string; label: string; value: string }[];
+
+      if (rows.length === 0) {
+        alert("No selections to export.");
+        return;
+      }
+
+      const escapeCsv = (value: string) => `"${value.replace(/"/g, '""')}"`;
+      const csv = ["id,label,value", ...rows.map(row => [escapeCsv(row.id), escapeCsv(row.label), escapeCsv(row.value)].join(","))].join("\n");
+      downloadBlob(new Blob([csv], { type: "text/csv" }), "corruchart-selections.csv");
+      setIsExportMenuOpen(false);
     };
 
     // Form submission handler for feedback
@@ -989,7 +1061,7 @@ useEffect(() => {
             <label
               className="px-4 py-2.5 rounded bg-neutral-900 text-neutral-400 hover:bg-neutral-800 cursor-pointer flex items-center justify-center text-sm gap-1"
             >
-              <span className="font-bold text-neutral-200">Import</span>
+              <span className="font-bold text-neutral-200">Import JSON/CSV</span>
               <input
                 type="file"
                 accept=".json,.csv,application/json,text/csv"
@@ -998,6 +1070,36 @@ useEffect(() => {
               />
             </label>
 
+            <div ref={exportMenuRef} className="relative inline-flex">
+              <button
+                type="button"
+                onClick={exportSelectionsAsJson}
+                className="px-4 py-2.5 rounded-l bg-neutral-900 text-neutral-400 hover:bg-neutral-800 cursor-pointer flex items-center justify-center text-sm gap-1"
+              >
+                <span className="font-bold text-neutral-200">Export JSON</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsExportMenuOpen(prev => !prev)}
+                className="px-2 py-2.5 rounded-r bg-neutral-900 text-neutral-400 hover:bg-neutral-800 border-l border-neutral-700 cursor-pointer flex items-center justify-center"
+                aria-expanded={isExportMenuOpen}
+                aria-label="More export options"
+              >
+                <span className="text-xs">▾</span>
+              </button>
+
+              {isExportMenuOpen && (
+                <div className="absolute left-0 mt-9 w-44 rounded border cursor-pointer border-neutral-700 bg-neutral-900 z-20">
+                  <button
+                    type="button"
+                    onClick={exportSelectionsAsCsv}
+                    className="w-full text-left px-3 py-2 text-sm cursor-pointer text-neutral-200 hover:bg-neutral-800"
+                  >
+                    Export CSV
+                  </button>
+                </div>
+              )}
+            </div>
 
             <button
             type="button"
