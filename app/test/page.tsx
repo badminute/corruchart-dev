@@ -708,8 +708,8 @@ const mergedTestPages = useMemo<TestPageSet[]>(() => {
 )}
 
       {showSetsModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
-          <div className="bg-neutral-900 border border-neutral-800 p-4 rounded-3xl w-full max-w-md shadow-2xl text-white">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4" onClick={() => setShowSetsModal(false)}>
+          <div className="bg-neutral-900 border border-neutral-800 p-4 rounded-3xl w-full max-w-md shadow-2xl text-white" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4 gap-3">
               <h2 className="text-2xl font-bold text-violet-300">Sets</h2>
               <input

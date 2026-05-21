@@ -57,8 +57,8 @@ export default function GuideModal({
   const selectedTip = selectedTipIndex !== null ? tips[selectedTipIndex] : null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4">
-      <div className="bg-neutral-900 border border-neutral-800 p-6 rounded-2xl w-full max-w-4xl h-[650px] shadow-2xl flex flex-col">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4" onClick={onClose}>
+      <div className="bg-neutral-900 border border-neutral-800 p-6 rounded-2xl w-full max-w-4xl h-[650px] shadow-2xl flex flex-col" onClick={(e) => e.stopPropagation()}>
         {/* Header */}
         <h2 className="text-2xl font-bold text-center text-violet-400 mb-4">
           {title}

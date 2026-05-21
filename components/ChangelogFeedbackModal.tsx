@@ -35,8 +35,8 @@ export default function ChangelogFeedbackModal({
 
   return (
     <>
-      <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4">
-        <div className="bg-neutral-900 border border-neutral-800 p-6 rounded-2xl w-full max-w-6xl h-[650px] shadow-2xl flex flex-row gap-6">
+      <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4" onClick={() => setShowChangelog(false)}>
+        <div className="bg-neutral-900 border border-neutral-800 p-6 rounded-2xl w-full max-w-6xl h-[650px] shadow-2xl flex flex-row gap-6" onClick={(e) => e.stopPropagation()}>
 
           <div className="flex-1 flex flex-col">
             <h2 className="text-2xl font-bold text-center text-violet-400 mb-4">
