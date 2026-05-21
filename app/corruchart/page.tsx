@@ -38,6 +38,8 @@ const COLOR_NAMES = [
 
 const RESULTS_KEY = "combined-selections";
 const FILTERS_KEY = "corruchart-filters";
+const GUIDE_VERSION = "0.35.0";
+const GUIDE_TIPS_TO_HIGHLIGHT = [0, 2, 7, 8]; // Empty array means all tips are considered "new"
 
 type PersistedFilterState = {
   query?: string;
@@ -154,7 +156,7 @@ export default function Page() {
 
     // curated list of new options
     const newOptions = useNewOptions();
-
+    const [seenGuideTips, setSeenGuideTips] = useState<number[]>([]);
     const [isWelcomeOpen, setIsWelcomeOpen] = useState(true);
     const [showNarrowGroups, setShowNarrowGroups] = useState(false);
     const [isHolding, setIsHolding] = useState<string | null>(null);
@@ -246,6 +248,15 @@ export default function Page() {
     setHasNewUpdate(true);
     }
     }, []);
+
+    // HAS USER SEEN THE GUIDE TIPS?
+    useEffect(() => {
+    const seen = localStorage.getItem("corruchart-guide-seen");
+    if (seen !== GUIDE_VERSION) {
+    setHasNewGuide(true);
+    }
+    }, []);
+
     const openChangelog = () => {
     setShowChangelog(true);
 
@@ -253,6 +264,15 @@ export default function Page() {
     localStorage.setItem("corruchart-changelog-seen", CHANGELOG_VERSION);
     setHasNewUpdate(false);
     }
+    };
+
+    const openGuide = () => {
+    setShowWelcome(true);
+    };
+
+    const markGuideSeen = () => {
+    localStorage.setItem("corruchart-guide-seen", GUIDE_VERSION);
+    setHasNewGuide(false);
     };
 
 
@@ -458,6 +478,7 @@ export default function Page() {
     const [showFeedbackModal, setShowFeedbackModal] = useState(false);
     const [showFeedback, setShowFeedback] = useState(false);
     const [feedbackPos, setFeedbackPos] = useState<{ x: number; y: number } | null>(null);
+    const [hasNewGuide, setHasNewGuide] = useState(false);
   
     const feedbackDragRef = useRef<{ x: number; y: number; mouseX: number; mouseY: number } | null>(null);
 
@@ -910,6 +931,8 @@ useEffect(() => {
         title="Corruchart Section"
         description="Here are some usage tips to make things smoother."
         buttonLabel="CHART"
+        newTipIndices={hasNewGuide ? GUIDE_TIPS_TO_HIGHLIGHT : []}
+        onMarkSeen={markGuideSeen}
         tips={[
           { title: "Corruption Values and Potion Types", images: ["images/potion-tips.png"] },
           { title: "Cycling Interests from Disgust to Lust", images: ["images/cycle.gif"] },
@@ -941,10 +964,17 @@ useEffect(() => {
             {/* Info/Help button */}
             <button
                 type="button"
-                onClick={() => setShowWelcome(true)}
-                className="px-4 py-2.5 rounded bg-neutral-900 text-neutral-400 hover:bg-neutral-800 cursor-pointer flex items-center justify-center text-sm gap-1"
+                onClick={openGuide}
+                className={`px-4 py-2.5 rounded bg-neutral-900 text-neutral-400 hover:bg-neutral-800 cursor-pointer flex items-center justify-center text-sm gap-1 ${
+                  hasNewGuide ? "ring-2 ring-violet-400" : ""
+                }`}
             >
                 <span className="font-bold text-neutral-200">Guide</span>
+                {hasNewGuide && (
+                  <span className="text-[10px] font-bold text-violet-300 ml-1">
+                    NEW!
+                  </span>
+                )}
             </button>
 
             <label

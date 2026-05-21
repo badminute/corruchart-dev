@@ -10,6 +10,9 @@ import { DESCRIPTIONS } from "@/data/descriptions";
 import { useSettings } from "@/components/SettingsContext";
 import GuideModal from "@/components/GuideModal";
 
+const GUIDE_VERSION = "0.35.0";
+const GUIDE_TIPS_TO_HIGHLIGHT = [];
+
 export default function Page() {
     const options: RoleOption[] = ROLES;
     const [states, setStates] = useState<number[]>([]);
@@ -24,6 +27,7 @@ export default function Page() {
     
     // WELCOME MODAL
     const [showWelcome, setShowWelcome] = useState(false);
+    const [hasNewGuide, setHasNewGuide] = useState(false);
 
     useEffect(() => {
         const key = "roles-welcome-last-shown";
@@ -35,6 +39,23 @@ export default function Page() {
             setShowWelcome(true);
         }
     }, []);
+
+    // HAS USER SEEN THE GUIDE TIPS?
+    useEffect(() => {
+        const seen = localStorage.getItem("roles-guide-seen");
+        if (seen !== GUIDE_VERSION) {
+            setHasNewGuide(true);
+        }
+    }, []);
+
+    const openGuide = () => {
+        setShowWelcome(true);
+    };
+
+    const markGuideSeen = () => {
+        localStorage.setItem("roles-guide-seen", GUIDE_VERSION);
+        setHasNewGuide(false);
+    };
 
     const closeWelcome = () => {
         setShowWelcome(false);
@@ -179,6 +200,8 @@ export default function Page() {
               title="Roles Section"
               description="Here are some usage tips to make things smoother."
               buttonLabel="ROLES"
+              newTipIndices={hasNewGuide ? GUIDE_TIPS_TO_HIGHLIGHT : []}
+              onMarkSeen={markGuideSeen}
               tips={[
                 { title: "Selecting Roles", images: ["images/select-roles.gif"] },
                 { title: "Role Descriptions", images: ["images/role-descriptions.gif"] },
@@ -204,10 +227,15 @@ export default function Page() {
                         {/* Info/Help button */}
                         <button
                             type="button"
-                            onClick={() => setShowWelcome(true)}
-                            className="px-4 py-2.5 rounded bg-neutral-900 text-neutral-400 hover:bg-neutral-800 cursor-pointer flex items-center justify-center text-sm gap-1"
+                            onClick={openGuide}
+                            className={`px-4 py-2.5 rounded bg-neutral-900 text-neutral-400 hover:bg-neutral-800 cursor-pointer flex items-center justify-center text-sm gap-1 ${
+                              hasNewGuide ? "ring-2 ring-violet-400" : ""
+                            }`}
                         >
                             <span className="font-bold text-white">Guide</span>
+                            {hasNewGuide && (
+                              <span className="text-[10px] font-bold text-violet-300 ml-1">NEW!</span>
+                            )}
                         </button>
                         <Link
                         href="/corruchart"

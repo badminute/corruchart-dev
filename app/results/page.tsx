@@ -35,6 +35,8 @@ const METER_MAX_POINTS = 9000;
 const PAGE_BACKGROUND_COLOR = "#1F2023";
 const MAX_FAVORITES = 30;
 const FAVORITES_KEY = "corruchart-favorites";
+const GUIDE_VERSION = "0.35.0";
+const GUIDE_TIPS_TO_HIGHLIGHT = [];
 
 
 console.log("Broad-only option IDs:", broadOnlyIds);
@@ -123,6 +125,7 @@ const tagSearchResults = useMemo(() => {
 
     // TIPS MODAL
     const [showWelcome, setShowWelcome] = useState(false);
+    const [hasNewGuide, setHasNewGuide] = useState(false);
 
     useEffect(() => {
         const key = "results-welcome-last-shown";
@@ -134,6 +137,23 @@ const tagSearchResults = useMemo(() => {
             setShowWelcome(true);
         }
     }, []);
+
+    // HAS USER SEEN THE GUIDE TIPS?
+    useEffect(() => {
+        const seen = localStorage.getItem("results-guide-seen");
+        if (seen !== GUIDE_VERSION) {
+            setHasNewGuide(true);
+        }
+    }, []);
+
+    const openGuide = () => {
+        setShowWelcome(true);
+    };
+
+    const markGuideSeen = () => {
+        localStorage.setItem("results-guide-seen", GUIDE_VERSION);
+        setHasNewGuide(false);
+    };
 
 
     // Update your close function
@@ -1123,10 +1143,15 @@ const scoredSelections = useMemo(() => {
                 {/* Info/Help button (Standardized size) */}
                 <button
                     type="button"
-                    onClick={() => setShowWelcome(true)}
-                    className="px-4 py-1 rounded bg-neutral-900 text-neutral-200 text-sm hover:bg-neutral-800 cursor-pointer flex items-center justify-center h-8 gap-1"
+                    onClick={openGuide}
+                    className={`px-4 py-1 rounded bg-neutral-900 text-neutral-200 text-sm hover:bg-neutral-800 cursor-pointer flex items-center justify-center h-8 gap-1 ${
+                      hasNewGuide ? "ring-2 ring-violet-400" : ""
+                    }`}
                 >
                     <span className="font-bold">Guide</span>
+                    {hasNewGuide && (
+                      <span className="text-[10px] font-bold text-violet-300 ml-1">NEW!</span>
+                    )}
                 </button>
 
                 {/* Feedback button (In Back's old spot) */}
@@ -1748,6 +1773,8 @@ const scoredSelections = useMemo(() => {
           title="Results Section"
           description="Your results are computed based on your responses to specific interests. Your affinities are based on the tags that the interests are in. You can customize your results a bit more, here are ways to do that."
           buttonLabel="RESULTS"
+          newTipIndices={hasNewGuide ? GUIDE_TIPS_TO_HIGHLIGHT : []}
+          onMarkSeen={markGuideSeen}
           tips={[
             { title: "IMPORTANT: Export Image (with Results Embedded)", images: ["images/export-image.gif"] },
             { title: "Pinning Noteworthy Interests", images: ["images/pins.gif"] },

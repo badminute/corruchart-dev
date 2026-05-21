@@ -41,6 +41,8 @@ const RESULTS_KEY = "combined-selections";
 const GROUP_STATES_KEY = "test-mode-group-states";
 const SET_STATES_KEY = "test-mode-set-states";
 const CURRENT_SET_KEY = "test-mode-current-set-id";
+const GUIDE_VERSION = "0.35.0";
+const GUIDE_TIPS_TO_HIGHLIGHT = [];
 
 function chunkArray<T>(arr: T[], size: number) {
   const result: T[][] = [];
@@ -80,6 +82,7 @@ export default function TestPage() {
   const [showWelcome, setShowWelcome] = useState(false);
   const [showChangelog, setShowChangelog] = useState(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [hasNewGuide, setHasNewGuide] = useState(false);
   const [showSetsModal, setShowSetsModal] = useState(false);
   const [setsSearchQuery, setSetsSearchQuery] = useState("");
   const [groupStates, setGroupStates] = useState<Record<string, Record<string, number>>>({});
@@ -204,6 +207,23 @@ const mergedTestPages = useMemo<TestPageSet[]>(() => {
       setShowWelcome(true);
     }
   }, []);
+
+  // HAS USER SEEN THE GUIDE TIPS?
+  useEffect(() => {
+    const seen = localStorage.getItem("test-guide-seen");
+    if (seen !== GUIDE_VERSION) {
+      setHasNewGuide(true);
+    }
+  }, []);
+
+  const openGuide = () => {
+    setShowWelcome(true);
+  };
+
+  const markGuideSeen = () => {
+    localStorage.setItem("test-guide-seen", GUIDE_VERSION);
+    setHasNewGuide(false);
+  };
 
   useEffect(() => {
     const savedRaw = localStorage.getItem(RESULTS_KEY);
@@ -454,10 +474,15 @@ const mergedTestPages = useMemo<TestPageSet[]>(() => {
             <div className="flex flex-wrap gap-3">
               <button
                 type="button"
-                onClick={() => setShowWelcome(true)}
-                className="px-4 py-2 rounded bg-neutral-900 text-neutral-200 cursor-pointer hover:bg-violet-500/30 transition"
+                onClick={openGuide}
+                className={`px-4 py-2 rounded bg-neutral-900 text-neutral-200 cursor-pointer hover:bg-violet-500/30 transition ${
+                  hasNewGuide ? "ring-2 ring-violet-400" : ""
+                }`}
               >
                 Guide
+                {hasNewGuide && (
+                  <span className="text-[10px] font-bold text-violet-300 ml-1">NEW!</span>
+                )}
               </button>
             <button
             type="button"
@@ -667,6 +692,8 @@ const mergedTestPages = useMemo<TestPageSet[]>(() => {
     title="Assessment Section"
     description="Here are some usage tips to make things smoother."
     buttonLabel="ASSESS"
+    newTipIndices={hasNewGuide ? GUIDE_TIPS_TO_HIGHLIGHT : []}
+    onMarkSeen={markGuideSeen}
     tips={[
           { title: "Corruption Values and Potion Types", images: ["images/potion-tips.png"] },
           { title: "Cycling Interests from Disgust to Lust", images: ["images/cycle.gif"] },
