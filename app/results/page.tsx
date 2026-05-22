@@ -1138,6 +1138,16 @@ const scoredSelections = useMemo(() => {
                     Feedback
                 </button>
 
+                {/* Graph button */}
+                <Link href="/graph">
+                    <button
+                        type="button"
+                        className="px-3 py-1 rounded bg-neutral-900 text-white text-sm hover:bg-neutral-800 transition-colors cursor-pointer flex items-center justify-center h-8"
+                    >
+                        Graph
+                    </button>
+                </Link>
+
             {/* Feedback Form Popup */}
             {feedbackOpen && (
             <div
