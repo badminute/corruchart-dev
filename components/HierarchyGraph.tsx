@@ -149,58 +149,57 @@ export default function HierarchyGraph() {
     });
 
 
-
     graphRef.current = graph;
     rendererRef.current = renderer;
   }
 
-  init();
-const centerOnce = () => {
-  const graph = graphRef.current;
-  const renderer = rendererRef.current;
+        init();
+        const centerOnce = () => {
+        const graph = graphRef.current;
+        const renderer = rendererRef.current;
 
-  if (!graph || !renderer) return;
+        if (!graph || !renderer) return;
 
-  const camera = renderer.getCamera();
+        const camera = renderer.getCamera();
 
-  renderer.refresh();
+        renderer.refresh();
 
-  const nodes = graph.nodes();
-  if (!nodes.length) return;
+        const nodes = graph.nodes();
+        if (!nodes.length) return;
 
-  let minX = Infinity;
-  let minY = Infinity;
-  let maxX = -Infinity;
-  let maxY = -Infinity;
+        let minX = Infinity;
+        let minY = Infinity;
+        let maxX = -Infinity;
+        let maxY = -Infinity;
 
-  for (const n of nodes) {
-    const x = graph.getNodeAttribute(n, "x");
-    const y = graph.getNodeAttribute(n, "y");
+        for (const n of nodes) {
+            const x = graph.getNodeAttribute(n, "x");
+            const y = graph.getNodeAttribute(n, "y");
 
-    minX = Math.min(minX, x);
-    minY = Math.min(minY, y);
-    maxX = Math.max(maxX, x);
-    maxY = Math.max(maxY, y);
-  }
+            minX = Math.min(minX, x);
+            minY = Math.min(minY, y);
+            maxX = Math.max(maxX, x);
+            maxY = Math.max(maxY, y);
+        }
 
-  const centerX = (minX + maxX) / 2;
-  const centerY = (minY + maxY) / 2;
+        const centerX = (minX + maxX) / 2;
+        const centerY = (minY + maxY) / 2;
 
-  camera.setState({
-    x: centerX,
-    y: centerY,
-    ratio: 1.4,
-  });
-};
+        camera.setState({
+            x: centerX,
+            y: centerY,
+            ratio: 1.4,
+        });
+        };
 
-// wait for real Sigma WebGL frame (NOT just React or RAF)
-setTimeout(() => {
-  requestAnimationFrame(centerOnce);
-}, 0);
-  return () => {
-    renderer?.kill();
-  };
-}, []);
+        // wait for real Sigma WebGL frame (NOT just React or RAF)
+        setTimeout(() => {
+        requestAnimationFrame(centerOnce);
+        }, 0);
+        return () => {
+            renderer?.kill();
+        };
+        }, []);
 
   // HANDLE EXPANSIONS
   useEffect(() => {
@@ -244,11 +243,15 @@ setTimeout(() => {
           });
         }
 
-        animateNode(childId, {
-          x: child.x * SCALE,
-          y: child.y * SCALE,
-          size: 18,
-        });
+        animateNode(
+        childId,
+        {
+            x: child.x * SCALE,
+            y: child.y * SCALE,
+            size: 18,
+        },
+        "in"
+        );
 
         if (expanded.has(childId)) {
           showChildren(childId);
@@ -256,76 +259,106 @@ setTimeout(() => {
       });
     }
 
-    function hideChildren(parentId: string) {
-      const parent = NODE_MAP[parentId];
+function hideChildren(parentId: string) {
+  const parent = NODE_MAP[parentId];
+  if (!parent.children) return;
 
-      if (!parent.children) return;
+  const graph = graphRef.current!;
 
-      parent.children.forEach((childId) => {
-        if (graph.hasNode(childId)) {
-          graph.dropNode(childId);
-        }
-      });
-    }
+  const parentX = graph.getNodeAttribute(parentId, "x");
+  const parentY = graph.getNodeAttribute(parentId, "y");
 
-    function animateNode(
-      nodeId: string,
-      target: {
-        x: number;
-        y: number;
-        size: number;
+  parent.children.forEach((childId) => {
+    if (!graph.hasNode(childId)) return;
+
+    // animate OUT using SAME system
+    animateNode(
+      childId,
+      {
+        x: parentX,
+        y: parentY,
+        size: 0,
+      },
+      "out"
+    );
+
+    // remove AFTER animation
+    setTimeout(() => {
+      if (graph.hasNode(childId)) {
+        graph.dropNode(childId);
       }
-    ) {
-      const duration = 300;
+    }, 300);
+  });
+}
 
-      const startX = graph.getNodeAttribute(nodeId, "x");
-      const startY = graph.getNodeAttribute(nodeId, "y");
-      const startSize = graph.getNodeAttribute(nodeId, "size");
+const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
+const easeInCubic = (t: number) => t * t * t;
 
-      const start = performance.now();
+function animateNode(
+  nodeId: string,
+  target: {
+    x: number;
+    y: number;
+    size: number;
+  },
+  direction: "in" | "out" = "in"
+) {
+  const graph = graphRef.current!;
+  const renderer = rendererRef.current!;
 
-      function tick(now: number) {
-        const t = Math.min((now - start) / duration, 1);
+  if (!graph.hasNode(nodeId)) return;
 
-        // easeOutCubic
-        const eased = 1 - Math.pow(1 - t, 3);
+  const duration = 300;
 
-        graph.setNodeAttribute(
-          nodeId,
-          "x",
-          startX + (target.x - startX) * eased
-        );
+  const startX = graph.getNodeAttribute(nodeId, "x");
+  const startY = graph.getNodeAttribute(nodeId, "y");
+  const startSize = graph.getNodeAttribute(nodeId, "size");
 
-        graph.setNodeAttribute(
-          nodeId,
-          "y",
-          startY + (target.y - startY) * eased
-        );
+  const start = performance.now();
 
-        graph.setNodeAttribute(
-          nodeId,
-          "size",
-          startSize + (target.size - startSize) * eased
-        );
+  const ease =
+    direction === "in"
+      ? (t: number) => 1 - Math.pow(1 - t, 3) // easeOut
+      : (t: number) => t * t * t; // easeIn
 
-        renderer.refresh();
+  function tick(now: number) {
+    if (!graph.hasNode(nodeId)) return;
 
-        if (t < 1) {
-          requestAnimationFrame(tick);
-        }
-      }
+    const t = Math.min((now - start) / duration, 1);
+    const eased = ease(t);
 
-      requestAnimationFrame(tick);
-    }
+    graph.setNodeAttribute(nodeId, "x", startX + (target.x - startX) * eased);
+    graph.setNodeAttribute(nodeId, "y", startY + (target.y - startY) * eased);
+    graph.setNodeAttribute(
+      nodeId,
+      "size",
+      startSize + (target.size - startSize) * eased
+    );
+
+    renderer.refresh();
+
+    if (t < 1) requestAnimationFrame(tick);
+  }
+
+  requestAnimationFrame(tick);
+}
 
     // APPLY VISIBILITY
-    Object.values(NODE_MAP).forEach((node) => {
-      if (expanded.has(node.id)) {
-        showChildren(node.id);
-      } else {
-        hideChildren(node.id);
-      }
-    });
+Object.values(NODE_MAP).forEach((node) => {
+  const graph = graphRef.current!;
+  const renderer = rendererRef.current!;
+
+  if (!graph.hasNode(node.id)) return;
+
+  if (expanded.has(node.id)) {
+    showChildren(node.id);
+  } else {
+    // ❗ only collapse if it currently exists
+    if (graph.hasNode(node.id)) {
+      hideChildren(node.id);
+    }
+  }
+});
 
     renderer.refresh();
   }, [expanded]);
