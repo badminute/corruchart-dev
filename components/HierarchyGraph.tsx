@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 
 import Graph from "graphology";
+import { NODE_MAP, SCALE } from "data/graphData";
+import type { NodeData as GraphNodeData } from "data/graphData";
 
 type NodeData = {
   id: string;
@@ -12,84 +14,10 @@ type NodeData = {
   children?: string[];
 };
 
-const SCALE = 100;
-
-const NODE_MAP: Record<string, NodeData> = {
-  lowerBody: {
-    id: "lowerBody",
-    label: "Lower Body",
-    x: 0,
-    y: 0,
-    children: ["feet", "legs", "thighs"],
-  },
-
-  feet: {
-    id: "feet",
-    label: "Feet",
-    x: 0,
-    y: 3,
-    children: [
-      "footWorship",
-      "dirtyFeet",
-      "heels",
-      "socks",
-      "shoeSniffing",
-    ],
-  },
-
-  legs: {
-    id: "legs",
-    label: "Legs",
-    x: -2,
-    y: 2,
-  },
-
-  thighs: {
-    id: "thighs",
-    label: "Thighs",
-    x: -4,
-    y: 2,
-  },
-
-  footWorship: {
-    id: "footWorship",
-    label: "Foot Worship",
-    x: -3,
-    y: 6,
-  },
-
-  dirtyFeet: {
-    id: "dirtyFeet",
-    label: "Dirty Feet",
-    x: -1,
-    y: 6,
-  },
-
-  heels: {
-    id: "heels",
-    label: "Heels",
-    x: 1,
-    y: 6,
-  },
-
-  socks: {
-    id: "socks",
-    label: "Socks",
-    x: 3,
-    y: 6,
-  },
-
-  shoeSniffing: {
-    id: "shoeSniffing",
-    label: "Shoe Sniffing",
-    x: 5,
-    y: 6,
-  },
-};
 
 export default function HierarchyGraph() {
   const containerRef = useRef<HTMLDivElement>(null);
-
+  const ROOTS = ["lowerBody", "upperBody"];
   const graphRef = useRef<Graph | null>(null);
   const rendererRef = useRef<any>(null);
 
@@ -108,12 +36,16 @@ export default function HierarchyGraph() {
 
     const graph = new Graph();
 
-    graph.addNode("lowerBody", {
-      label: NODE_MAP.lowerBody.label,
-      x: NODE_MAP.lowerBody.x * SCALE,
-      y: NODE_MAP.lowerBody.y * SCALE,
-      size: 20,
-      color: "#ffffff",
+    ROOTS.forEach((rootId, i) => {
+    const node = NODE_MAP[rootId];
+
+    graph.addNode(rootId, {
+        label: node.label,
+        x: node.x * SCALE,
+        y: node.y * SCALE,
+        size: 20,
+        color: "#ffffff",
+    });
     });
 
     renderer = new Sigma(graph, containerRef.current!, {
