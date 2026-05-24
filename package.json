@@ -15,6 +15,7 @@
     "clsx": "^2.1.1",
     "convex": "^1.31.2",
     "graphology": "^0.26.0",
+    "graphology-layout-forceatlas2": "^0.10.1",
     "html2canvas": "^1.4.1",
     "html2canvas-pro": "^1.6.2",
     "lucide-react": "^0.562.0",
