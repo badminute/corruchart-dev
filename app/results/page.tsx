@@ -14,8 +14,8 @@ import TagAffinityDrilldown from "@/components/tags/TagAffinityDrilldown";
 import { narrowTagsCheck } from "@/lib/utils";
 import { encodeSelections, decodeSelections } from "@/lib/utils";
 import { NARROW_TAGS } from "@/data/narrowTags";
-import { WelcomeSlideshow } from "@/components/onboarding";
 import { useSettings } from "@/components/SettingsContext";
+import GuideModal from "@/components/GuideModal";
 import { 
   encryptMetadata, 
   decryptMetadata, 
@@ -35,6 +35,8 @@ const METER_MAX_POINTS = 9000;
 const PAGE_BACKGROUND_COLOR = "#1F2023";
 const MAX_FAVORITES = 30;
 const FAVORITES_KEY = "corruchart-favorites";
+const GUIDE_VERSION = "0.35.0";
+const GUIDE_TIPS_TO_HIGHLIGHT = [];
 
 
 console.log("Broad-only option IDs:", broadOnlyIds);
@@ -123,6 +125,7 @@ const tagSearchResults = useMemo(() => {
 
     // TIPS MODAL
     const [showWelcome, setShowWelcome] = useState(false);
+    const [hasNewGuide, setHasNewGuide] = useState(false);
 
     useEffect(() => {
         const key = "results-welcome-last-shown";
@@ -135,13 +138,37 @@ const tagSearchResults = useMemo(() => {
         }
     }, []);
 
+    // HAS USER SEEN THE GUIDE?
+    useEffect(() => {
+        // No highlighted tips = no NEW state
+        if (GUIDE_TIPS_TO_HIGHLIGHT.length === 0) {
+            setHasNewGuide(false);
+            return;
+        }
+
+        const seen = localStorage.getItem("results-guide-seen");
+
+        if (seen !== GUIDE_VERSION) {
+            setHasNewGuide(true);
+        } else {
+            setHasNewGuide(false);
+        }
+    }, []);
+
+    const openGuide = () => {
+        setShowWelcome(true);
+    };
+
+    const markGuideSeen = () => {
+        localStorage.setItem("results-guide-seen", GUIDE_VERSION);
+        setHasNewGuide(false);
+    };
 
     // Update your close function
     const closeWelcome = () => {
         setShowWelcome(false);
         localStorage.setItem("results-welcome-last-shown", Date.now().toString());
     };
-    // -----------------------
 
 
 const startPress = (id: string) => {
@@ -772,7 +799,7 @@ const scoredSelections = useMemo(() => {
               roles: identityOptions.map(role => role.id),
               score: scoreData.total,
               timestamp: renderedAt,
-              version: "v0.34.1"
+              version: "v0.35.0"
             };
 
             console.log('Embedding metadata:', metadata);
@@ -1123,10 +1150,15 @@ const scoredSelections = useMemo(() => {
                 {/* Info/Help button (Standardized size) */}
                 <button
                     type="button"
-                    onClick={() => setShowWelcome(true)}
-                    className="px-4 py-1 rounded bg-neutral-900 text-neutral-200 text-sm hover:bg-neutral-800 cursor-pointer flex items-center justify-center h-8 gap-1"
+                    onClick={openGuide}
+                    className={`px-4 py-1 rounded bg-neutral-900 text-neutral-200 text-sm hover:bg-neutral-800 cursor-pointer flex items-center justify-center h-8 gap-1 ${
+                      hasNewGuide ? "ring-2 ring-violet-400" : ""
+                    }`}
                 >
                     <span className="font-bold">Guide</span>
+                    {hasNewGuide && (
+                      <span className="text-[10px] font-bold text-violet-300 ml-1">NEW!</span>
+                    )}
                 </button>
 
                 {/* Feedback button (In Back's old spot) */}
@@ -1266,7 +1298,7 @@ const scoredSelections = useMemo(() => {
                 textShadow: "0px 1px 0px rgba(0,0,0,0.6)",
               }}
             >
-              v0.34.1
+              v0.35.0
             </span>
           </div>
 
@@ -1742,50 +1774,25 @@ const scoredSelections = useMemo(() => {
 
       {/* MODAL OVERLAY */}
         {showWelcome && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4">
-        <div className="bg-neutral-900 border border-neutral-800 p-6 rounded-2xl w-full max-w-4xl + max-h-[90vh] shadow-2xl flex flex-col">
-  
-  {/* Header */}
-  <h2 className="text-2xl font-bold text-center text-violet-400 mb-4">
-    Results Section
-  </h2>
-
-  {/* Scrollable Content Area */}
-  <div className="flex-1 overflow-y-auto">
-    
-    {/* Description */}
-    <div className="text-gray-400 text-center text-xl mb-4">
-      <p>
-        Your results are computed based on your responses to specific interests. Your affinities
-        are based on the tags that the interests are in. You can customize your results a bit more, here are ways to do that.
-      </p>
-    </div>
-
-    {/* Slideshow */}
-    <WelcomeSlideshow 
-      images={[
-        "images/pins.gif",
-        "images/search-interests.gif",
-        "images/redact.gif",
-        "images/export-image.gif",
-        "images/remove-favourites.gif",
-        "images/empty-chart-import-now.gif",
-        "images/export-csv-and-json.gif",
-      ]} 
-    />
-  </div>
-
-  {/* Button — always visible */}
-  <button
-    onClick={closeWelcome}
-    className="w-full py-3 mt-4 bg-neutral-800 hover:bg-violet-500/30 cursor-pointer text-white font-semibold rounded-xl transition-colors"
-  >
-    RESULTS
-  </button>
-</div>
-
-  </div>
-)}
+        <GuideModal
+          isOpen={showWelcome}
+          onClose={closeWelcome}
+          title="Results Section"
+          description="Your results are computed based on your responses to specific interests. Your affinities are based on the tags that the interests are in. You can customize your results a bit more, here are ways to do that."
+          buttonLabel="RESULTS"
+          newTipIndices={hasNewGuide ? GUIDE_TIPS_TO_HIGHLIGHT : []}
+          onMarkSeen={markGuideSeen}
+          tips={[
+            { title: "IMPORTANT: Export Image (with Results Embedded)", images: ["images/export-image.gif"] },
+            { title: "Pinning Noteworthy Interests", images: ["images/pins.gif"] },
+            { title: "Searching Affinities to Pin", images: ["images/search-interests.gif"] },
+            { title: "Redacting Pins", images: ["images/redact.gif"] },
+            { title: "Removing Pins", images: ["images/remove-favourites.gif"] },
+            { title: "Export CSV and JSON: Save For Later & Transfer Progress (PC -> Mobile, etc.)", images: ["images/empty-chart-import-now.gif"] },
+            { title: "Import Results via CSV & JSON", images: ["images/export-csv-and-json.gif"] },
+          ]}
+        />
+        )}
 
           </section>
       </div>

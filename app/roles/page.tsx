@@ -7,8 +7,11 @@ import { ROLES } from "@/data/roles";
 import type { RoleOption } from "@/data/roles";
 import { ROLE_SYMBOLS } from "@/data/roleSymbols";
 import { DESCRIPTIONS } from "@/data/descriptions";
-import { WelcomeSlideshow } from "@/components/onboarding";
 import { useSettings } from "@/components/SettingsContext";
+import GuideModal from "@/components/GuideModal";
+
+const GUIDE_VERSION = "0.35.0";
+const GUIDE_TIPS_TO_HIGHLIGHT = [];
 
 export default function Page() {
     const options: RoleOption[] = ROLES;
@@ -24,6 +27,7 @@ export default function Page() {
     
     // WELCOME MODAL
     const [showWelcome, setShowWelcome] = useState(false);
+    const [hasNewGuide, setHasNewGuide] = useState(false);
 
     useEffect(() => {
         const key = "roles-welcome-last-shown";
@@ -36,13 +40,38 @@ export default function Page() {
         }
     }, []);
 
+    // HAS USER SEEN THE GUIDE?
+    useEffect(() => {
+        // No highlighted tips = no NEW state
+        if (GUIDE_TIPS_TO_HIGHLIGHT.length === 0) {
+            setHasNewGuide(false);
+            return;
+        }
+
+        const seen = localStorage.getItem("roles-guide-seen");
+
+        if (seen !== GUIDE_VERSION) {
+            setHasNewGuide(true);
+        } else {
+            setHasNewGuide(false);
+        }
+    }, []);
+
+    const openGuide = () => {
+        setShowWelcome(true);
+    };
+
+    const markGuideSeen = () => {
+        localStorage.setItem("roles-guide-seen", GUIDE_VERSION);
+        setHasNewGuide(false);
+    };
+
     const closeWelcome = () => {
         setShowWelcome(false);
         localStorage.setItem("roles-welcome-last-shown", Date.now().toString());
     };
-    // -----------------------
 
-    const EXCLUSIVE_CATEGORIES = ["Sex Experience", "Sexual Orientation", "Body Count", "Hentai Doujinshi Read", "Hentai Anime Watched", "Hentai Games Played", "Porn Stash", "Porn Experience", "Gender", "Erotic Novels Read", "Sex", "Sex Roles", "Gender Expression"];
+    const EXCLUSIVE_CATEGORIES = ["Sex Experience", "Body Count", "Hentai Doujinshi Read", "Hentai Anime Watched", "Hentai Games Played", "Porn Stash", "Porn Experience", "Gender", "Erotic Novels Read", "Sex", "Sex Roles", "Gender Expression"];
     const customColor: Record<string, string> = {
         "fire-pyrolagnia": "#f87171",
         "optionB": "#34d399",
@@ -173,40 +202,20 @@ export default function Page() {
         <>
             {/* MODAL OVERLAY */}
             {showWelcome && (
-            <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4">
-                <div className="bg-neutral-900 border border-neutral-800 p-6 rounded-2xl w-full max-w-4xl h-[650px] shadow-2xl flex flex-col">
-                
-                {/* Header */}
-                <h2 className="text-2xl font-bold text-center text-violet-400 mb-4">
-                    Roles Section
-                </h2>
-
-                {/* Description */}
-                <div className="text-gray-400 text-center text-xl mb-4">
-                    <p>Here are some usage tips to make things smoother.</p>
-                </div>
-
-                {/* Slideshow */}
-                <div className="flex-1">
-                    <WelcomeSlideshow 
-                    images={[
-                        "images/select-roles.gif", 
-                        "images/role-descriptions.gif",
-                        "images/swap-roles.gif",
-                    ]} 
-                    />
-                </div>
-
-                {/* Button */}
-                <button
-                    onClick={closeWelcome}
-                    className="w-full py-3 mt-4 bg-neutral-800 hover:bg-violet-500/30 cursor-pointer text-white font-semibold rounded-xl transition-colors"
-                >
-                    ROLES
-                </button>
-
-                </div>
-            </div>
+            <GuideModal
+              isOpen={showWelcome}
+              onClose={closeWelcome}
+              title="Roles Section"
+              description="Here are some usage tips to make things smoother."
+              buttonLabel="ROLES"
+              newTipIndices={hasNewGuide ? GUIDE_TIPS_TO_HIGHLIGHT : []}
+              onMarkSeen={markGuideSeen}
+              tips={[
+                { title: "Selecting Roles", images: ["images/select-roles.gif"] },
+                { title: "Role Descriptions", images: ["images/role-descriptions.gif"] },
+                { title: "Swapping Role Variants", images: ["images/swap-roles.gif"] },
+              ]}
+            />
             )}
 
 
@@ -226,10 +235,15 @@ export default function Page() {
                         {/* Info/Help button */}
                         <button
                             type="button"
-                            onClick={() => setShowWelcome(true)}
-                            className="px-4 py-2.5 rounded bg-neutral-900 text-neutral-400 hover:bg-neutral-800 cursor-pointer flex items-center justify-center text-sm gap-1"
+                            onClick={openGuide}
+                            className={`px-4 py-2.5 rounded bg-neutral-900 text-neutral-400 hover:bg-neutral-800 cursor-pointer flex items-center justify-center text-sm gap-1 ${
+                              hasNewGuide ? "ring-2 ring-violet-400" : ""
+                            }`}
                         >
                             <span className="font-bold text-white">Guide</span>
+                            {hasNewGuide && (
+                              <span className="text-[10px] font-bold text-violet-300 ml-1">NEW!</span>
+                            )}
                         </button>
                         <Link
                         href="/corruchart"

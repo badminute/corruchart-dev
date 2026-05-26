@@ -35,8 +35,8 @@ export default function ChangelogFeedbackModal({
 
   return (
     <>
-      <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4">
-        <div className="bg-neutral-900 border border-neutral-800 p-6 rounded-2xl w-full max-w-6xl h-[650px] shadow-2xl flex flex-row gap-6">
+      <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4" onClick={() => setShowChangelog(false)}>
+        <div className="bg-neutral-900 border border-neutral-800 p-6 rounded-2xl w-full max-w-6xl h-[650px] shadow-2xl flex flex-row gap-6" onClick={(e) => e.stopPropagation()}>
 
           <div className="flex-1 flex flex-col">
             <h2 className="text-2xl font-bold text-center text-violet-400 mb-4">
@@ -53,6 +53,16 @@ export default function ChangelogFeedbackModal({
              {view === "log" ? (
                 <>
                     {/* 🔽 CHANGELOG CONTENT 🔽 */}
+                <h3 className="text-lg font-semibold text-white">
+                    v0.35.0 — Hypnosis, Sadomaso, and More!  
+                </h3>
+                  <ul className="list-disc ml-6 mt-2 space-y-1">
+                    <li>Added these roles: Self Inserter and Masochistic Caregiver!</li>
+                    <li> The modals can now be closed by clicking outside of them. I added Export JSON & CSV to the chart page so you don't have to go to the results page to save & continue later and a little polishing on the refresh code of the sets mode.</li>
+                    <li>Sexual Orientation (Roles Section) no longer suffers from exclusive selection!</li>
+                    <li>I updated the Guide to notify when new guides are added, show them all titled, and highlight them! I'll be adding new, useful tips soon!</li>
+                    <li>Added these interests: Addiction, Animal Hypnosis, Aware Hypnosis, Blank Eyes, Body Controllers, Chloroform, Chocolate, Constriction, Decapitation, Demons, Double Vision, Drugged Peril, False Hypnosis, Finger Snapping, Full Blank Hypnosis, Futa Fluffing, Head Inflation, Headless Females, Headless Males, Hiccuping, Hypnotic Dancing, Knocked Silly, Masochism From Evil, Masochism From Good, Masochism (Porn), Monkey Paw Wishes, Mutual Docking, Mutual Gaining (Observer), Mutual Gaining (Participant), Non-Sexual Masochism, Non-Sexual Sadism, Non-Human Domination, Perilous Hypnosis, Personality Overwriting, Porn Addiction, Practical Hypnosis, Reality Warping, Reprogramming, Ring Eyes, Sadism x Evil, Sadism x Good, Sadism x Masochist, Sadism x Sadist, Sadism (Porn), Scat Torture, Sleepwalking, Snoring, Spirals, Subliminals, Tranquilizer Darts, Trigger Phrases, Unaware Hypnosis, Vore (Observer), White Eyes, and Zombiewalking!</li>
+                  </ul>
                 <h3 className="text-lg font-semibold text-white">
                     v0.34.1 — Polishing Descriptions  
                 </h3>

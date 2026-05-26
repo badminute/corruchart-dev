@@ -112,7 +112,6 @@ export const GROUPS: Group[] = [
   { id: "paranormal", name: "Paranormal", scope: "narrow" },
   { id: "pecs", name: "Pecs", scope: "narrow" },
   { id: "pee", name: "Pee", scope: "narrow" },
-  { id: "personalities", name: "Personalities", scope: "narrow" },
   { id: "petplay", name: "Pet Play", scope: "narrow" },
   { id: "porn", name: "Porn", scope: "narrow" },
   { id: "power-dynamics", name: "Power Dynamics", scope: "narrow" },

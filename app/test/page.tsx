@@ -10,11 +10,12 @@ import { TEST_PAGE_SETS, DEFAULT_TEST_PAGE_CHUNK_SIZE, TEST_PAGE_OPTION_IDS } fr
 import type { TestPageSet } from "@/data/testPages";
 import SettingsButton from "@/components/SettingsButton";
 import OptionsGrid from "@/components/OptionsGrid";
-import { WelcomeSlideshow } from "@/components/onboarding";
 import { useSettings } from "@/components/SettingsContext";
 import ChangelogFeedbackModal from "@/components/ChangelogFeedbackModal";
+import GuideModal from "@/components/GuideModal";
 import type { Option as BaseOption } from "@/types/option";
 import { logMissingTestPageSetOptionIds } from "@/data/testPages";
+import { TAG_DESCRIPTIONS } from "@/data/tagDescriptions";
 
 logMissingTestPageSetOptionIds();
 const COLOR_NAMES = [
@@ -41,6 +42,8 @@ const RESULTS_KEY = "combined-selections";
 const GROUP_STATES_KEY = "test-mode-group-states";
 const SET_STATES_KEY = "test-mode-set-states";
 const CURRENT_SET_KEY = "test-mode-current-set-id";
+const GUIDE_VERSION = "0.35.0";
+const GUIDE_TIPS_TO_HIGHLIGHT = [];
 
 function chunkArray<T>(arr: T[], size: number) {
   const result: T[][] = [];
@@ -80,6 +83,7 @@ export default function TestPage() {
   const [showWelcome, setShowWelcome] = useState(false);
   const [showChangelog, setShowChangelog] = useState(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [hasNewGuide, setHasNewGuide] = useState(false);
   const [showSetsModal, setShowSetsModal] = useState(false);
   const [setsSearchQuery, setSetsSearchQuery] = useState("");
   const [groupStates, setGroupStates] = useState<Record<string, Record<string, number>>>({});
@@ -88,6 +92,7 @@ export default function TestPage() {
   const [activePluses, setActivePluses] = useState<{ index: number; id: string; state: number }[]>([]);
   const [activeVariant, setActiveVariant] = useState<Record<string, number>>({});
   const [currentPage, setCurrentPage] = useState(0);
+  const [isPageInitialized, setIsPageInitialized] = useState(false);
   const [openDescription, setOpenDescription] = useState<string | null>(null);
   const [openTagDescription, setOpenTagDescription] = useState<string | null>(null);
 
@@ -205,6 +210,28 @@ const mergedTestPages = useMemo<TestPageSet[]>(() => {
     }
   }, []);
 
+    // HAS USER SEEN THE GUIDE?
+    useEffect(() => {
+    // No highlighted tips = no NEW state
+    if (GUIDE_TIPS_TO_HIGHLIGHT.length === 0) {
+        setHasNewGuide(false);
+        return;
+    }
+    const seen = localStorage.getItem("test-guide-seen");
+    if (seen !== GUIDE_VERSION) {
+      setHasNewGuide(true);
+    }
+  }, []);
+
+  const openGuide = () => {
+    setShowWelcome(true);
+  };
+
+  const markGuideSeen = () => {
+    localStorage.setItem("test-guide-seen", GUIDE_VERSION);
+    setHasNewGuide(false);
+  };
+
   useEffect(() => {
     const savedRaw = localStorage.getItem(RESULTS_KEY);
     if (!savedRaw) {
@@ -283,12 +310,16 @@ const mergedTestPages = useMemo<TestPageSet[]>(() => {
 
     useEffect(() => {
     const savedSetId = localStorage.getItem(CURRENT_SET_KEY);
-    if (!savedSetId) return;
+    if (!savedSetId) {
+      setIsPageInitialized(true);
+      return;
+    }
 
     const index = mergedTestPages.findIndex(s => s.id === savedSetId);
     if (index >= 0) {
     setCurrentPage(index);
     }
+    setIsPageInitialized(true);
     }, [mergedTestPages]);
 
     useEffect(() => {
@@ -454,10 +485,15 @@ const mergedTestPages = useMemo<TestPageSet[]>(() => {
             <div className="flex flex-wrap gap-3">
               <button
                 type="button"
-                onClick={() => setShowWelcome(true)}
-                className="px-4 py-2 rounded bg-neutral-900 text-neutral-200 cursor-pointer hover:bg-violet-500/30 transition"
+                onClick={openGuide}
+                className={`px-4 py-2 rounded bg-neutral-900 text-neutral-200 cursor-pointer hover:bg-violet-500/30 transition ${
+                  hasNewGuide ? "ring-2 ring-violet-400" : ""
+                }`}
               >
                 Guide
+                {hasNewGuide && (
+                  <span className="text-[10px] font-bold text-violet-300 ml-1">NEW!</span>
+                )}
               </button>
             <button
             type="button"
@@ -493,6 +529,8 @@ const mergedTestPages = useMemo<TestPageSet[]>(() => {
             </div>
           </div>
 
+          {isPageInitialized && (
+            <>
           <section className="p-6 mb-8">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <button
@@ -612,9 +650,8 @@ const mergedTestPages = useMemo<TestPageSet[]>(() => {
                     </button>
                   </div>
                   <p className="mt-3 text-gray-300">
-                    {tagMetaById[openTagDescription]?.name
-                      ? `This tag represents the ${tagMetaById[openTagDescription]!.name} category.`
-                      : "No description available for this tag."}
+                    {TAG_DESCRIPTIONS[openTagDescription] ??
+                    "No description available for this tag."}
                   </p>
                 </div>
               )}
@@ -654,53 +691,34 @@ const mergedTestPages = useMemo<TestPageSet[]>(() => {
             cycleColor={updateOptionState}
             compact
           />
+            </>
+          )}
         </div>
       </main>
 
       {showWelcome && (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
-    <div className="bg-neutral-900 border border-neutral-800 p-6 rounded-2xl w-full max-w-4xl h-[650px] shadow-2xl flex flex-col">
-
-      {/* Header */}
-      <h2 className="text-2xl font-bold text-center text-violet-400 mb-4">
-        Assessment Section
-      </h2>
-
-      {/* Description */}
-      <div className="text-gray-400 text-center text-lg mb-4">
-        <p>Here are some usage tips to make things smoother.</p>
-      </div>
-
-      {/* Slideshow */}
-     <div className="flex-1 min-h-0 h-full">
-        <WelcomeSlideshow
-          images={[
-            "images/potion-tips.png",
-            "images/cycle.gif",
-            "images/descriptions.gif",
-          ]}
-        />
-      </div>
-
-      {/* Button */}
-      <button
-        type="button"
-        onClick={() => {
-          setShowWelcome(false);
-          localStorage.setItem("test-welcome-last-shown", Date.now().toString());
-        }}
-        className="w-full py-3 mt-4 bg-neutral-800 hover:bg-violet-500/30 cursor-pointer text-white font-semibold rounded-xl transition-colors"
-      >
-        ASSESS
-      </button>
-
-    </div>
-  </div>
+  <GuideModal
+    isOpen={showWelcome}
+    onClose={() => {
+      setShowWelcome(false);
+      localStorage.setItem("test-welcome-last-shown", Date.now().toString());
+    }}
+    title="Assessment Section"
+    description="Here are some usage tips to make things smoother."
+    buttonLabel="ASSESS"
+    newTipIndices={hasNewGuide ? GUIDE_TIPS_TO_HIGHLIGHT : []}
+    onMarkSeen={markGuideSeen}
+    tips={[
+          { title: "Corruption Values and Potion Types", images: ["images/potion-tips.png"] },
+          { title: "Cycling Interests from Disgust to Lust", images: ["images/cycle.gif"] },
+          { title: "Descriptions", images: ["images/descriptions.gif"] },
+    ]}
+  />
 )}
 
       {showSetsModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
-          <div className="bg-neutral-900 border border-neutral-800 p-4 rounded-3xl w-full max-w-md shadow-2xl text-white">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4" onClick={() => setShowSetsModal(false)}>
+          <div className="bg-neutral-900 border border-neutral-800 p-4 rounded-3xl w-full max-w-md shadow-2xl text-white" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4 gap-3">
               <h2 className="text-2xl font-bold text-violet-300">Sets</h2>
               <input

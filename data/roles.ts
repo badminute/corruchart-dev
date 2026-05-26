@@ -18,10 +18,13 @@ export const ROLES: RoleOption[] = [
 
 
     // SADISM & MASOCHISM
-    { id: "sadist", label: "Sadist", aka: [], tags: ["Sadism & Masochism"], category: 4 },
-    { id: "masochist", label: "Masochist", aka: ["Pain Slut"], tags: ["Sadism & Masochism"], category: 4 },
+    { id: "sadist", label: "Sadist", aka: [], tags: ["Sadism & Masochism"], category: 5, variantGroup: "sadist-variants", variantOrder: 0 },
+    { id: "sadistic-caregiver", label: "Sadistic Caregiver", aka: [], tags: ["Sadism & Masochism"], category: 5, variantGroup: "sadist-variants", variantOrder: 1 },
+    { id: "masochist", label: "Masochist", aka: ["Pain Slut"], tags: ["Sadism & Masochism"], category: 4, variantGroup: "masochist-variants", variantOrder: 0 },
+    { id: "masochistic-caregiver", label: "Masochistic Caregiver", aka: [], tags: ["Sadism & Masochism"], category: 4, variantGroup: "masochist-variants", variantOrder: 1 },
     { id: "sadomasochist", label: "Sadomasochist", aka: ["S&M"], tags: ["Sadism & Masochism"], category: 4 },
-    { id: "sadistic-caregiver", label: "Sadistic Caregiver", aka: [], tags: ["Sadism & Masochism"], category: 4 },
+
+
 
 
     // DOMINATION & SUBMISSION
@@ -208,9 +211,10 @@ export const ROLES: RoleOption[] = [
     { id: "tiny", label: "Tiny", aka: [], tags: ["Fun Roles"], category: 2, variantGroup: "macrophilia", variantOrder: 0 },
     { id: "giantess", label: "Giantess", aka: [], tags: ["Fun Roles"], category: 2, variantGroup: "macrophilia", variantOrder: 1 },
     { id: "skunk", label: "Skunk", aka: [], tags: ["Fun Roles"], category: 3 },
-    { id: "feeder", label: "Feeder", aka: [], tags: ["Fun Roles"], category: 3, variantGroup: "feeder-variants", variantOrder: 0 },
-    { id: "feedee", label: "Feedee", aka: [], tags: ["Fun Roles"], category: 3, variantGroup: "feeder-variants", variantOrder: 1 },
+    { id: "feeder", label: "Feeder", aka: ["ENCOURAGER"], tags: ["Fun Roles"], category: 3, variantGroup: "feeder-variants", variantOrder: 0 },
+    { id: "feedee", label: "Feedee", aka: ["GAINER"], tags: ["Fun Roles"], category: 3, variantGroup: "feeder-variants", variantOrder: 1 },
     { id: "nudist", label: "Nudist", aka: [], tags: ["Fun Roles"], category: 3 },
+    { id: "self-inserter", label: "Self Inserter", aka: [], tags: ["Fun Roles"], category: 2 },
     { id: "looner-b2p", label: "Looner (B2P)", aka: [], tags: ["Fun Roles"], category: 2, variantGroup: "looner-variants", variantOrder: 1 },
     { id: "looner-np", label: "Looner (NP)", aka: [], tags: ["Fun Roles"], category: 2, variantGroup: "looner-variants", variantOrder: 0 },
     { id: "cannibal", label: "Cannibal", aka: [], tags: ["Fun Roles"], category: 6 },

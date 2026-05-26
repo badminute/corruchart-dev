@@ -9,10 +9,10 @@ import { OPTIONS } from "@/data/options";
 import { DESCRIPTIONS } from "@/data/descriptions";
 import SettingsButton from "@/components/SettingsButton";
 import OptionsGrid from "@/components/OptionsGrid";
-import { WelcomeSlideshow } from "@/components/onboarding";
 import { useSettings } from "@/components/SettingsContext";
 import { useNewOptions } from "@/components/NewOptionsList";
 import ChangelogFeedbackModal from "@/components/ChangelogFeedbackModal";
+import GuideModal from "@/components/GuideModal";
 
 // import base type
 import type { OptionData as BaseOption } from "@/data/options";
@@ -38,6 +38,8 @@ const COLOR_NAMES = [
 
 const RESULTS_KEY = "combined-selections";
 const FILTERS_KEY = "corruchart-filters";
+const GUIDE_VERSION = "0.35.0";
+const GUIDE_TIPS_TO_HIGHLIGHT = []; // Empty array means all tips are considered "new"
 
 type PersistedFilterState = {
   query?: string;
@@ -154,7 +156,7 @@ export default function Page() {
 
     // curated list of new options
     const newOptions = useNewOptions();
-
+    const [seenGuideTips, setSeenGuideTips] = useState<number[]>([]);
     const [isWelcomeOpen, setIsWelcomeOpen] = useState(true);
     const [showNarrowGroups, setShowNarrowGroups] = useState(false);
     const [isHolding, setIsHolding] = useState<string | null>(null);
@@ -171,6 +173,8 @@ export default function Page() {
     const [activeVariant, setActiveVariant] = useState<Record<string, number>>({});
     type ActivePlus = { index: number; id: string; state: number }; // ✅ must include state
     const [activePluses, setActivePluses] = useState<ActivePlus[]>([]);
+    const [isExportMenuOpen, setIsExportMenuOpen] = useState(false);
+    const exportMenuRef = useRef<HTMLDivElement | null>(null);
     const optionIndexById = useMemo(() => {
         const map: Record<string, number> = {};
         options.forEach((opt, i) => {
@@ -178,6 +182,19 @@ export default function Page() {
         });
         return map;
     }, [options]);
+
+    useEffect(() => {
+      if (!isExportMenuOpen) return;
+
+      const handleOutsideClick = (event: MouseEvent) => {
+        if (exportMenuRef.current && !exportMenuRef.current.contains(event.target as Node)) {
+          setIsExportMenuOpen(false);
+        }
+      };
+
+      window.addEventListener("mousedown", handleOutsideClick);
+      return () => window.removeEventListener("mousedown", handleOutsideClick);
+    }, [isExportMenuOpen]);
 
     const parseAnchoredFilters = (value: any): Record<number, Set<string>> => {
       const anchored: Record<number, Set<string>> = {};
@@ -246,6 +263,24 @@ export default function Page() {
     setHasNewUpdate(true);
     }
     }, []);
+
+    // HAS USER SEEN THE GUIDE?
+    useEffect(() => {
+    // No highlighted tips = no NEW state
+    if (GUIDE_TIPS_TO_HIGHLIGHT.length === 0) {
+        setHasNewGuide(false);
+        return;
+    }
+
+    const seen = localStorage.getItem("corruchart-guide-seen");
+
+    if (seen !== GUIDE_VERSION) {
+        setHasNewGuide(true);
+    } else {
+        setHasNewGuide(false);
+    }
+    }, []);
+
     const openChangelog = () => {
     setShowChangelog(true);
 
@@ -253,6 +288,15 @@ export default function Page() {
     localStorage.setItem("corruchart-changelog-seen", CHANGELOG_VERSION);
     setHasNewUpdate(false);
     }
+    };
+
+    const openGuide = () => {
+    setShowWelcome(true);
+    };
+
+    const markGuideSeen = () => {
+    localStorage.setItem("corruchart-guide-seen", GUIDE_VERSION);
+    setHasNewGuide(false);
     };
 
 
@@ -425,6 +469,63 @@ export default function Page() {
       alert("Imported selections successfully.");
     };
 
+    // Export functions
+    const downloadBlob = (blob: Blob, filename: string) => {
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    };
+
+    const exportSelectionsAsJson = () => {
+      const selections = options.reduce((acc, option, i) => {
+        const value = STATE_TO_VALUE[states[i]];
+        if (value && value !== "indifferent") {
+          acc[option.id] = value;
+        }
+        return acc;
+      }, {} as Record<string, string>);
+
+      const payload = {
+        selections,
+        timestamp: new Date().toISOString(),
+        version: "v0.35.0"
+      };
+
+      downloadBlob(new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" }), "corruchart-selections.json");
+      setIsExportMenuOpen(false);
+    };
+
+    const exportSelectionsAsCsv = () => {
+      const rows = options
+        .map((option, i) => {
+          const value = STATE_TO_VALUE[states[i]];
+          if (value && value !== "indifferent") {
+            return {
+              id: option.id,
+              label: option.label,
+              value: value,
+            };
+          }
+          return null;
+        })
+        .filter((row) => row !== null) as { id: string; label: string; value: string }[];
+
+      if (rows.length === 0) {
+        alert("No selections to export.");
+        return;
+      }
+
+      const escapeCsv = (value: string) => `"${value.replace(/"/g, '""')}"`;
+      const csv = ["id,label,value", ...rows.map(row => [escapeCsv(row.id), escapeCsv(row.label), escapeCsv(row.value)].join(","))].join("\n");
+      downloadBlob(new Blob([csv], { type: "text/csv" }), "corruchart-selections.csv");
+      setIsExportMenuOpen(false);
+    };
+
     // Form submission handler for feedback
     const submitFeedbackForm = async (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
@@ -453,11 +554,12 @@ export default function Page() {
     // -----------------------
 
     const [showChangelog, setShowChangelog] = useState(false);
-    const CHANGELOG_VERSION = "0.34.1";
+    const CHANGELOG_VERSION = "0.35.0";
     const [hasNewUpdate, setHasNewUpdate] = useState(false);
     const [showFeedbackModal, setShowFeedbackModal] = useState(false);
     const [showFeedback, setShowFeedback] = useState(false);
     const [feedbackPos, setFeedbackPos] = useState<{ x: number; y: number } | null>(null);
+    const [hasNewGuide, setHasNewGuide] = useState(false);
   
     const feedbackDragRef = useRef<{ x: number; y: number; mouseX: number; mouseY: number } | null>(null);
 
@@ -904,51 +1006,26 @@ useEffect(() => {
       />
 
 
-      {/* MODAL OVERLAY */}
-{showWelcome && (
-  <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4">
-    <div className="bg-neutral-900 border border-neutral-800 p-6 rounded-2xl w-full max-w-4xl h-[650px] shadow-2xl flex flex-col">
-      
-      {/* Header */}
-      <h2 className="text-2xl font-bold text-center text-violet-400 mb-4">
-        Corruchart Section
-      </h2>
-
-      {/* Description */}
-      <div className="text-gray-400 text-center text-lg mb-4">
-        <p>Here are some usage tips to make things smoother.</p>
-      </div>
-
-      {/* Slideshow */}
-      <div className="flex-1">
-        <WelcomeSlideshow 
-          images={[
-            "images/potion-tips.png", 
-            "images/cycle.gif",
-            "images/descriptions.gif",
-            "images/variants.gif",
-            "images/variants-continued.gif",
-            "images/filters-preventing.gif",
-            "images/interests-bulk.gif",
-            "images/dark-reader.gif", 
-            "images/scroll.gif",
-            "images/resetting-interests.gif",
-
-          ]} 
-        />
-      </div>
-
-      {/* Button */}
-      <button
-        onClick={closeWelcome}
-        className="w-full py-3 mt-4 bg-neutral-800 hover:bg-violet-500/30 cursor-pointer text-white font-semibold rounded-xl transition-colors"
-            >
-                CHART
-            </button>
-
-            </div>
-        </div>
-        )}
+      <GuideModal
+        isOpen={showWelcome}
+        onClose={closeWelcome}
+        title="Corruchart Section"
+        description="Here are some usage tips to make things smoother."
+        buttonLabel="CHART"
+        newTipIndices={hasNewGuide ? GUIDE_TIPS_TO_HIGHLIGHT : []}
+        onMarkSeen={markGuideSeen}
+        tips={[
+          { title: "Corruption Values and Potion Types", images: ["images/potion-tips.png"] },
+          { title: "Cycling Interests from Disgust to Lust", images: ["images/cycle.gif"] },
+          { title: "Descriptions", images: ["images/descriptions.gif"] },
+          { title: "Cycling Variants", images: ["images/variants.gif", "images/variants-continued.gif"] },
+          { title: "Filters Can Prevent Variant Swapping", images: ["images/filters-preventing.gif"] },
+          { title: "Setting Interests in Bulk", images: ["images/interests-bulk.gif"] },
+          { title: "Dark Reader Is Incompatible", images: ["images/dark-reader.gif"] },
+          { title: "Mouse Scroll Cycling", images: ["images/scroll.gif"] },
+          { title: "Resetting Interests", images: ["images/resetting-interests.gif"] },
+        ]}
+      />
 
 
 
@@ -968,16 +1045,23 @@ useEffect(() => {
             {/* Info/Help button */}
             <button
                 type="button"
-                onClick={() => setShowWelcome(true)}
-                className="px-4 py-2.5 rounded bg-neutral-900 text-neutral-400 hover:bg-neutral-800 cursor-pointer flex items-center justify-center text-sm gap-1"
+                onClick={openGuide}
+                className={`px-4 py-2.5 rounded bg-neutral-900 text-neutral-400 hover:bg-neutral-800 cursor-pointer flex items-center justify-center text-sm gap-1 ${
+                  hasNewGuide ? "ring-2 ring-violet-400" : ""
+                }`}
             >
                 <span className="font-bold text-neutral-200">Guide</span>
+                {hasNewGuide && (
+                  <span className="text-[10px] font-bold text-violet-300 ml-1">
+                    NEW!
+                  </span>
+                )}
             </button>
 
             <label
               className="px-4 py-2.5 rounded bg-neutral-900 text-neutral-400 hover:bg-neutral-800 cursor-pointer flex items-center justify-center text-sm gap-1"
             >
-              <span className="font-bold text-neutral-200">Import</span>
+              <span className="font-bold text-neutral-200">Import JSON/CSV</span>
               <input
                 type="file"
                 accept=".json,.csv,application/json,text/csv"
@@ -986,6 +1070,36 @@ useEffect(() => {
               />
             </label>
 
+            <div ref={exportMenuRef} className="relative inline-flex">
+              <button
+                type="button"
+                onClick={exportSelectionsAsJson}
+                className="px-4 py-2.5 rounded-l bg-neutral-900 text-neutral-400 hover:bg-neutral-800 cursor-pointer flex items-center justify-center text-sm gap-1"
+              >
+                <span className="font-bold text-neutral-200">Export JSON</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsExportMenuOpen(prev => !prev)}
+                className="px-2 py-2.5 rounded-r bg-neutral-900 text-neutral-400 hover:bg-neutral-800 border-l border-neutral-700 cursor-pointer flex items-center justify-center"
+                aria-expanded={isExportMenuOpen}
+                aria-label="More export options"
+              >
+                <span className="text-xs">▾</span>
+              </button>
+
+              {isExportMenuOpen && (
+                <div className="absolute left-0 mt-9 w-44 rounded border cursor-pointer border-neutral-700 bg-neutral-900 z-20">
+                  <button
+                    type="button"
+                    onClick={exportSelectionsAsCsv}
+                    className="w-full text-left px-3 py-2 text-sm cursor-pointer text-neutral-200 hover:bg-neutral-800"
+                  >
+                    Export CSV
+                  </button>
+                </div>
+              )}
+            </div>
 
             <button
             type="button"
@@ -1206,7 +1320,7 @@ useEffect(() => {
               showNewFilter ? "bg-purple-600 text-white" : "bg-neutral-900 text-purple-400 hover:bg-neutral-800"
             }`}
           >
-            <span className="text-sm">v0.33.0-0.34.1(NEW!)</span>
+            <span className="text-sm">v0.34.0-0.35.0(NEW!)</span>
           </button>
         </div>
       </div>
