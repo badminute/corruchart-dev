@@ -74,12 +74,6 @@ export function computeScore(
 
   for (const { category, value, points } of options) {
 
-    // ⭐ Category 6 special rule (never gives points)
-    if (category === 6 && value in CATEGORY_POINTS[6]) {
-      category6Hit = true;
-      continue;
-    }
-
     // ⭐ Per-option override takes priority
     if (
     points !== undefined &&
@@ -87,6 +81,12 @@ export function computeScore(
     ) {
     total += points;
     continue;
+    }
+
+    // ⭐ Category 6 special rule (never gives points)
+    if (category === 6 && value in CATEGORY_POINTS[6]) {
+      category6Hit = true;
+      continue;
     }
 
     // ⭐ Default category scoring
