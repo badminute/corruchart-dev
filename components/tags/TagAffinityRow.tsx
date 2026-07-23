@@ -18,18 +18,14 @@ interface Props {
 export default function TagAffinityRow({ tag, open, onToggle, favorites, toggleFavorite }: Props) {
     const { colourblindMode } = useSettings();
     const reactionColors = useMemo(() => getReactionColors(colourblindMode), [colourblindMode]);
-    // Build reaction buckets
-    const buckets: Record<ReactionKey, any[]> = {
-        disgust: [],
-        dislike: [],
-        maybe: [],
-        like: [],
-        love: [],
-        lust: [],
-    };
+    const buckets: Record<ReactionKey, any[]> = Object.fromEntries(
+        REACTIONS.map(r => [r, []])
+    ) as Record<ReactionKey, any[]>;
 
-    tag.positive.forEach(opt => buckets.like.push(opt));
-    tag.negative.forEach(opt => buckets.dislike.push(opt));
+    REACTIONS.forEach(r => {
+        buckets[r] = tag.reactions[r] ?? [];
+    });
+
     const total = Object.values(buckets).reduce((acc, arr) => acc + arr.length, 0);
     if (total === 0) return null;
 
@@ -45,7 +41,7 @@ export default function TagAffinityRow({ tag, open, onToggle, favorites, toggleF
                 onClick={onToggle}
                 className="flex-1 h-1 rounded overflow-hidden flex cursor-pointer bg-neutral-800"
             >
-                {REACTIONS.map(r => {
+                {[...REACTIONS].reverse().map(r => {
                     const count = buckets[r].length;
                     if (!count) return null;
 

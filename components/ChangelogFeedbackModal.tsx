@@ -54,6 +54,16 @@ export default function ChangelogFeedbackModal({
                 <>
                     {/* 🔽 CHANGELOG CONTENT 🔽 */}
                 <h3 className="text-lg font-semibold text-white">
+                    v0.36.0 — Enclosure and Other Oddities
+                </h3>
+                  <ul className="list-disc ml-6 mt-2 space-y-1">
+                    <li>Added a new system in the options that allows the user to swap between cycleable symbols to one's preference! The old star symbols will still be available as legacy but the new 'Emoji' set will be the new default! (Credit to Anon for the emoji set suggestion and style)</li>
+                    <li>Results 'Tag Affinities' are now sorted in a logical way and with symmetry! (Credit to Anon for this suggestion and conceptual work)</li>
+                    <li>Ironed out tags, descriptions, tooltips, and every single set!</li>
+                    <li>Added introductory guide-like previews to the front page for Sets Mode and Chart Mode!</li>
+                    <li>Added these interests: Bomb Collars, Bondage Permanency, Bone Breaking, Cast Bondage, Clitboxes, Consensual Possession, Cum Assimilation, Cum Play, Dickboxes, DILF TF, Dove Fucking, Featurelessness, Female Fleshpits, Forced Futanarization, Full Body Casts, Full Body Stimulation, Futanarization, General Detachment, Head Detachment, Inflatable Toys, Male Cuntboy TF, Male Fleshpits, Maternity Panties, MILF TF, Navel Fucking, Nursing Bras, Overheard Sex, Pec-To-Tit Docking, Protective Suits, Pussy Tongues, Self Dove Fucking, Sensitivity Development, Shedding, Sleepsacks, Tortured Boys, Tortured Girls, Wall of Dicks, and Web Cocoons!</li>
+                  </ul>
+                <h3 className="text-lg font-semibold text-white">
                     v0.35.0 — Hypnosis, Sadomaso, and More!  
                 </h3>
                   <ul className="list-disc ml-6 mt-2 space-y-1">

@@ -90,6 +90,7 @@ function ImportedResultsContent() {
   const [tagSearchQuery, setTagSearchQuery] = useState("");
   const [drilldownCloseSignal, setDrilldownCloseSignal] = useState(0);
   const [renderedAt, setRenderedAt] = useState<string>("");
+  const [importedVersion, setImportedVersion] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isExportMenuOpen) return;
@@ -376,6 +377,13 @@ function ImportedResultsContent() {
   // Load data from seed instead of localStorage
   // ----------------------------
   useEffect(() => {
+    const storedVersion = window.sessionStorage.getItem("importedVersion");
+    if (storedVersion) {
+      setImportedVersion(storedVersion);
+    } else {
+      setImportedVersion(null);
+    }
+
     if (!seed) return;
 
     try {
@@ -391,6 +399,7 @@ function ImportedResultsContent() {
       setSelections(userSelections);
       setRedactedIds(new Set(redacted || []));
       setFavorites(seedFavorites || []);
+      window.sessionStorage.removeItem("importedVersion");
 
       // Extract roles from selections
       const roleIds = Object.keys(seedSelections).filter(id =>
@@ -572,7 +581,7 @@ function ImportedResultsContent() {
       roles: identityOptions.map(role => role.id),
       score: scoreData.total,
       timestamp: renderedAt,
-      version: "v0.35.0"
+      version: "v0.36.0"
     };
 
     console.log('Embedding metadata:', metadata);
@@ -643,7 +652,7 @@ function ImportedResultsContent() {
     roles: identityOptions.map(role => role.id),
     score: scoreData.total,
     timestamp: renderedAt,
-    version: "v0.35.0"
+    version: "v0.36.0"
   });
 
   const downloadBlob = (blob: Blob, filename: string) => {
@@ -981,13 +990,13 @@ function ImportedResultsContent() {
                 textShadow: "0px 1px 0px rgba(0,0,0,0.6)",
               }}
             >
-              v0.35.0
+              v0.36.0
             </span>
           </div>
 
           {/* Current date/time */}
           <p className="text-violet-400" style={{ textShadow: "0px 2px 0px rgba(0,0,0,0.7)" }}>
-            {renderedAt && `Imported at ${renderedAt}`}
+            {renderedAt && `Imported at ${renderedAt}${importedVersion ? ` (${importedVersion})` : ""}`}
           </p>
         </header>
 

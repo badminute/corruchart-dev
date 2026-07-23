@@ -23,6 +23,46 @@ const ALL_REACTIONS: Reaction[] = [
     "lust",
 ];
 
+const REACTION_WEIGHT_SCORE: Record<Reaction, number> = {
+    indifferent: 0,
+    disgust: 0,
+    dislike: 1,
+    maybe: 2,
+    like: 3,
+    love: 4,
+    lust: 5,
+};
+
+const MAX_REACTION_SCORE = 5;
+
+function getTagWeight(tag: TagBreakdown) {
+    let totalResponses = 0;
+    let totalScore = 0;
+
+    for (const reaction of ALL_REACTIONS) {
+        if (reaction === "indifferent") continue;
+        const bucket = tag.reactions[reaction];
+        if (!bucket || bucket.length === 0) continue;
+
+        totalResponses += bucket.length;
+        totalScore += REACTION_WEIGHT_SCORE[reaction] * bucket.length;
+    }
+
+    if (totalResponses === 0) return 0;
+    return totalScore / (MAX_REACTION_SCORE * totalResponses);
+}
+
+function compareTagWeight(a: TagBreakdown, b: TagBreakdown) {
+    const weightDiff = getTagWeight(b) - getTagWeight(a);
+    if (weightDiff !== 0) return weightDiff;
+
+    const aCount = Object.values(a.reactions).reduce((sum, items) => sum + items.length, 0);
+    const bCount = Object.values(b.reactions).reduce((sum, items) => sum + items.length, 0);
+    if (bCount !== aCount) return bCount - aCount;
+
+    return a.tag.localeCompare(b.tag);
+}
+
 export function computeTagScores(
     selections: Record<string, Reaction>
 ): { positive: TagBreakdown[]; negative: TagBreakdown[] } {
@@ -69,14 +109,12 @@ export function computeTagScores(
         }
     }
 
-// Include tags that have ANY reactions of that type
-    const positive = Object.values(tagMap)
-    .filter(t => t.positive.length > 0 || t.negative.length > 0)
-    .sort((a, b) => b.positive.length - a.positive.length);
+    const tagsWithReactions = Object.values(tagMap).filter(
+        t => t.positive.length > 0 || t.negative.length > 0
+    );
 
-    const negative = Object.values(tagMap)
-    .filter(t => t.negative.length > 0 || t.positive.length > 0)
-    .sort((a, b) => b.negative.length - a.negative.length);
+    const positive = tagsWithReactions.slice().sort(compareTagWeight);
+    const negative = tagsWithReactions.slice().sort(compareTagWeight);
 
     return { positive, negative };
 }

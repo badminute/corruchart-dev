@@ -49,7 +49,7 @@ function OptionItem({
     getPlusImage,
     getFilterBlockReasons,
 }: Props) {
-    const { colourblindMode, scrollCycling, variantSwapEnabled } = useSettings();
+    const { colourblindMode, scrollCycling, variantSwapEnabled, starTheme } = useSettings();
     const labelRef = useRef<HTMLButtonElement | null>(null);
 
     // ✅ LOCAL (per-item) animation refs
@@ -146,7 +146,7 @@ function OptionItem({
 
         const groupBlocked = blockedCandidates.filter((candidate) =>
             candidate.reasons.some(
-                (reason) => reason.startsWith("excluded tags") || reason.startsWith("required tags")
+                (reason) => reason.startsWith("excluded tags") || reason.startsWith("missing required tags")
             )
         );
 
@@ -157,7 +157,7 @@ function OptionItem({
                         `${candidate.name} (${candidate.reasons.join(", ")})`
                 )
                 .join("; ");
-            return `Cannot swap variants because the following options are hidden by group filters: ${details}.`;
+            return `Cannot swap variants because the following options are hidden by search or tag filters: ${details}.`;
         }
 
         const allReasons = Array.from(
@@ -198,6 +198,24 @@ function OptionItem({
             option.category === 6 ? (colourblindMode ? "#1f77b4" : "#6770c2") :
                 (colourblindMode ? "#9F86D8" : "#9F86D8")
     ), [customColor, option.id, option.category, colourblindMode]);
+
+    const emojiShapes = useMemo(
+      () => ["😶", "🤮", "🙁", "🤔", "🙂", "😃", "🤤"] as const,
+      []
+    );
+
+    const emojiFilters = useMemo(
+      () => [
+        "saturate(0) brightness(0.5)",
+        "hue-rotate(-50deg) saturate(3) brightness(0.8) contrast(1.5)",
+        "hue-rotate(-50deg) saturate(2)",
+        "hue-rotate(0deg) saturate(0.75)",
+        "hue-rotate(45deg)",
+        "hue-rotate(165deg)",
+        "hue-rotate(-105deg)",
+      ],
+      []
+    );
 
     // Star cycle colors (affected by colorblind mode)
     const starColors = useMemo(() => colourblindMode ? 
@@ -240,13 +258,13 @@ function OptionItem({
                     {/* STAR */}
                     <div
                         ref={starRef}
-                        className="relative flex justify-center items-center"
+                        className="relative flex justify-center items-center star-theme"
                         style={{ overscrollBehavior: "contain" }}
                     >
 
 
                         <button
-                        className="relative"
+                        className={`relative star-circle ${starTheme === "emoji" ? "star-theme-emoji" : ""}`}
                         onClick={() => cycleColor(index)}
                         onContextMenu={(e) => {
                             e.preventDefault();
@@ -255,17 +273,30 @@ function OptionItem({
                         }}
                         >
 
-                        <svg
-                            className="cursor-pointer"
-                            width="32"
-                            height="32"
-                            viewBox="0 0 24 24"
-                            fill={starColors[state]}
-                            stroke="#000"
-                            strokeWidth="0.5"
-                        >
-                            <path d="M12 2.5l2.9 6.1 6.7.6-5 4.4 1.5 6.5L12 16.8 5.9 20.1l1.5-6.5-5-4.4 6.7-.6L12 2.5z" />
-                        </svg>
+                        {starTheme === "default" ? (
+                          <svg
+                              className="cursor-pointer"
+                              width="32"
+                              height="32"
+                              viewBox="0 0 24 24"
+                              fill={starColors[state]}
+                              stroke="#000"
+                              strokeWidth="0.5"
+                          >
+                              <path d="M12 2.5l2.9 6.1 6.7.6-5 4.4 1.5 6.5L12 16.8 5.9 20.1l1.5-6.5-5-4.4 6.7-.6L12 2.5z" />
+                          </svg>
+                        ) : (
+                          <span
+                            className="star-emoji cursor-pointer select-none"
+                            style={{
+                              color: starColors[state],
+                              filter: emojiFilters[state],
+                              transform: "translate(12px, 4px)",
+                            }}
+                          >
+                            {emojiShapes[state]}
+                          </span>
+                        )}
 
                         {activePluses
                             .filter(p => p.index === index)

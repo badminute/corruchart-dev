@@ -42,7 +42,7 @@ const RESULTS_KEY = "combined-selections";
 const GROUP_STATES_KEY = "test-mode-group-states";
 const SET_STATES_KEY = "test-mode-set-states";
 const CURRENT_SET_KEY = "test-mode-current-set-id";
-const GUIDE_VERSION = "0.35.0";
+const GUIDE_VERSION = "0.36.0";
 const GUIDE_TIPS_TO_HIGHLIGHT = [];
 
 function chunkArray<T>(arr: T[], size: number) {
@@ -79,7 +79,7 @@ function wholeWordSearch(query: string, text: string): boolean {
 }
 
 export default function TestPage() {
-  const { colourblindMode, reverseColorCycle, scrollCycling } = useSettings();
+  const { colourblindMode, reverseColorCycle, scrollCycling, starTheme, setStarTheme } = useSettings();
   const [showWelcome, setShowWelcome] = useState(false);
   const [showChangelog, setShowChangelog] = useState(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
@@ -119,6 +119,23 @@ export default function TestPage() {
           ],
     [colourblindMode]
   );
+
+    const emojiShapes = useMemo(
+      () => ["😶", "🤮", "🙁", "🤔", "🙂", "😃", "🤤"] as const,
+      []
+    );
+    const emojiFilters = useMemo(
+      () => [
+        "saturate(0) brightness(0.5)",
+        "hue-rotate(-50deg) saturate(3) brightness(0.8) contrast(1.5)",
+        "hue-rotate(-50deg) saturate(2)",
+        "hue-rotate(0deg) saturate(0.75)",
+        "hue-rotate(45deg)",
+        "hue-rotate(165deg)",
+        "hue-rotate(-105deg)",
+      ],
+      []
+    );
 
   const options = useMemo(() => {
     return OPTIONS.map((option) => ({
@@ -504,7 +521,7 @@ const mergedTestPages = useMemo<TestPageSet[]>(() => {
             className="px-4 py-2.5 rounded bg-neutral-900 text-neutral-400 hover:bg-neutral-800 cursor-pointer flex items-center justify-center text-sm gap-1"
             >
             <span className="font-bold text-violet-400">NEW!</span>
-            <span className="text-gray-400 text-xs">(v0.33-)</span>
+            <span className="text-gray-400 text-xs">(v0.35-0.36)</span>
             </button>
               <button
                 type="button"
@@ -531,7 +548,7 @@ const mergedTestPages = useMemo<TestPageSet[]>(() => {
 
           {isPageInitialized && (
             <>
-          <section className="p-6 mb-8">
+          <section className="p-6 mb-0">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <button
                 type="button"
@@ -547,6 +564,7 @@ const mergedTestPages = useMemo<TestPageSet[]>(() => {
 
             <div className="mt-4 flex flex-col items-center gap-4">
               <div className="flex flex-wrap justify-center gap-2" style={{ overscrollBehavior: "contain" }}>
+
                 {/* Set Star Cycler */}
                 <div className="relative flex items-center gap-2 rounded transition-all">
                   <button
@@ -556,19 +574,34 @@ const mergedTestPages = useMemo<TestPageSet[]>(() => {
                       e.preventDefault();
                       cycleSetState(-1);
                     }}
-                    className="relative"
+                    className="relative cursor-pointer"
                   >
-                    <svg
-                      className="cursor-pointer"
-                      width="32"
-                      height="32"
-                      viewBox="0 0 24 24"
-                      fill={COLOR_HEX[starStates[currentPageId] ?? 0]}
-                      stroke="#000"
-                      strokeWidth="0.5"
-                    >
-                      <path d="M12 2.5l2.9 6.1 6.7.6-5 4.4 1.5 6.5L12 16.8 5.9 20.1l1.5-6.5-5-4.4 6.7-.6L12 2.5z" />
-                    </svg>
+                    {starTheme === "emoji" ? (
+                      <span
+                        style={{
+                          color: COLOR_HEX[starStates[currentPageId] ?? 0],
+                          filter: emojiFilters[starStates[currentPageId] ?? 0],
+                          fontSize: 40,
+                          lineHeight: 1,
+                          display: "inline-block",
+                        }}
+                        className="cursor-pointer"
+                      >
+                        {emojiShapes[starStates[currentPageId] ?? 0]}
+                      </span>
+                    ) : (
+                      <svg
+                        className="cursor-pointer"
+                        width="40"
+                        height="40"
+                        viewBox="0 0 24 24"
+                        fill={COLOR_HEX[starStates[currentPageId] ?? 0]}
+                        stroke="#000"
+                        strokeWidth="0.5"
+                      >
+                        <path d="M12 2.5l2.9 6.1 6.7.6-5 4.4 1.5 6.5L12 16.8 5.9 20.1l1.5-6.5-5-4.4 6.7-.6L12 2.5z" />
+                      </svg>
+                    )}
                   </button>
 
                   <div
@@ -592,27 +625,42 @@ const mergedTestPages = useMemo<TestPageSet[]>(() => {
                         key={tag}
                         className="relative flex items-center gap-2 rounded transition-all"
                       >
-                        <button
-                          type="button"
-                          onClick={() => cycleGroupState(tag)}
-                          onContextMenu={(e) => {
-                            e.preventDefault();
-                            cycleGroupState(tag, -1);
-                          }}
-                          className="relative"
-                        >
-                          <svg
-                            className="cursor-pointer"
-                            width="32"
-                            height="32"
-                            viewBox="0 0 24 24"
-                            fill={COLOR_HEX[state]}
-                            stroke="#000"
-                            strokeWidth="0.5"
-                          >
-                            <path d="M12 2.5l2.9 6.1 6.7.6-5 4.4 1.5 6.5L12 16.8 5.9 20.1l1.5-6.5-5-4.4 6.7-.6L12 2.5z" />
-                          </svg>
-                        </button>
+                            <button
+                              type="button"
+                              onClick={() => cycleGroupState(tag)}
+                              onContextMenu={(e) => {
+                                e.preventDefault();
+                                cycleGroupState(tag, -1);
+                              }}
+                              className="relative cursor-pointer"
+                            >
+                              {starTheme === "emoji" ? (
+                                <span
+                                  style={{
+                                    color: COLOR_HEX[state],
+                                    filter: emojiFilters[state],
+                                    fontSize: 40,
+                                    lineHeight: 1,
+                                    display: "inline-block",
+                                  }}
+                                  className="cursor-pointer"
+                                >
+                                  {emojiShapes[state]}
+                                </span>
+                              ) : (
+                                <svg
+                                  className="cursor-pointer"
+                                  width="40"
+                                  height="40"
+                                  viewBox="0 0 24 24"
+                                  fill={COLOR_HEX[state]}
+                                  stroke="#000"
+                                  strokeWidth="0.5"
+                                >
+                                  <path d="M12 2.5l2.9 6.1 6.7.6-5 4.4 1.5 6.5L12 16.8 5.9 20.1l1.5-6.5-5-4.4 6.7-.6L12 2.5z" />
+                                </svg>
+                              )}
+                            </button>
 
                         <button
                           type="button"
@@ -656,7 +704,7 @@ const mergedTestPages = useMemo<TestPageSet[]>(() => {
                 </div>
               )}
 
-              <div className="flex flex-wrap justify-center gap-2">
+              <div className="mt-2 flex flex-wrap justify-center gap-5">
                 <button
                   type="button"
                   disabled={currentPage === 0}

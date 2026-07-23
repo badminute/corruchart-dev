@@ -38,7 +38,7 @@ const COLOR_NAMES = [
 
 const RESULTS_KEY = "combined-selections";
 const FILTERS_KEY = "corruchart-filters";
-const GUIDE_VERSION = "0.35.0";
+const GUIDE_VERSION = "0.36.0";
 const GUIDE_TIPS_TO_HIGHLIGHT = []; // Empty array means all tips are considered "new"
 
 type PersistedFilterState = {
@@ -61,7 +61,7 @@ const STATE_TO_VALUE = [
 ] as const;
 
 export default function Page() {
-  const { colourblindMode, reverseColorCycle } = useSettings();
+  const { colourblindMode, reverseColorCycle, starTheme } = useSettings();
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   /** html2canvas-safe hex colors */
@@ -493,7 +493,7 @@ export default function Page() {
       const payload = {
         selections,
         timestamp: new Date().toISOString(),
-        version: "v0.35.0"
+        version: "v0.36.0"
       };
 
       downloadBlob(new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" }), "corruchart-selections.json");
@@ -585,6 +585,17 @@ export default function Page() {
       setSetAllState(normalizedIndex);
     }
   };
+
+  const emojiShapes = ["😶", "🤮", "🙁", "🤔", "🙂", "😃", "🤤"] as const;
+  const emojiFilters = [
+    "saturate(0) brightness(0.5)",
+    "hue-rotate(-50deg) saturate(3) brightness(0.8) contrast(1.5)",
+    "hue-rotate(-50deg) saturate(2)",
+    "hue-rotate(0deg) saturate(0.75)",
+    "hue-rotate(45deg)",
+    "hue-rotate(165deg)",
+    "hue-rotate(-105deg)",
+  ];
 
   const applySetAllState = () => {
     if (inResetMode) {
@@ -977,7 +988,7 @@ useEffect(() => {
         .filter(([, state]) => state === "include")
         .map(([cat]) => cat);
       if (activeIncludes.length > 0) {
-        reasons.push(`required tags: ${activeIncludes.join(", ")}`);
+        reasons.push(`missing required tags: ${activeIncludes.join(", ")}`);
       }
     }
 
@@ -1011,7 +1022,7 @@ useEffect(() => {
         onClose={closeWelcome}
         title="Corruchart Section"
         description="Here are some usage tips to make things smoother."
-        buttonLabel="CHART"
+        buttonLabel="CLOSE GUIDE"
         newTipIndices={hasNewGuide ? GUIDE_TIPS_TO_HIGHLIGHT : []}
         onMarkSeen={markGuideSeen}
         tips={[
@@ -1156,21 +1167,31 @@ useEffect(() => {
                 "
               >
                 <span className="text-sm font-semibold text-gray-300">
-                  {inResetMode ? "RESET ALL TO ★" : "SET ALL VISIBLE TO"}
+                  {inResetMode ? "RESET ALL TO" : "SET ALL VISIBLE TO"}
                 </span>
 
-                {!inResetMode && (
-                  <svg
-                    className="cursor-pointer"
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill={COLOR_HEX[setAllState]}
-                    stroke="#000"
-                    strokeWidth="0.5"
-                  >
-                    <path d="M12 2.5l2.9 6.1 6.7.6-5 4.4 1.5 6.5L12 16.8 5.9 20.1l1.5-6.5-5-4.4 6.7-.6L12 2.5z" />
-                  </svg>
+                {/* Always show the symbol; when resetting, force the indifferent index (0) */}
+                {(
+                  starTheme === "emoji" ? (
+                    <span
+                      className="text-xl cursor-pointer"
+                      style={{ color: COLOR_HEX[inResetMode ? 0 : setAllState], filter: emojiFilters[inResetMode ? 0 : setAllState] }}
+                    >
+                      {emojiShapes[inResetMode ? 0 : setAllState]}
+                    </span>
+                  ) : (
+                    <svg
+                      className="cursor-pointer"
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill={COLOR_HEX[inResetMode ? 0 : setAllState]}
+                      stroke="#000"
+                      strokeWidth="0.5"
+                    >
+                      <path d="M12 2.5l2.9 6.1 6.7.6-5 4.4 1.5 6.5L12 16.8 5.9 20.1l1.5-6.5-5-4.4 6.7-.6L12 2.5z" />
+                    </svg>
+                  )
                 )}
               </button>
 
@@ -1298,15 +1319,23 @@ useEffect(() => {
                 className={`flex items-center gap-2 px-2 py-1 rounded cursor-pointer ${active ? "bg-neutral-700" : "bg-neutral-900"
                   }`}
               >
-                <span
-                  style={{
-                    width: 14,
-                    height: 14,
-                    borderRadius: "50%",
-                    backgroundColor: hex,
-                    border: "1px solid #000",
-                  }}
-                />
+                {starTheme === "emoji" ? (
+                  <span
+                    style={{ color: hex, filter: emojiFilters[i], fontSize: 18, lineHeight: 1 }}
+                  >
+                    {emojiShapes[i]}
+                  </span>
+                ) : (
+                  <span
+                    style={{
+                      width: 14,
+                      height: 14,
+                      borderRadius: "50%",
+                      backgroundColor: hex,
+                      border: "1px solid #000",
+                    }}
+                  />
+                )}
                 <span className={`text-sm ${active ? "text-gray-100" : "text-gray-400"}`}>
                   {COLOR_NAMES[i]}
                 </span>
@@ -1320,7 +1349,7 @@ useEffect(() => {
               showNewFilter ? "bg-purple-600 text-white" : "bg-neutral-900 text-purple-400 hover:bg-neutral-800"
             }`}
           >
-            <span className="text-sm">v0.34.0-0.35.0(NEW!)</span>
+            <span className="text-sm">v0.35.0-0.36.0(NEW!)</span>
           </button>
         </div>
       </div>

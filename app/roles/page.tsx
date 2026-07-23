@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useMemo } from "react";
+import { useEffect, useRef, useState, useMemo, useLayoutEffect } from "react";
 import Link from "next/link";
 
 import { ROLES } from "@/data/roles";
@@ -10,7 +10,7 @@ import { DESCRIPTIONS } from "@/data/descriptions";
 import { useSettings } from "@/components/SettingsContext";
 import GuideModal from "@/components/GuideModal";
 
-const GUIDE_VERSION = "0.35.0";
+const GUIDE_VERSION = "0.36.0";
 const GUIDE_TIPS_TO_HIGHLIGHT = [];
 
 export default function Page() {
@@ -20,6 +20,10 @@ export default function Page() {
     const searchInputRef = useRef<HTMLInputElement>(null);
     const [colorFilter, setColorFilter] = useState<Set<number>>(new Set());
     const [openDescription, setOpenDescription] = useState<string | null>(null);
+    const optionRefs = useRef<Record<string, HTMLDivElement | null>>({});
+    const tooltipRefs = useRef<Record<string, HTMLDivElement | null>>({});
+    const [tooltipPlacementMap, setTooltipPlacementMap] = useState<Record<string, "top" | "bottom">>({});
+    const [tooltipOffsetMap, setTooltipOffsetMap] = useState<Record<string, number>>({});
     const longPressTimer = useRef<number | null>(null);
     const longPressTriggered = useRef(false);
     const [activeVariant, setActiveVariant] = useState<Record<string, number>>({});
@@ -123,6 +127,37 @@ export default function Page() {
         return () => clearTimeout(timer);
     }, [openDescription]);
 
+    useLayoutEffect(() => {
+        if (!openDescription) return;
+        const el = tooltipRefs.current[openDescription];
+        if (!el) return;
+
+        // defer until next paint so layout is stable
+        requestAnimationFrame(() => {
+            const rect = el.getBoundingClientRect();
+            const padding = 12;
+
+            // Vertical placement
+            let placement: "top" | "bottom" = "top";
+            if (rect.top < padding) {
+                placement = "bottom";
+            } else if (rect.bottom > window.innerHeight - padding) {
+                placement = "top";
+            }
+
+            // Horizontal offset correction
+            let offsetX = 0;
+            if (rect.left < padding) {
+                offsetX = padding - rect.left;
+            } else if (rect.right > window.innerWidth - padding) {
+                offsetX = (window.innerWidth - padding) - rect.right;
+            }
+
+            setTooltipPlacementMap(prev => ({ ...prev, [openDescription]: placement }));
+            setTooltipOffsetMap(prev => ({ ...prev, [openDescription]: offsetX }));
+        });
+    }, [openDescription]);
+
     const cycleColor = (option: RoleOption) => {
         const actualIndex = options.findIndex(r => r.id === option.id);
         if (actualIndex === -1) return;
@@ -207,7 +242,7 @@ export default function Page() {
               onClose={closeWelcome}
               title="Roles Section"
               description="Here are some usage tips to make things smoother."
-              buttonLabel="ROLES"
+              buttonLabel="CLOSE GUIDE"
               newTipIndices={hasNewGuide ? GUIDE_TIPS_TO_HIGHLIGHT : []}
               onMarkSeen={markGuideSeen}
               tips={[
@@ -426,32 +461,44 @@ export default function Page() {
                                                 )}
                                             </div>
 
-                                    {isTooltipVisible && description && (
-                                    <div 
-                                        className="absolute bottom-full mb-2 left-3/4 -translate-x-1/2 w-[220px] max-w-xs rounded-md bg-neutral-800 text-gray-200 text-xs px-4 py-3 text-center z-50 shadow-md break-inside-avoid border border-neutral-600"
-                                        style={{ 
-                                        display: 'table',
-                                        breakInside: 'avoid',
-                                        transform: 'translateX(-50%) translateZ(10px)', 
-                                        backfaceVisibility: 'hidden',
-                                        isolation: 'isolate',
-                                        whiteSpace: 'normal',
-                                        } as any}
-                                    >
-                                        <div style={{ display: 'block' }}>
-                                        <div>{description}</div>
-                                        {option.aka && option.aka.length > 0 && (
-                                            <div className="mt-2 pt-2 border-t border-neutral-700 text-gray-400">
-                                            <span className="font-semibold text-gray-300">AKAs:</span>{" "}
-                                            {option.aka.join(", ")}
-                                            </div>
-                                        )}
-                                        </div>
-                                        <div className="absolute top-full left-1/8 -translate-x-1/2">
-                                        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px] border-t-neutral-800" />
-                                        </div>
-                                    </div>
-                                    )}
+                                                                        {isTooltipVisible && description && (() => {
+                                                                        const placement = tooltipPlacementMap[option.id] ?? "top";
+                                                                        const offset = tooltipOffsetMap[option.id] ?? 0;
+                                                                        const isBelow = placement === "bottom";
+                                                                        return (
+                                                                        <div
+                                                                            ref={(el) => { tooltipRefs.current[option.id] = el; }}
+                                                                            className={`absolute w-[220px] max-w-xs rounded-md bg-neutral-800 text-gray-200 text-xs px-4 py-3 text-center z-50 shadow-md break-inside-avoid border border-neutral-600 ${isBelow ? "mt-2 top-full left-1/2 -translate-x-1/2" : "mb-2 bottom-full left-3/4 -translate-x-1/2"}`}
+                                                                            style={{
+                                                                                display: 'table',
+                                                                                breakInside: 'avoid',
+                                                                                transform: `translateX(calc(-50% + ${offset}px)) translateZ(10px)`,
+                                                                                backfaceVisibility: 'hidden',
+                                                                                isolation: 'isolate',
+                                                                                whiteSpace: 'normal',
+                                                                            } as any}
+                                                                        >
+                                                                            <div style={{ display: 'block' }}>
+                                                                                <div>{description}</div>
+                                                                                {option.aka && option.aka.length > 0 && (
+                                                                                    <div className="mt-2 pt-2 border-t border-neutral-700 text-gray-400">
+                                                                                        <span className="font-semibold text-gray-300">AKAs:</span>{" "}
+                                                                                        {option.aka.join(", ")}
+                                                                                    </div>
+                                                                                )}
+                                                                            </div>
+                                                                            {/* Arrow */}
+                                                                            {isBelow ? (
+                                                                                <div className="absolute -top-2 left-1/2 -translate-x-1/2">
+                                                                                    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-neutral-800" />
+                                                                                </div>
+                                                                            ) : (
+                                                                                <div className="absolute top-full left-1/2 -translate-x-1/2">
+                                                                                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px] border-t-neutral-800" />
+                                                                                </div>
+                                                                            )}
+                                                                        </div>
+                                                                        )})()}
 
                                         </div>
                                     );

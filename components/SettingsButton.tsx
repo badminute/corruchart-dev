@@ -1,12 +1,18 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSettings } from "./SettingsContext";
+
+const iconThemes = [
+  { key: "default", label: "Star (Legacy)", emoji: "⭐" },
+  { key: "emoji", label: "Emoji", emoji: "😶" },
+] as const;
 
 export default function SettingsButton() {
   const [open, setOpen] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
-  const { colourblindMode, setColourblindMode, reverseColorCycle, setReverseColorCycle, scrollCycling, setScrollCycling, variantSwapEnabled, setVariantSwapEnabled } = useSettings();
+  const { colourblindMode, setColourblindMode, reverseColorCycle, setReverseColorCycle, scrollCycling, setScrollCycling, variantSwapEnabled, setVariantSwapEnabled, starTheme, setStarTheme } = useSettings();
+  const rootRef = useRef<HTMLDivElement | null>(null);
 
 // Load saved setting once
 useEffect(() => {
@@ -28,9 +34,23 @@ useEffect(() => {
   }
 }, [reducedMotion]);
 
+  // Close dropdown on outside click
+  useEffect(() => {
+    if (!open) return;
+    function handleOutside(e: MouseEvent) {
+      const el = rootRef.current;
+      if (el && !el.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    }
+
+    window.addEventListener("mousedown", handleOutside);
+    return () => window.removeEventListener("mousedown", handleOutside);
+  }, [open]);
+
 
   return (
-    <div className="relative">
+    <div className="relative" ref={rootRef}>
       {/* Button to toggle dropdown */}
       <button
         onClick={() => setOpen((prev) => !prev)}
@@ -131,6 +151,30 @@ useEffect(() => {
             >
               Clickable Swap Button (CHART): {variantSwapEnabled ? "ON" : "OFF"}
             </button>
+
+            <div className="pt-2 border-t border-neutral-700">
+              <div className="text-xs uppercase tracking-[0.3em] text-gray-400 mb-2">
+                Theme
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                {iconThemes.map((theme) => (
+                  <button
+                    key={theme.key}
+                    onClick={() => setStarTheme(theme.key)}
+                    className={
+                      `flex items-center justify-center gap-2 px-3 py-2 rounded text-sm transition cursor-pointer ${
+                        starTheme === theme.key
+                          ? "bg-neutral-900 text-gray-100 ring-1 ring-violet-500"
+                          : "bg-neutral-800 text-gray-300 hover:bg-neutral-700"
+                      }`
+                    }
+                  >
+                    <span className="pointer-events-none">{theme.emoji}</span>
+                    <span className="pointer-events-none">{theme.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       )}

@@ -39,13 +39,14 @@ export const ROLE_SYMBOLS: Record<string, { symbol: string; color?: string }> = 
     "abductor": { symbol: "🛸", color: "#ecc432" },   // Abductor
     "abductee": { symbol: "🧍", color: "#e8b041" },   // Abductee
     "sadistic-caregiver": { symbol: "🩹", color: "#fdda8d" },   // Sadistic Caregiver
+    "masochistic-caregiver": { symbol: "🩹", color: "#fdda8d" },   // Sadistic Caregiver
     "prisoner": { symbol: "⛓️", color: "#aaaaaa" },   // Prisoner
-    "captor": { symbol: "👤", color: "#6B438B" },   // Captor
+    "captor": { symbol: "👤", color: "#9e64ce" },   // Captor
     "furniture": { symbol: "🙇", color: "#e8b041" },   // Furniture
     "goddess": { symbol: "♛", color: "#ffcc66" },   // Goddess
     "god": { symbol: "♛", color: "#ffcc66" },   // God
     "pony": { symbol: "🪅", color: "#b06bec" },   // Pony
-    "feedee": { symbol: "🦃", color: "#885d45" },   // Feedee
+    "feedee": { symbol: "🦃", color: "#ad7d68" },   // Feedee
     "feeder": { symbol: "🧑‍🍳", color: "#da3e3e" },   // Feeder
     "nudist": { symbol: "🦵🏼", color: "#dbc292" },   // Nudist
     "looner-b2p": { symbol: "🎈", color: "#f35555" },   // B2P Looner
@@ -99,7 +100,7 @@ export const ROLE_SYMBOLS: Record<string, { symbol: string; color?: string }> = 
     
         // EROTIC NOVELS READ
     "50-shades": { symbol: "📖", color: "#959595" },   // 50 Shades (1-15 Read)
-    "milking-minotaurs": { symbol: "🐂", color: "#86675a" },   // Milking Minotaurs (15-50 Read)
+    "milking-minotaurs": { symbol: "🐂", color: "#ad7d68" },   // Milking Minotaurs (15-50 Read)
     "smut-sommelier": { symbol: "🍷", color: "#eb6584" },   // Smut Sommelier (51-100 Read)
     "erotica-expert": { symbol: "🍹", color: "#fcaf74" },   // Erotica Expert (101-200 Read)
     "smut-librarian": { symbol: "🏫", color: "#e3cd7d" },   // Smut Librarian (201+ Read)
@@ -117,7 +118,7 @@ export const ROLE_SYMBOLS: Record<string, { symbol: string; color?: string }> = 
         // HENTAI ANIME WATCHED
     "tentacle": { symbol: "🐙", color: "#ea7f54" },   // Seen a Tentacle (1-25 Watched)
     "deflowered": { symbol: "🌸", color: "#e7a5e7" },   // Deflowered (26-75 Watched)
-    "kuroinu": { symbol: "🧝🏽‍♀️", color: "#975ba3" },   // Kuroinu (76-150 Watched)
+    "kuroinu": { symbol: "🧝🏽‍♀️", color: "#9e64ce" },   // Kuroinu (76-150 Watched)
     "get-pregnant": { symbol: "🤰", color: "#51b4e6" },   // Get Pregnant (151-300 Watched)
     "mind-broken": { symbol: "😵‍💫", color: "#f3ae47" },   // Mind Broken (301-600 Watched)
     "watched-everything": { symbol: "🚫", color: "#aeaeae" },   // Watched Everythig (601+ Watched)
@@ -156,7 +157,7 @@ export const ROLE_SYMBOLS: Record<string, { symbol: string; color?: string }> = 
     "doomscrolled-porn": { symbol: "📱", color: "#b0c4de" },   // XXX Doomscroller (~200-1000 Vids)
     "the-watcher": { symbol: "📺", color: "#87cefa" },   // The Watcher (~1000-2500 Vids)
     "refined-taste": { symbol: "🍸", color: "#6bcc88" },   // Refined Taste (~2500-5000 Vids)
-    "seen-things": { symbol: "🙈", color: "#795f55" },   // Seen Some Things (~5000-10000 Vids)
+    "seen-things": { symbol: "🙈", color: "#ad7d68" },   // Seen Some Things (~5000-10000 Vids)
     "strong-arm": { symbol: "🩻", color: "#4893e4" },   // Bottomless Hunger (~10000-25000 Vids)
     "page-24732": { symbol: "📄", color: "#bcbcbc" },   // Page 24732 (~25000+ Vids)
 
@@ -164,8 +165,8 @@ export const ROLE_SYMBOLS: Record<string, { symbol: string; color?: string }> = 
         // PORN STASH
     "handful-of-favourites": { symbol: "⭐", color: "#fdcf6c" },   // A Handful of Favourites (1-25 Vids / 250 Images)
     "the-novice-stasher": { symbol: "📁", color: "#f2c753" },   // The Novice Stasher (25-100 Vids / 250-2500 Images)
-    "the-stasher": { symbol: "🗄️", color: "#6f468e" },   // The Stasher (100-500 Vids / 2500-10000 Images)
-    "the-bunker": { symbol: "🏣", color: "#c71536" },   // The Bunker (500-3000 Vids / 10000-20000 Images)
+    "the-stasher": { symbol: "🗄️", color: "#9e64ce" },   // The Stasher (100-500 Vids / 2500-10000 Images)
+    "the-bunker": { symbol: "🏣", color: "#d31f40" },   // The Bunker (500-3000 Vids / 10000-20000 Images)
     "the-archivist": { symbol: "🏦", color: "#a4a4a4" },   // The Benevolent Archivist (3000+ Vids / 10000+ Images)
 
         // FUN ROLES

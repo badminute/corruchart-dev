@@ -124,21 +124,21 @@ export const ROLES: RoleOption[] = [
     { id: "the-archivist", label: "The Archivist (~3000+ Vids)", aka: [], tags: ["Porn Stash"], category: 3 },
 
 
-    // EROTIC NOVELS READ
-    { id: "50-shades", label: "50 Shades (~1-15 Read)", aka: [], tags: ["Erotic Novels Read"], category: 2 },
-    { id: "milking-minotaurs", label: "Milking Minotaurs (~15-50 Read)", aka: [], tags: ["Erotic Novels Read"], category: 3 },
-    { id: "smut-sommelier", label: "Smut Sommelier (~51-100 Read)", aka: [], tags: ["Erotic Novels Read"], category: 3 },
-    { id: "erotica-expert", label: "Erotica Expert (~101-200 Read)", aka: [], tags: ["Erotic Novels Read"], category: 3 },
-    { id: "smut-librarian", label: "Smut Librarian (~201+ Read)", aka: [], tags: ["Erotic Novels Read"], category: 3 },
+    // EROTIC STORIES READ
+    { id: "50-shades", label: "50 Shades (~1-15 Read)", aka: [], tags: ["Erotic Stories Read"], category: 2 },
+    { id: "milking-minotaurs", label: "Milking Minotaurs (~15-50 Read)", aka: [], tags: ["Erotic Stories Read"], category: 3 },
+    { id: "smut-sommelier", label: "Smut Sommelier (~51-100 Read)", aka: [], tags: ["Erotic Stories Read"], category: 3 },
+    { id: "erotica-expert", label: "Erotica Expert (~101-200 Read)", aka: [], tags: ["Erotic Stories Read"], category: 3 },
+    { id: "smut-librarian", label: "Smut Librarian (~201+ Read)", aka: [], tags: ["Erotic Stories Read"], category: 3 },
 
 
     // HENTAI DOUJINSHI READ
-    { id: "nhentai-tourist", label: "Nhentai Tourist (~1-50 Read)", aka: [], tags: ["Hentai Doujinshi Read"], category: 2 },
-    { id: "177013-initiate", label: "177013 Initiate (~51-150 Read)", aka: [], tags: ["Hentai Doujinshi Read"], category: 2 },
-    { id: "has-favourites", label: "Has Favourites (~151-400 Read)", aka: [], tags: ["Hentai Doujinshi Read"], category: 3 },
-    { id: "for-the-plot", label: "For The Plot (~401-800 Read)", aka: [], tags: ["Hentai Doujinshi Read"], category: 3 },
-    { id: "rereader", label: "Rereader (~801-1,500 Read)", aka: [], tags: ["Hentai Doujinshi Read"], category: 3 },
-    { id: "sad-panda", label: "Sad Panda (~1,501+ Read)", aka: [], tags: ["Hentai Doujinshi Read"], category: 4 },
+    { id: "nhentai-tourist", label: "Nhentai Tourist (~1-50 Read)", aka: [], tags: ["Hentai Doujin/Manga Read"], category: 2 },
+    { id: "177013-initiate", label: "177013 Initiate (~51-150 Read)", aka: [], tags: ["Hentai Doujin/Manga Read"], category: 2 },
+    { id: "has-favourites", label: "Has Favourites (~151-400 Read)", aka: [], tags: ["Hentai Doujin/Manga Read"], category: 3 },
+    { id: "for-the-plot", label: "For The Plot (~401-800 Read)", aka: [], tags: ["Hentai Doujin/Manga Read"], category: 3 },
+    { id: "rereader", label: "Rereader (~801-1,500 Read)", aka: [], tags: ["Hentai Doujin/Manga Read"], category: 3 },
+    { id: "sad-panda", label: "Sad Panda (~1,501+ Read)", aka: [], tags: ["Hentai Doujin/Manga Read"], category: 4 },
 
 
     // HENTAI ANIME WATCHED

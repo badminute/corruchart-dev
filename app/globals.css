@@ -272,6 +272,26 @@ body {
   opacity: 1 !important;
 }
 
+.star-theme-emoji .star-emoji {
+  background: none !important;
+  border: none !important;
+  position: relative;
+  top: -0.25em;
+  left: -0.25em;
+  width: 36px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6em;
+  line-height: 1.25;
+  filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.35));
+}
+
+.star-theme-emoji svg {
+  display: none;
+}
+
 .holding .holding\:scale-x-100 {
     transform: scaleX(1);
 }

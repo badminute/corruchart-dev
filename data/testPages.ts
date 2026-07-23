@@ -125,15 +125,17 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 "glasses", 
 "gloves", 
 "gothic-lolita",
-"ouji",
 "heels", 
 "karate-gi",
 "kigurumi",
 "latex-rubber",
 "leather", 
 "maebari",
+"maternity-panties",
 "messy-clothing",
+"nursing-bras",
 "onesies",
+"ouji",
 "ouji",
 "panty-stuffing",
 "panty-theft",
@@ -201,7 +203,7 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 {
     id: "heroesvillains-set",
     name: "Heroes & Villains",
-    tags: ["personalities"],
+    tags: ["personalities", "heroes-villains"],
     optionIds: [
 "superheroes",
 "superheroines",
@@ -263,11 +265,19 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 "royalty",
 "slobs",
 "sluts",
+"superheroes",
+"superheroines",
+"supervillainesses",
+"supervillains",
 "tomboys",
+"tortured-boys",
+"tortured-girls",
 "tsundere",
 "twins",
 "ugly-bastards",
 "ugly-gentlemen",
+"villainesses",
+"villains",
 "warrior-women",
 "yandere",
 "yandere",
@@ -317,10 +327,12 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
     name: "Mature",
     tags: ["mature", "acts"],
     optionIds: [
+"dilf-tf",
 "dilfs",
 "gilfs",
 "gumjobs",
 "mature",
+"milf-tf",
 "milfs",
 ],
 },
@@ -341,7 +353,7 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 {
     id: "abdl-set",
     name: "Adult Baby & Age Regression",
-    tags: ["age", "abdl"],
+    tags: ["age"],
     optionIds: [ 
 "adult-baby-option",
 "age-regression",
@@ -417,7 +429,7 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 {
     id: "bodytypes-set",
     name: "Bodytypes",
-    tags: ["bodytypes", "muscles"],
+    tags: ["bodytypes", "muscles", "height"],
     optionIds: [
 "athletic-bodytypes",
 "bbw",
@@ -464,7 +476,6 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 "navels",
 "short-height",
 "small-people",
-"stomach-growling",
 "tall-height",
 "weight-gain-heavy",
 "weight-gain-light",
@@ -531,7 +542,7 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 {
     id: "facial-set",
     name: "Facial",
-    tags: ["facial"],
+    tags: ["facial", "oral-fixation", "partialisms"],
     optionIds: [
 "babyfaces",
 "barefaced",
@@ -550,7 +561,6 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 "long-tongues",
 "makeup",
 "noses",
-"pouty-faces",
 "wide-tongues",
 ]
 },
@@ -562,7 +572,7 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 {
     id: "oralsex-set",
     name: "Oral Sex",
-    tags: ["oral-sex", "facial"],
+    tags: ["oral-sex", "rough"],
     optionIds: [
 "blowbangs",
 "blowjobs-r",
@@ -620,7 +630,7 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 {
     id: "necks-set",
     name: "Necks & Collarbones",
-    tags: ["upper-body"],
+    tags: ["upper-body", "partialisms"],
     optionIds: [
 "collarbones",
 "necks",
@@ -630,7 +640,7 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 {
     id: "hands-set",
     name: "Hands & Wrists",
-    tags: ["upper-body"],
+    tags: ["hands"],
     optionIds: [
 "big-hands",
 "long-fingernails",
@@ -646,6 +656,7 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
     tags: ["tits", "upper-body"],
     optionIds: [
 "augmented-breasts",
+"auto-dove-fucking",
 "big-tits",
 "bra-sniffing",
 "breast-cleavage",
@@ -659,6 +670,7 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 "breastfeeding",
 "brown-nipples",
 "budding-breasts",
+"dove-fucking",
 "flat-chests",
 "hucows",
 "huge-tits",
@@ -670,7 +682,9 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 "mutual-docking",
 "nipple-teasing-r",
 "nipple-teasing",
+"nursing-bras",
 "oiled-tits",
+"pec-to-tit-docking",
 "perky-tits",
 "pink-nipples",
 "saggy-tits",
@@ -686,20 +700,21 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 {
     id: "pecs-set",
     name: "Pecs",
-    tags: ["muscles", "upper-body"],
+    tags: ["muscles", "pecs"],
     optionIds: [
 "jacked-pecs",
+"oiled-pecs",
+"pec-to-tit-docking",
 "shelf-pecs",
 "slim-pecs",
 "soft-pecs",
-"oiled-pecs",
 ],
 },
 
 {
     id: "tummies-bellies-set",
     name: "Tummies, Bellies, and Back",
-    tags: ["bellies", "upper-body"],
+    tags: ["bellies", "upper-body", "acts"],
     optionIds: [
 "back-dimples",
 "back-spine",
@@ -708,6 +723,7 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 "belly-sex",
 "belly-stuffing",
 "bloated-bellies",
+"navel-fucking",
 "venus-tummies",
 ]
 },
@@ -719,7 +735,7 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 {
     id: "pussies-set",
     name: "Pussies, Coinslots, and Slits",
-    tags: ["pussies"],
+    tags: ["pussies", "acts"],
     optionIds: [
 "big-clits",
 "big-pussy-lips",
@@ -737,7 +753,7 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 {
     id: "cocks-set",
     name: "Dicks, Cocks, and Wangs",
-    tags: ["cocks"],
+    tags: ["cocks", "acts"],
     optionIds: [
 "big-cocks",
 "casual-erections",
@@ -765,7 +781,7 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 {
     id: "ass-set",
     name: "Ass, Cake, and Groceries",
-    tags: ["ass"],
+    tags: ["ass", "acts"],
     optionIds: [
 "ass-growth",
 "ass-sniffing-r",
@@ -839,7 +855,7 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 {
     id: "feet-set",
     name: "Feet & Footwear",
-    tags: ["feet", "footwear", "worship", "scent", "D/s"],
+    tags: ["feet", "footwear", "worship", "scent", "hosiery"],
     optionIds: [
 "autofootjobs-cocks",
 "autofootjobs-pussies",
@@ -992,8 +1008,11 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 "incestual-pregnancies",
 "leg-locking",
 "male-pregnancy",
+"maternity-panties",
+"nursing-bras",
 "pregnancy",
 "pregnant-bellies",
+"pregnant-cuntboys",
 "pregnant-sex",
 "risky-sex",
 "self-impregnation",
@@ -1049,7 +1068,7 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 {
     id: "sexgames-set",
     name: "Games, Bets, & Pranks",
-    tags: ["apparel", "fantasy", "games"],
+    tags: ["games", "dynamics"],
     optionIds: [
 "erotic-roleplay",
 "lost-bets",
@@ -1124,7 +1143,7 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 {
     id: "dominationsubmission-set",
     name: "Domination & Submission",
-    tags: ["bdsm", "D/s"],
+    tags: ["bdsm", "D/s", "acts", "dynamics"],
     optionIds: [
 "alpha-couple-dynamic",
 "bitch-correction",
@@ -1181,7 +1200,7 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 {
     id: "tpe-set",
     name: "Total Power Exchange",
-    tags: ["free-use", "cnc"],
+    tags: ["free-use", "cnc", "dynamics"],
     optionIds: [
 "24-7",
 "consensual-non-consent",
@@ -1215,6 +1234,8 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
     optionIds: [
 "hole-training",
 "oriface-gaping",
+"orifice-development",
+"sensitivity-development",
 "sexual-training",
 "slave-training",
 "throat-training",
@@ -1224,7 +1245,7 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 {
     id: "petplay-set",
     name: "Petplay",
-    tags: ["petplay"],
+    tags: ["petplay", "devices"],
     optionIds: [
 "chain-play",
 "clicker-training",
@@ -1279,13 +1300,16 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 "asylum-bondage",
 "bondage-heavy",
 "bondage-light",
+"bondage-permanency",
 "bubble-encasement",
+"cast-bondage",
 "claustrophilia",
 "confinement",
 "constriction",
 "cuffs",
 "encasement",
 "extreme-corsetting",
+"full-body-casts",
 "gas-mask-play",
 "hogtie-bondage",
 "immobilization",
@@ -1293,13 +1317,16 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 "permanent-bondage",
 "pillory",
 "predicament-bondage",
+"protective-suits",
 "public-use",
 "quicksand",
 "sensory-deprivation",
+"sleepsacks",
 "stuck-in-a-floor",
 "stuck-in-a-wall",
 "tight-comfort",
 "tight-fit",
+"web-cocoons",
 ],
 },
 
@@ -1310,7 +1337,7 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 {
     id: "pain-set",
     name: "Sensory Play & Pain",
-    tags: ["pain", "rough", "cbt", "balls", "pussies"],
+    tags: ["pain", "rough", "sensory-play"],
     optionIds: [
 "biting",
 "branding",
@@ -1324,26 +1351,27 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 "femdom-brutal",
 "figging",
 "fire-play",
+"full-body-stimulation",
 "hair-pulling-r",
 "hair-pulling",
 "impact-play",
 "maledom-brutal",
-"masochism",
 "masochism-porn",
+"masochism",
+"needle-play",
+"nipple-clamps",
+"non-gratifying-pain",
 "non-sexual-masochism",
 "non-sexual-sadism",
+"otk-spanking",
+"painal-r",
+"painal",
+"rough-sex",
 "sadism-on-evil",
 "sadism-on-good",
 "sadism-on-masochist",
 "sadism-on-sadist",
 "sadism-porn",
-"needle-play",
-"nipple-clamps",
-"non-gratifying-pain",
-"otk-spanking",
-"painal-r",
-"painal",
-"rough-sex",
 "sadism",
 "scratching-deep",
 "scratching",
@@ -1362,7 +1390,7 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 {
     id: "busting-set",
     name: "CBT & Busting",
-    tags: ["pain", "rough", "pussies", "balls"],
+    tags: ["pain", "pussies", "balls"],
     optionIds: [
 "ball-busting-brutal-r",
 "ball-busting-light-r",
@@ -1388,7 +1416,7 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 {
     id: "combatsports-set",
     name: "Wrestling & Sports",
-    tags: ["sports", "combat", "muscles"],
+    tags: ["sports"],
     optionIds: [
 "catfights",
 "fighting",
@@ -1452,6 +1480,7 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 "political-humiliation",
 "premature-ejaculation",
 "premature-humiliation",
+"sexual-denial",
 "shame-embarrassment",
 "small-penis-humiliation",
 "verbal-abuse",
@@ -1464,7 +1493,7 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 {
     id: "embarassment-set",
     name: "Shame & Embarassment",
-    tags: ["humiliation", "apparel"],
+    tags: ["apparel", "shame-embarassment"],
     optionIds: [
 "embarrassed-nude-female",
 "embarrassed-nude-futa",
@@ -1477,7 +1506,7 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 {
     id: "wedgies-set",
     name: "Wedgies",
-    tags: ["apparel", "humiliation"],
+    tags: ["humiliation"],
     optionIds: [
 "atomic-wedgies",
 "wedgies",
@@ -1487,7 +1516,7 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 {
     id: "sexualsabotage-set",
     name: "Sexual Sabotage",
-    tags: ["humiliation"],
+    tags: ["humiliation", "D/s"],
     optionIds: [
 "erectile-dysfunction",
 "orgasm-denial",
@@ -1504,7 +1533,7 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 {
     id: "exhibitionism-set",
     name: "Exhibitionism & Risky Play",
-    tags: ["porn", "public", "exhibitionism"],
+    tags: ["acts", "public", "exhibitionism"],
     optionIds: [
 "camming",
 "exhibitionism-nc",
@@ -1530,6 +1559,7 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 "creepshotting-nc",
 "flashing",
 "hidden-cameras-nc",
+"overheard-sex",
 "upskirting-nc",
 "voyeurism",
 ],
@@ -1538,13 +1568,14 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 {
     id: "somno-set",
     name: "Somnophilia & Limp",
-    tags: ["somno", "stranger-sex", "public",],
+    tags: ["somno"],
     optionIds: [
 "ragdoll-limp",
 "sleep-sex",
 "sleepwalking",
 "somnophilia-consensual",
-"somnophilia",
+"somnophilia-nc",
+"snoring",
 ],
 },
 
@@ -1555,7 +1586,7 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 {
     id: "aural-set",
     name: "Audio & Aural",
-    tags: ["aural"],
+    tags: ["aural", "porn"],
     optionIds: [
 "asmr",
 "audio-porn",
@@ -1594,7 +1625,7 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 {
     id: "food-play-set",
     name: "Food Play",
-    tags: ["messy", "food-play"],
+    tags: ["messy", "food-play", "non-consensual"],
     optionIds: [
 "baby-birding",
 "bodily-fluids-into-food-drinks-nc",
@@ -1629,7 +1660,7 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 {
     id: "marks-set",
     name: "Marks",
-    tags: ["marks"],
+    tags: ["marks", "bodymods"],
     optionIds: [
 "bodywriting",
 "branding",
@@ -1651,7 +1682,7 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 {
     id: "bodymods-set",
     name: "Bodymods",
-    tags: ["bodymods"],
+    tags: ["bodymods", "devices"],
     optionIds: [
 "body-mods",
 "genital-modifications",
@@ -1669,8 +1700,11 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
     tags: ["medical"],
     optionIds: [
 "abortion",
+"bone-breaking",
+"cast-bondage",
 "castration",
 "casts",
+"full-body-casts",
 "genital-removal",
 "mastectomy",
 "medical-body-horror",
@@ -1690,7 +1724,7 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 {
     id: "toys-set",
     name: "Devices & Toys",
-    tags: ["devices"],
+    tags: ["acts", "devices", "messy"],
     optionIds: [
 "anal-chastity-plugs",
 "blindfolds",
@@ -1707,6 +1741,7 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 "gags",
 "gas-mask-play",
 "hidden-vibrators",
+"inflatable-toys",
 "jockstraps",
 "mannequins",
 "milking-table",
@@ -1871,6 +1906,7 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 "cock-milking-milker",
 "creampies",
 "cum-addiction",
+"cum-assimilation",
 "cum-baths",
 "cum-collecting",
 "cum-countdowns",
@@ -1886,6 +1922,7 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 "cum-into-food-drinks-nc",
 "cum-into-food-drinks",
 "cum-on-clothes",
+"cum-play",
 "cum-sharking",
 "cum-swapping",
 "cum-transformation",
@@ -1917,7 +1954,7 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 {
     id: "byproducts-set",
     name: "Byproducts & Expulsion",
-    tags: ["expulsion", "gross"],
+    tags: ["byproducts", "gross"],
     optionIds: [
 "burping",
 "coughing",
@@ -1927,6 +1964,7 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 "liquid-byproducts",
 "queefing",
 "saliva",
+"shedding",
 "skunk-spray",
 "smegma",
 "sneezes-colds",
@@ -1962,7 +2000,7 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 {
     id: "scent-set",
     name: "Scents, Musk, & Smell",
-    tags: ["scent"],
+    tags: ["scent", "hosiery", "footwear"],
     optionIds: [
 "ass-sniffing-r",
 "ass-sniffing",
@@ -1990,7 +2028,7 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 {
     id: "gross-set",
     name: "Gross",
-    tags: ["gross"],
+    tags: ["gross", "byproducts"],
     optionIds: [
 "bad-hygiene",
 "bodily-fluids-into-food-drinks",
@@ -2029,13 +2067,14 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 "male-anthros",
 "male-fatfurs",
 "mursuits",
+"shedding",
 ],
 },
 
 {
     id: "animal-roleplay-set",
     name: "Animal Roleplay",
-    tags: ["animal-rp", "roleplay"],
+    tags: ["roleplay", "transformation"],
     optionIds: [
 "animal-ears",
 "animal-roleplay",
@@ -2046,7 +2085,7 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 {
     id: "primal-set",
     name: "Primal",
-    tags: ["dynamics", "scenarios"],
+    tags: ["dynamics"],
     optionIds: [
 "primal-kink",
 ],
@@ -2178,7 +2217,7 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 {
     id: "fantasy-set",
     name: "Fantasy",
-    tags: ["fantasy"],
+    tags: ["fantasy", "pregnancy"],
     optionIds: [
 "fantasy-theme",
 "horns",
@@ -2318,7 +2357,7 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 {
     id: "censorship-set",
     name: "Censorship & Nudity Denial",
-    tags: ["censorship"],
+    tags: ["censorship", "stranger-sex"],
     optionIds: [
 "bubble-censorship",
 "humiliation-censorship-cocks",
@@ -2338,7 +2377,7 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 {
     id: "transformations-set",
     name: "Transformations",
-    tags: ["transformation"],
+    tags: ["transformation", "mind"],
     optionIds: [
 "absorption",
 "attribute-theft",
@@ -2355,19 +2394,24 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 "cock-transformation",
 "conjoinment",
 "corruption",
+"cum-assimilation",
 "cum-transformation",
+"dilf-tf",
 "doll-toy-transformation",
 "evil-transformation",
 "feminization",
 "flatten-transformation",
 "food-transformation",
+"forced-futanarization",
+"futanarization",
 "gender-transformation",
 "genderbending",
 "genital-growth",
 "himbofication",
 "hoop-transformation",
 "humiliation-transformation",
-"immobilization",
+"male-cuntboy-tf",
+"milf-tf",
 "monster-transformation",
 "moral-degeneration",
 "npcification",
@@ -2406,7 +2450,7 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 {
     id: "macrophilia-set",
     name: "Macrophilia & Size",
-    tags: ["macrophilia", "size"],
+    tags: ["macrophilia", "transformation"],
     optionIds: [
 "giant-cruel",
 "giant-gentle",
@@ -2430,7 +2474,7 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 {
     id: "crushing-set",
     name: "Crushing",
-    tags: ["crushing"],
+    tags: ["violence", "messy"],
     optionIds: [
 "crushing-live-creatures",
 "crushing-objects",
@@ -2444,7 +2488,7 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 {
     id: "vore-set",
     name: "Vore",
-    tags: ["vore", "size", "oral-fixation", "bellies"],
+    tags: ["vore", "size", "oral-fixation"],
     optionIds: [
 "alternative-vore",
 "anal-vore",
@@ -2470,6 +2514,8 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 "predator-vore",
 "prey-vore",
 "same-size-vore",
+"slime-vore",
+"snake-vore",
 "soft-vore",
 "soul-vore",
 "stomach-growling",
@@ -2486,10 +2532,11 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 {
     id: "futa-set",
     name: "Futanari",
-    tags: ["futanari", "ntr-cheating", "non-monogamy"],
+    tags: ["futanari"],
     optionIds: [
 "casual-futa-erections",
 "centaur-futas",
+"forced-futanarization",
 "futa-autopaizuri",
 "futa-cock-comparison",
 "futa-daddies",
@@ -2511,6 +2558,7 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 "futa-virus",
 "futanari-facefucking",
 "futanari-facesitting",
+"futanarization",
 "futas-pussyless",
 "futas",
 "hairy-futanari",
@@ -2551,7 +2599,7 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 {
     id: "macroparts-set",
     name: "Macro Parts",
-    tags: ["macro-parts"],
+    tags: ["hyper"],
     optionIds: [
 "macro-asses",
 "macro-balls",
@@ -2590,13 +2638,20 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 "blueberry-boys",
 "blueberry-girls",
 "brain-fucking",
+"clitboxes",
 "cock-births",
+"dickboxes",
 "ear-fucking-pleasure",
 "eye-licking",
+"featurelessness",
+"female-fleshpits",
+"general-detachment",
+"head-detachment",
 "headless-female",
 "headless-male",
 "looning-b2p",
 "looning-np",
+"male-fleshpits",
 "mob-face",
 "natural-body-magic",
 "nipple-births",
@@ -2605,8 +2660,10 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 "plants-trees",
 "plushophilia",
 "puppeteering",
+"pussy-tongues",
 "tiles",
 "trypophilia",
+"wall-of-dicks",
 "yukkuri",
 ]
 },
@@ -2614,7 +2671,7 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 {
     id: "livingmaterials-set",
     name: "Living Materials",
-    tags: ["apparel", "fantasy", "oddities"],
+    tags: ["transformation", "fantasy", "oddities"],
     optionIds: [
 "liquid-latex",
 "living-clothes",
@@ -2631,6 +2688,8 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
     tags: ["auto"],
     optionIds: [
 "autassassinophilia",
+"auto-dove-fucking",
+"auto-thighjobs",
 "autoandrophilia",
 "autocunnilingus",
 "autoerotic-asphyxiation",
@@ -2639,14 +2698,13 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 "autofootjobs-pussies",
 "autogynephilia",
 "autopaizuri",
-"auto-thighjobs",
 ]
 },
 
 {
     id: "magical-set",
     name: "Magical",
-    tags: ["magical"],
+    tags: ["magical", "fantasy"],
     optionIds: [
 "body-swapping",
 "invisibility",
@@ -2696,12 +2754,13 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 {
     id: "paranormal-supernatural-set",
     name: "Paranormal & Supernatural",
-    tags: ["paranormal"],
+    tags: ["paranormal", "creatures", "transformation"],
     optionIds: [
 "divinities",
 "omnipotence",
 "paranormal",
 "possession",
+"consensual-possession",
 "vampirism",
 ]
 },
@@ -2755,7 +2814,7 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 {
     id: "blood-set",
     name: "Blood",
-    tags: ["blood"],
+    tags: ["blood", "violence"],
     optionIds: [
 "blood-play",
 "cutting",
@@ -2780,8 +2839,9 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 {
     id: "danger-set",
     name: "Danger",
-    tags: ["danger"],
+    tags: ["danger", "personalities"],
     optionIds: [
+"bomb-collars",
 "crime",
 "criminals",
 "damsel-in-distress",
@@ -2798,7 +2858,7 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 {
     id: "violence-set",
     name: "Violence, Gore, & Death",
-    tags: ["violence", "danger"],
+    tags: ["violence", "danger", "gross"],
     optionIds: [
 "autassassinophilia",
 "bad-ends",
@@ -2828,7 +2888,7 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 {
     id: "disease-set",
     name: "Illness & Disease",
-    tags: ["disease"],
+    tags: ["gross"],
     optionIds: [
 "bug-chasing",
 "generationing",
@@ -2863,7 +2923,7 @@ export const TEST_PAGE_SETS: TestPageSet[] = [
 {
     id: "non-consensual-set",
     name: "Non-consensual",
-    tags: ["non-consensual"],
+    tags: ["non-consensual", "danger"],
     optionIds: [
 "abduction-aggressor",
 "abduction-target",

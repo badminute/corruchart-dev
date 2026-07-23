@@ -129,7 +129,7 @@ export default function TagAffinityDrilldown({
 
             {/* Horizontal bar with per-option highlight */}
             <div className="relative flex rounded-sm overflow-hidden flex-1 h-6 min-w-0 bg-neutral-900">
-              {REACTIONS.map(r => {
+              {(isLeftColumn ? [...REACTIONS].reverse() : REACTIONS).map(r => {
                 const count = buckets[r].length;
                 if (!count) return null;
                 const widthPercent = (count / total) * 100;

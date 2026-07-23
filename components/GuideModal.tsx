@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { WelcomeSlideshow } from "./onboarding";
 
 interface GuideTip {
@@ -17,6 +17,7 @@ interface GuideModalProps {
   buttonLabel: string;
   newTipIndices?: number[];
   onMarkSeen?: () => void;
+  startOnFirstTip?: boolean;
 }
 
 export default function GuideModal({
@@ -28,9 +29,20 @@ export default function GuideModal({
   buttonLabel,
   newTipIndices = [],
   onMarkSeen,
+  startOnFirstTip = false,
 }: GuideModalProps) {
   const [selectedTipIndex, setSelectedTipIndex] = useState<number | null>(null);
   const [viewedNewTips, setViewedNewTips] = useState<Set<number>>(new Set());
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    if (startOnFirstTip && tips.length > 0) {
+      setSelectedTipIndex(0);
+    } else {
+      setSelectedTipIndex(null);
+    }
+  }, [isOpen, startOnFirstTip, tips.length]);
 
   const handleClose = () => {
     onClose();

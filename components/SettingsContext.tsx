@@ -2,6 +2,8 @@
 
 import { createContext, useContext, useState, useEffect } from "react";
 
+type StarIconTheme = "default" | "emoji";
+
 interface SettingsContextType {
   colourblindMode: boolean;
   setColourblindMode: (mode: boolean) => void;
@@ -11,6 +13,8 @@ interface SettingsContextType {
   setScrollCycling: (mode: boolean) => void;
   variantSwapEnabled: boolean;
   setVariantSwapEnabled: (enabled: boolean) => void;
+  starTheme: StarIconTheme;
+  setStarTheme: (theme: StarIconTheme) => void;
 }
 
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
@@ -20,6 +24,7 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
   const [reverseColorCycle, setReverseColorCycleState] = useState(false);
   const [scrollCycling, setScrollCyclingState] = useState(true);
   const [variantSwapEnabled, setVariantSwapEnabledState] = useState(false);
+  const [starTheme, setStarThemeState] = useState<StarIconTheme>("emoji");
 
   // Load from localStorage on mount
   useEffect(() => {
@@ -39,6 +44,10 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
       const savedSwap = localStorage.getItem("variantSwapEnabled");
       if (savedSwap === "true") {
         setVariantSwapEnabledState(true);
+      }
+      const savedTheme = localStorage.getItem("starTheme");
+      if (savedTheme === "emoji" || savedTheme === "default") {
+        setStarThemeState(savedTheme as StarIconTheme);
       }
     }
   }, []);
@@ -71,8 +80,13 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem("variantSwapEnabled", enabled ? "true" : "false");
   };
 
+  const setStarTheme = (theme: StarIconTheme) => {
+    setStarThemeState(theme);
+    localStorage.setItem("starTheme", theme);
+  };
+
   return (
-    <SettingsContext.Provider value={{ colourblindMode, setColourblindMode, reverseColorCycle, setReverseColorCycle, scrollCycling, setScrollCycling, variantSwapEnabled, setVariantSwapEnabled }}>
+    <SettingsContext.Provider value={{ colourblindMode, setColourblindMode, reverseColorCycle, setReverseColorCycle, scrollCycling, setScrollCycling, variantSwapEnabled, setVariantSwapEnabled, starTheme, setStarTheme }}>
       {children}
     </SettingsContext.Provider>
   );

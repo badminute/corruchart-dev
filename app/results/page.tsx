@@ -35,7 +35,7 @@ const METER_MAX_POINTS = 9000;
 const PAGE_BACKGROUND_COLOR = "#1F2023";
 const MAX_FAVORITES = 30;
 const FAVORITES_KEY = "corruchart-favorites";
-const GUIDE_VERSION = "0.35.0";
+const GUIDE_VERSION = "0.36.0";
 const GUIDE_TIPS_TO_HIGHLIGHT = [];
 
 
@@ -799,7 +799,7 @@ const scoredSelections = useMemo(() => {
               roles: identityOptions.map(role => role.id),
               score: scoreData.total,
               timestamp: renderedAt,
-              version: "v0.35.0"
+              version: "v0.36.0"
             };
 
             console.log('Embedding metadata:', metadata);
@@ -871,7 +871,7 @@ const scoredSelections = useMemo(() => {
               roles: identityOptions.map(role => role.id),
               score: scoreData.total,
               timestamp: renderedAt,
-              version: "v0.33.0"
+              version: "v0.36.0"
             });
 
             const downloadBlob = (blob: Blob, filename: string) => {
@@ -994,6 +994,10 @@ const scoredSelections = useMemo(() => {
                 
                 const seed = encodeSelections(importedSelections, metadata.redacted || [], metadata.favorites || []);
                 window.sessionStorage.setItem("importedSeed", seed);
+                window.sessionStorage.setItem(
+                  "importedVersion",
+                  typeof metadata.version === "string" ? metadata.version : ""
+                );
                 const importedUrl = `/results/imported`;
                 
                 console.log('Redirecting to imported results:', importedUrl);
@@ -1298,7 +1302,7 @@ const scoredSelections = useMemo(() => {
                 textShadow: "0px 1px 0px rgba(0,0,0,0.6)",
               }}
             >
-              v0.35.0
+              v0.36.0
             </span>
           </div>
 
