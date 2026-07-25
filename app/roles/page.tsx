@@ -281,7 +281,7 @@ export default function Page() {
                             )}
                         </button>
                         <Link
-                        href="/corruchart"
+                        href="/pinboard"
                         className="px-4 py-2.5 rounded bg-neutral-900 text-neutral-400 hover:bg-neutral-800 cursor-pointer flex items-center justify-center text-sm gap-1"
                         >
                         <span className="font-bold text-white">Back</span>

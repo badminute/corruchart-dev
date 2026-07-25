@@ -1228,6 +1228,13 @@ useEffect(() => {
           </Link>
 
           <Link
+            href="/pinboard"
+            className="px-4 py-2 rounded bg-neutral-900 text-neutral-200 hover:bg-violet-500/30 hover:text-neutral-300 cursor-pointer"
+          >
+            Pinboard
+          </Link>
+
+          <Link
             href="/roles"
             className="px-4 py-2 rounded bg-neutral-900 text-neutral-200 hover:bg-violet-500/30 hover:text-neutral-300 cursor-pointer"
           >
