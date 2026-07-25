@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent, type MouseEvent as ReactMouseEvent } from "react";
 import Link from "next/link";
 
 import { OPTIONS } from "@/data/options";
@@ -11,6 +11,7 @@ import GuideModal from "@/components/GuideModal";
 
 const MAX_PINS = 30;
 const PINS_KEY = "corruchart-favorites";
+const CONNECTIONS_KEY = "corruchart-pinboard-connections";
 const RESULTS_KEY = "combined-selections";
 const GUIDE_VERSION = "0.36.0";
 const CHANGELOG_VERSION = "0.35.0";
@@ -35,6 +36,22 @@ export default function PinboardPage() {
   const [hasNewGuide, setHasNewGuide] = useState(false);
   const [showSearchModal, setShowSearchModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+    const [connections, setConnections] = useState<string[][]>([]);
+    const [dragState, setDragState] = useState<{
+    fromId: string;
+    startX: number;
+    startY: number;
+    currentX: number;
+    currentY: number;
+    } | null>(null);
+
+    const [hoverPinId, setHoverPinId] = useState<string | null>(null);
+
+    const [boardSize, setBoardSize] = useState({
+    width: 0,
+    height: 0,
+    });
+  const boardRef = useRef<HTMLDivElement | null>(null);
 
   const COLOR_HEX = useMemo(() =>
     colourblindMode
@@ -125,6 +142,38 @@ export default function PinboardPage() {
   }, []);
 
   useEffect(() => {
+    const savedRaw = localStorage.getItem(CONNECTIONS_KEY);
+    if (!savedRaw) return;
+
+    try {
+      const parsed = JSON.parse(savedRaw) as string[][];
+      if (Array.isArray(parsed)) {
+        setConnections(parsed.filter((pair) => Array.isArray(pair) && pair.length === 2 && pair.every((value) => typeof value === "string")));
+      }
+    } catch {
+      setConnections([]);
+    }
+  }, []);
+
+  useEffect(() => {
+    const updateBoardSize = () => {
+      if (!boardRef.current) return;
+      setBoardSize({
+        width: boardRef.current.offsetWidth,
+        height: boardRef.current.offsetHeight,
+      });
+    };
+
+    updateBoardSize();
+    window.addEventListener("resize", updateBoardSize);
+    return () => window.removeEventListener("resize", updateBoardSize);
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem(CONNECTIONS_KEY, JSON.stringify(connections));
+  }, [connections]);
+
+  useEffect(() => {
     if (GUIDE_VERSION.length === 0) {
       setHasNewGuide(false);
       return;
@@ -172,7 +221,129 @@ export default function PinboardPage() {
       localStorage.setItem(PINS_KEY, JSON.stringify(next));
       return next;
     });
+
+    setConnections((prev) => prev.filter(([fromId, toId]) => fromId !== id && toId !== id));
   };
+
+  const handlePinMouseDown = (event: ReactMouseEvent<HTMLDivElement>, id: string) => {
+    if (!boardRef.current) return;
+
+    const boardRect = boardRef.current.getBoundingClientRect();
+    setDragState({
+      fromId: id,
+      startX: event.clientX - boardRect.left,
+      startY: event.clientY - boardRect.top,
+      currentX: event.clientX - boardRect.left,
+      currentY: event.clientY - boardRect.top,
+    });
+  };
+
+  useEffect(() => {
+    if (!dragState) return;
+
+const handleMouseMove = (event: MouseEvent) => {
+  if (!boardRef.current) return;
+
+  const boardRect = boardRef.current.getBoundingClientRect();
+
+  setDragState((prev) =>
+    prev
+      ? {
+          ...prev,
+          currentX: event.clientX - boardRect.left,
+          currentY: event.clientY - boardRect.top,
+        }
+      : prev
+  );
+
+  const targetElement = document.elementFromPoint(
+    event.clientX,
+    event.clientY
+  ) as HTMLElement | null;
+
+  const targetId =
+    targetElement
+      ?.closest("[data-pin-id]")
+      ?.getAttribute("data-pin-id") ?? null;
+
+if (
+  targetId &&
+  targetId !== dragState.fromId &&
+  boardRef.current
+) {
+  const targetElement = document.querySelector(
+    `[data-pin-id="${targetId}"]`
+  ) as HTMLElement | null;
+
+  if (targetElement) {
+    const boardRect = boardRef.current.getBoundingClientRect();
+    const rect = targetElement.getBoundingClientRect();
+
+    setDragState((prev) =>
+      prev
+        ? {
+            ...prev,
+            currentX:
+              rect.left +
+              rect.width / 2 -
+              boardRect.left,
+            currentY:
+              rect.top +
+              rect.height / 2 -
+              boardRect.top,
+          }
+        : prev
+    );
+  }
+
+  setHoverPinId(targetId);
+} else {
+  setHoverPinId(null);
+}
+};
+
+    const handleMouseUp = (event: MouseEvent) => {
+      if (!boardRef.current) return;
+
+      const targetElement = document.elementFromPoint(event.clientX, event.clientY) as HTMLElement | null;
+      const targetId = targetElement?.closest("[data-pin-id]")?.getAttribute("data-pin-id");
+
+      if (targetId && targetId !== dragState.fromId) {
+        setConnections((prev) => {
+          const normalized = [dragState.fromId, targetId].sort();
+          if (prev.some(([fromId, toId]) => [fromId, toId].sort().join("|") === normalized.join("|"))) {
+            return prev;
+          }
+          requestAnimationFrame(() => {
+            document
+                .querySelectorAll(
+                `[data-pin-id="${normalized[0]}"], [data-pin-id="${normalized[1]}"]`
+                )
+                .forEach((el) => {
+                el.classList.add("animate-pulse");
+
+                setTimeout(() => {
+                    el.classList.remove("animate-pulse");
+                }, 350);
+                });
+            });
+
+            return [...prev, normalized];
+        });
+      }
+
+        setHoverPinId(null);
+        setDragState(null);
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [dragState]);
 
   const handleFeedbackSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -218,6 +389,8 @@ export default function PinboardPage() {
       .filter((option): option is (typeof OPTIONS)[number] => Boolean(option));
   }, [pins]);
 
+  const connectedPinIds = useMemo(() => new Set(connections.flat()), [connections]);
+
   const pinnedPositiveOptions = useMemo(() => {
     return pinnedOptions.filter((option) => {
       const selection = selections.find((item) => item.id === option.id);
@@ -233,6 +406,10 @@ export default function PinboardPage() {
       return [1, 2].includes(COLOR_NAMES.indexOf(reaction as (typeof COLOR_NAMES)[number]));
     });
   }, [pinnedOptions, selections]);
+
+  const undoLastConnection = () => {
+    setConnections((prev) => prev.slice(0, -1));
+  };
 
   return (
     <>
@@ -302,56 +479,101 @@ export default function PinboardPage() {
             <p className="mt-2 text-sm text-neutral-400">
               Pin interests here before you continue to roles.
             </p>
+            <div className="mt-3 flex justify-center">
+              <button
+                type="button"
+                onClick={undoLastConnection}
+                disabled={connections.length === 0}
+                className="rounded border border-neutral-700 bg-neutral-800 px-3 py-1.5 text-sm font-semibold text-neutral-200 transition hover:bg-neutral-700 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Undo
+              </button>
+            </div>
           </div>
 
-          <div className="rounded-2xl border border-neutral-600 bg-neutral-900/70 p-6">
-            <section className="space-y-4">
+          <div ref={boardRef} className="relative rounded-2xl border border-neutral-600 bg-neutral-900/70 p-6">
+            <svg
+              className="pointer-events-none absolute inset-0 z-0 h-full w-full"
+              width={boardSize.width || 600}
+              height={boardSize.height || 400}
+              preserveAspectRatio="none"
+            >
+              {dragState && (
+                <path
+                d={`
+                    M ${dragState.startX} ${dragState.startY}
+                    Q ${
+                    (dragState.startX + dragState.currentX) / 2
+                    } ${dragState.startY}
+                    ${dragState.currentX} ${dragState.currentY}
+                `}
+                  stroke="#c084fc"
+                    strokeWidth="3.5"
+                    opacity="0.9"
+                  strokeLinecap="round"
+                fill="none"
+                />
+              )}
+            </svg>
+
+            <section className="relative z-10 space-y-4">
               <div className="flex items-center justify-center gap-2">
                 <h2 className="text-xl font-semibold text-neutral-300">Pinned</h2>
               </div>
 
               {pinnedOptions.length > 0 ? (
-                <div className="space-y-3">
-                  {pinnedPositiveOptions.length > 0 && (
-                    <div className="flex flex-wrap justify-center gap-3">
-                      {pinnedPositiveOptions.map((option) => {
-                        const selection = selections.find((item) => item.id === option.id);
-                        const reaction = selection?.value ?? "indifferent";
-                        const colorIndex = COLOR_NAMES.indexOf(reaction as (typeof COLOR_NAMES)[number]);
-                        const textColor = COLOR_HEX[colorIndex] ?? "#e5e7eb";
+<div className="flex flex-wrap justify-center gap-4">
+  {pinnedOptions.map((option) => {
+    const selection = selections.find((item) => item.id === option.id);
 
-                        return (
-                          <div
-                            key={option.id}
-                            className="flex items-center gap-2 rounded border border-neutral-700 bg-neutral-800 px-3 py-1 text-sm font-medium text-neutral-200 shadow-sm"
-                          >
-                            <span style={{ color: textColor }}>{option.label}</span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
+    const reaction = selection?.value ?? "indifferent";
 
-                  {pinnedNegativeOptions.length > 0 && (
-                    <div className="flex flex-wrap justify-center gap-3">
-                      {pinnedNegativeOptions.map((option) => {
-                        const selection = selections.find((item) => item.id === option.id);
-                        const reaction = selection?.value ?? "indifferent";
-                        const colorIndex = COLOR_NAMES.indexOf(reaction as (typeof COLOR_NAMES)[number]);
-                        const textColor = COLOR_HEX[colorIndex] ?? "#e5e7eb";
+    const colorIndex = COLOR_NAMES.indexOf(
+      reaction as (typeof COLOR_NAMES)[number]
+    );
 
-                        return (
-                          <div
-                            key={option.id}
-                            className="flex items-center gap-2 rounded border border-neutral-700 bg-neutral-800 px-3 py-1 text-sm font-medium text-neutral-200 shadow-sm"
-                          >
-                            <span style={{ color: textColor }}>{option.label}</span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
+    const textColor = COLOR_HEX[colorIndex] ?? "#e5e7eb";
+
+    const connectionCount = connections.filter(
+      ([a, b]) => a === option.id || b === option.id
+    ).length;
+
+    return (
+      <div
+        key={option.id}
+        data-pin-id={option.id}
+        onMouseDown={(event) =>
+          handlePinMouseDown(event, option.id)
+        }
+        style={{
+          margin:
+            connectionCount > 0
+              ? `${6 + connectionCount * 4}px`
+              : "2px",
+        }}
+        className={`
+          flex cursor-crosshair items-center gap-2 rounded
+          px-3 py-1 text-sm font-medium text-neutral-200
+          transition-all duration-200 ease-out
+          shadow-sm
+          ${
+            dragState?.fromId === option.id
+              ? "border-violet-400 bg-violet-600/25 scale-105 ring-2 ring-violet-400 shadow-[0_0_20px_rgba(168,85,247,.55)]"
+              : hoverPinId === option.id
+              ? "border-violet-300 bg-violet-500/20 scale-110 ring-2 ring-violet-300 shadow-[0_0_24px_rgba(196,132,252,.75)]"
+              : connectionCount > 0
+              ? "border-violet-500/40 bg-violet-500/10"
+              : "border-neutral-700 bg-neutral-800 hover:border-violet-500 hover:bg-neutral-700 hover:scale-105"
+          }
+        `}
+      >
+        <span style={{ color: textColor }}>
+          {option.label}
+        </span>
+      </div>
+    );
+  })}
+</div>
               ) : (
                 <p className="text-center text-sm text-neutral-500">
                   No pins yet. Search to add some interests.
