@@ -70,7 +70,7 @@ export default function GuideModal({
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4" onClick={onClose}>
-      <div className="bg-neutral-900 border border-neutral-800 p-6 rounded-2xl w-full max-w-4xl h-[650px] shadow-2xl flex flex-col" onClick={(e) => e.stopPropagation()}>
+      <div className="bg-neutral-900 border border-neutral-800 p-6 rounded-2xl w-full max-w-4xl max-h-[90vh] shadow-2xl flex flex-col overflow-hidden" onClick={(e) => e.stopPropagation()}>
         {/* Header */}
         <h2 className="text-2xl font-bold text-center text-violet-400 mb-4">
           {title}
@@ -82,11 +82,11 @@ export default function GuideModal({
         </div>
 
         {/* Content Area */}
-        <div className="flex-1 min-h-0 flex gap-4">
+        <div className="flex-1 min-h-0 flex gap-4 overflow-hidden">
         {selectedTip === null ? (
             /* Tip List View */
-            <div className="flex-1">
-            <div className="grid grid-cols-2 gap-1.5">
+            <div className="flex-1 min-h-0 overflow-y-auto pr-1">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
                 {tips.map((tip, index) => {
                   const isNew = newTipIndices.includes(index);
                   const hasBeenViewed = viewedNewTips.has(index);
@@ -120,7 +120,7 @@ export default function GuideModal({
         ) : (
             /* Slideshow View */
             <>
-            <div className="flex-1">
+            <div className="flex-1 min-h-0 overflow-hidden">
                 <WelcomeSlideshow images={selectedTip.images} />
             </div>
             </>
@@ -128,7 +128,7 @@ export default function GuideModal({
         </div>
 
         {/* Buttons */}
-        <div className="flex gap-3 mt-4">
+        <div className="flex gap-3 mt-4 flex-shrink-0">
           {selectedTip !== null && (
             <button
               onClick={() => setSelectedTipIndex(null)}

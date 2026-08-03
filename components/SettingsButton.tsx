@@ -70,7 +70,7 @@ useEffect(() => {
       {open && (
         <div
           className="
-            absolute right-0 mt-2 w-56
+            absolute left-full mt-2 ml-2 w-56
             rounded-md bg-neutral-900 text-gray-200
             shadow-lg border border-neutral-700
             z-50
