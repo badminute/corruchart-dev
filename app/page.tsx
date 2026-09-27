@@ -31,14 +31,16 @@ export default function HomePage() {
                 />
             </Head>
 
-            <div className="relative min-h-screen bg-[#1F2023] text-violet">
+            <div className="relative flex min-h-screen items-center justify-center bg-[#1F2023] text-violet">
                 {/* Dreamlike background floating labels */}
                 <div className="absolute inset-0 z-0">
                     <DreamBackground count={40} />
                 </div>
 
                 {/* Page content above the background */}
-                <div className="relative z-10 flex flex-col items-center justify-center p-4 sm:p-8 min-h-screen">
+                <div
+                    className="relative z-10 flex min-h-screen w-full origin-center transform-none flex-col items-center justify-center p-4 sm:min-h-[66.6667vh] sm:w-2/3 sm:scale-150 sm:p-8"
+                >
                     {/* HEADER */}
                     <div className="relative inline-block mb-6">
                         <h1 className="text-4xl sm:text-6xl font-bold text-violet-400 drop-shadow-[0_4px_6px_rgba(0,0,0,0.4)]">
