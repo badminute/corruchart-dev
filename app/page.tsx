@@ -97,7 +97,7 @@ export default function HomePage() {
                             <button
                                 type="button"
                                 onClick={() => setActiveGuide("sets")}
-                                className="cursor-pointer mt-2 flex h-9 w-9 items-center justify-center rounded-full border border-violet-400/60 bg-violet-500/20 text-lg font-bold text-violet-200 transition-colors hover:bg-violet-500/40"
+                                className="cursor-pointer mt-2 translate-y-1 flex h-9 w-9 items-center justify-center rounded-full border border-violet-400/60 bg-violet-500/20 text-lg font-bold text-violet-200 transition-colors hover:bg-violet-500/40"
                                 aria-label="Open sets mode guide"
                             >
                                 ?
@@ -120,13 +120,25 @@ export default function HomePage() {
                             <button
                                 type="button"
                                 onClick={() => setActiveGuide("chart")}
-                                className="cursor-pointer mt-2 flex h-9 w-9 items-center justify-center rounded-full border border-violet-400/60 bg-violet-500/20 text-lg font-bold text-violet-200 transition-colors hover:bg-violet-500/40"
+                                className="cursor-pointer mt-2 translate-y-1 flex h-9 w-9 items-center justify-center rounded-full border border-violet-400/60 bg-violet-500/20 text-lg font-bold text-violet-200 transition-colors hover:bg-violet-500/40"
                                 aria-label="Open chart mode guide"
                             >
                                 ?
                             </button>
                         </div>
                     </div>
+
+                    <Link
+                        href="/interests"
+                        className="mt-5 relative inline-flex items-center justify-center px-8 py-4 text-xl font-bold text-white bg-gray-400 rounded-sm overflow-hidden drop-shadow-[0_4px_0px_rgba(0,0,0,0.6)] border-3 border-black focus:outline-none before:absolute before:inset-0 before:bg-violet-400 before:translate-x-[-100%] before:transition-transform before:duration-300 hover:before:translate-x-0"
+                    >
+                        <span
+                            className="relative z-10 text-black drop-shadow-[0_0_10px_rgba(255,255,255,0.3)] animate-glow"
+                            style={{ fontFamily: "'Cinzel', serif", fontWeight: 600 }}
+                        >
+                            EXPLORE INTEREST ATLAS
+                        </span>
+                    </Link>
                 </div>
             </div>
 
