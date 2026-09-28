@@ -30,6 +30,7 @@ const CARD_WIDTH = 214;
 const CARD_HEIGHT = 108;
 const COLUMN_GAP = 34;
 const ROW_GAP = 92;
+const MAX_CHILDREN_PER_ROW = 3;
 const CONTENT_PADDING = 46;
 const MAX_SEARCH_RESULTS = 8;
 const MOTION_DURATION = 560;
@@ -59,6 +60,11 @@ type GraphEdge = {
     id: string;
     parent: PositionedNode;
     child: PositionedNode;
+};
+
+type SubtreeSize = {
+    width: number;
+    height: number;
 };
 
 const optionLookup = new Map(OPTIONS.map((option) => [option.id, option]));
@@ -92,12 +98,20 @@ function childIds(node: ExplorerNode) {
 function layoutGraph(expanded: Set<string>) {
     const positions: PositionedNode[] = [];
     const edges: GraphEdge[] = [];
-    const widthCache = new Map<string, number>();
+    const sizeCache = new Map<string, SubtreeSize>();
 
-    function subtreeWidth(id: string, path: Set<string>): number {
-        if (path.has(id)) return CARD_WIDTH;
+    function getChildRows(children: string[]) {
+        const rows: string[][] = [];
+        for (let index = 0; index < children.length; index += MAX_CHILDREN_PER_ROW) {
+            rows.push(children.slice(index, index + MAX_CHILDREN_PER_ROW));
+        }
+        return rows;
+    }
 
-        const cached = widthCache.get(id);
+    function subtreeSize(id: string, path: Set<string>): SubtreeSize {
+        if (path.has(id)) return { width: CARD_WIDTH, height: CARD_HEIGHT };
+
+        const cached = sizeCache.get(id);
         if (cached) return cached;
 
         const node = getNode(id);
@@ -106,38 +120,48 @@ function layoutGraph(expanded: Set<string>) {
             : [];
 
         if (!children.length) {
-            widthCache.set(id, CARD_WIDTH);
-            return CARD_WIDTH;
+            const size = { width: CARD_WIDTH, height: CARD_HEIGHT };
+            sizeCache.set(id, size);
+            return size;
         }
 
-        const childrenWidth = children.reduce(
-            (total, childId) => total + subtreeWidth(childId, new Set(path).add(id)),
-            0,
+        const childRows = getChildRows(children);
+        const childSizes = childRows.map((row) => row.map((childId) => (
+            subtreeSize(childId, new Set(path).add(id))
+        )));
+        const rowWidths = childSizes.map((row) => row.reduce(
+            (total, child) => total + child.width,
+            COLUMN_GAP * Math.max(row.length - 1, 0),
+        ));
+        const childrenHeight = childSizes.reduce(
+            (total, row) => total + Math.max(...row.map((child) => child.height)),
+            ROW_GAP * Math.max(childSizes.length - 1, 0),
         );
-        const width = Math.max(
-            CARD_WIDTH,
-            childrenWidth + COLUMN_GAP * (children.length - 1),
-        );
-        widthCache.set(id, width);
-        return width;
+        const size = {
+            width: Math.max(CARD_WIDTH, ...rowWidths),
+            height: CARD_HEIGHT + ROW_GAP + childrenHeight,
+        };
+        sizeCache.set(id, size);
+        return size;
     }
 
     function place(
         id: string,
         depth: number,
         left: number,
+        top: number,
         parentId: string | undefined,
         path: Set<string>,
     ) {
         const node = getNode(id);
-        const width = subtreeWidth(id, path);
-        const x = left + (width - CARD_WIDTH) / 2;
+        const size = subtreeSize(id, path);
+        const x = left + (size.width - CARD_WIDTH) / 2;
         const positioned: PositionedNode = {
             ...node,
             parentId,
             depth,
             x,
-            y: CONTENT_PADDING + depth * (CARD_HEIGHT + ROW_GAP),
+            y: top,
             hasChildren: childIds(node).length > 0,
         };
 
@@ -146,32 +170,44 @@ function layoutGraph(expanded: Set<string>) {
         const children = expanded.has(id)
             ? childIds(node).filter((childId) => !path.has(childId))
             : [];
-        let childLeft = left;
+        const childRows = getChildRows(children);
+        let childTop = top + CARD_HEIGHT + ROW_GAP;
 
-        for (const childId of children) {
-            const childWidth = subtreeWidth(childId, new Set(path).add(id));
-            const childPositionIndex = positions.length;
-            place(childId, depth + 1, childLeft, id, new Set(path).add(id));
-            const child = positions[childPositionIndex];
-            edges.push({
-                id: `${id}-${childId}`,
-                parent: positioned,
-                child,
+        for (const row of childRows) {
+            const rowSizes = row.map((childId) => subtreeSize(childId, new Set(path).add(id)));
+            const rowWidth = rowSizes.reduce(
+                (total, child) => total + child.width,
+                COLUMN_GAP * Math.max(row.length - 1, 0),
+            );
+            let childLeft = left + (size.width - rowWidth) / 2;
+
+            row.forEach((childId, index) => {
+                const childPositionIndex = positions.length;
+                place(childId, depth + 1, childLeft, childTop, id, new Set(path).add(id));
+                const child = positions[childPositionIndex];
+                edges.push({
+                    id: `${id}-${childId}`,
+                    parent: positioned,
+                    child,
+                });
+                childLeft += rowSizes[index].width + COLUMN_GAP;
             });
-            childLeft += childWidth + COLUMN_GAP;
+
+            childTop += Math.max(...rowSizes.map((child) => child.height)) + ROW_GAP;
         }
     }
 
-    const rootsWidth = INTEREST_ROOTS.reduce(
-        (total, rootId) => total + subtreeWidth(rootId, new Set()),
-        0,
-    ) + COLUMN_GAP * (INTEREST_ROOTS.length - 1);
+    const rootsSize = INTEREST_ROOTS.map((rootId) => subtreeSize(rootId, new Set()));
+    const rootsWidth = rootsSize.reduce(
+        (total, root) => total + root.width,
+        COLUMN_GAP * Math.max(INTEREST_ROOTS.length - 1, 0),
+    );
     let rootLeft = Math.max(CONTENT_PADDING, (rootsWidth - rootsWidth) / 2);
 
     for (const rootId of INTEREST_ROOTS) {
-        const rootWidth = subtreeWidth(rootId, new Set());
-        place(rootId, 0, rootLeft, undefined, new Set());
-        rootLeft += rootWidth + COLUMN_GAP;
+        const rootSize = subtreeSize(rootId, new Set());
+        place(rootId, 0, rootLeft, CONTENT_PADDING, undefined, new Set());
+        rootLeft += rootSize.width + COLUMN_GAP;
     }
 
     const positionsById = new Map<string, PositionedNode>();
