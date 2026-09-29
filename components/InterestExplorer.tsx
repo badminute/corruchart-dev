@@ -17,16 +17,18 @@ import {
     Search,
     X,
 } from "lucide-react";
-import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
-import { OPTIONS } from "@/data/options";
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from "react";
 import {
     INTEREST_BRANCHES,
     INTEREST_ROOTS,
     type InterestBranch,
 } from "@/data/interestBranches";
+import { OPTIONS } from "@/data/options";
 
 const NODE_WIDTH = 230;
 const NODE_HEIGHT = 196;
+const NODE_HITBOX_WIDTH = 190;
+const NODE_HITBOX_HEIGHT = 166;
 const NODE_COLLISION_GAP = 16;
 const NODE_DIAMETER = 84;
 const EYEBROW_FONT_SIZE = 8;
@@ -40,6 +42,7 @@ const ROOT_COLORS = ["#287271", "#C17C74", "#6A994E", "#577590", "#B07D62", "#8E
 const GRAVITY_ITERATIONS = 72;
 const MAX_SEARCH_RESULTS = 8;
 const MOTION_DURATION = 560;
+const CAMERA_SETTLE_DELAY = 360;
 const FAST_MOTION_DURATION = 160;
 const MOTION_STAGGER = 70;
 const MAX_MOTION_STAGGER = 280;
@@ -103,6 +106,13 @@ function getNodeDiameter(node: PositionedNode) {
     const degree = node.children.length + (node.parentId ? 1 : 0);
     const rootBoost = node.parentId ? 0 : 10;
     return Math.min(112, 42 + Math.min(degree, 24) * 2.8 + rootBoost);
+}
+
+function isWithinNodeHitbox(event: ReactPointerEvent<HTMLButtonElement>) {
+    const bounds = event.currentTarget.getBoundingClientRect();
+    const x = event.clientX - bounds.left - bounds.width / 2;
+    const y = event.clientY - bounds.top - bounds.height / 2;
+    return Math.abs(x) <= NODE_HITBOX_WIDTH / 2 && Math.abs(y) <= NODE_HITBOX_HEIGHT / 2;
 }
 
 function applyGravity(
@@ -422,9 +432,6 @@ export default function InterestExplorer() {
     const [isDragging, setIsDragging] = useState(false);
     const [hoveredId, setHoveredId] = useState<string | null>(null);
     const [exitingNodes, setExitingNodes] = useState<ExitingNode[]>([]);
-    const [enteringNodeIds, setEnteringNodeIds] = useState<Set<string>>(
-        () => new Set(),
-    );
     const [animationsEnabled, setAnimationsEnabled] = useState(true);
     const [gravityEnabled, setGravityEnabled] = useState(true);
     const [nodeSpacing, setNodeSpacing] = useState(1);
@@ -435,8 +442,9 @@ export default function InterestExplorer() {
         () => new Set(),
     );
     const [motionFast, setMotionFast] = useState(false);
+    const [cameraSettling, setCameraSettling] = useState(false);
     const fastMotionTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
-    const previousVisibleIds = useRef<Set<string> | null>(null);
+    const expansionTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
     const initialFitRef = useRef(false);
     const dragStart = useRef({ x: 0, y: 0, panX: 0, panY: 0 });
     const graphViewportRef = useRef<HTMLDivElement | null>(null);
@@ -470,20 +478,9 @@ export default function InterestExplorer() {
         () => layoutGraph(expanded, nodeSpacing, gravityEnabled),
         [expanded, nodeSpacing, gravityEnabled],
     );
-    useEffect(() => {
-        const currentIds = new Set(graph.positions.map((node) => node.id));
-        const previousIds = previousVisibleIds.current;
-        const newlyVisibleIds = previousIds
-            ? [...currentIds].filter((id) => !previousIds.has(id))
-            : [...currentIds];
-
-        previousVisibleIds.current = currentIds;
-        setEnteringNodeIds(
-            animationsEnabled ? new Set(newlyVisibleIds) : new Set(),
-        );
-    }, [animationsEnabled, graph.positions]);
     useEffect(() => () => {
         if (fastMotionTimeout.current) clearTimeout(fastMotionTimeout.current);
+        if (expansionTimeout.current) clearTimeout(expansionTimeout.current);
     }, []);
     const visiblePositionsById = useMemo(
         () => new Map(graph.positions.map((node) => [node.id, node])),
@@ -613,6 +610,10 @@ export default function InterestExplorer() {
         }
     };
 
+    const commitExpandedGraph = (next: Set<string>) => {
+        setExpanded(next);
+    };
+
     useEffect(() => {
         if (initialFitRef.current) return;
 
@@ -625,7 +626,9 @@ export default function InterestExplorer() {
     }, [graph]);
 
     const toggleNode = (id: string) => {
-        if (animationsEnabled && (enteringNodeIds.size || exitingNodes.length)) {
+        if (cameraSettling) return;
+
+        if (animationsEnabled && exitingNodes.length) {
             setMotionFast(true);
             if (fastMotionTimeout.current) clearTimeout(fastMotionTimeout.current);
             fastMotionTimeout.current = setTimeout(() => {
@@ -676,8 +679,24 @@ export default function InterestExplorer() {
             const nextIds = new Set(nextGraph.positions.map((node) => node.id));
             setExitingNodes((current) => current.filter((node) => !nextIds.has(node.id)));
 
+            if (autoPanEnabled && animationsEnabled) {
+                fitGraph(nextGraph);
+                setCameraSettling(true);
+                expansionTimeout.current = setTimeout(() => {
+                    commitExpandedGraph(next);
+                    setCameraSettling(false);
+                    expansionTimeout.current = null;
+                }, CAMERA_SETTLE_DELAY);
+                return;
+            }
+
             if (autoPanEnabled) {
                 fitGraph(nextGraph);
+            }
+
+            if (animationsEnabled) {
+                commitExpandedGraph(next);
+                return;
             }
         }
 
@@ -703,6 +722,9 @@ export default function InterestExplorer() {
         setMotionFast(false);
         if (fastMotionTimeout.current) clearTimeout(fastMotionTimeout.current);
         fastMotionTimeout.current = null;
+        if (expansionTimeout.current) clearTimeout(expansionTimeout.current);
+        expansionTimeout.current = null;
+        setCameraSettling(false);
         setZoom(0.46);
         setPan({ x: 0, y: 0 });
         setExitingNodes([]);
@@ -1013,11 +1035,7 @@ export default function InterestExplorer() {
                                     ? (node as ExitingNode)
                                     : undefined;
                                 const isExiting = Boolean(exitingNode);
-                                const isEntering = enteringNodeIds.has(node.id) && !isExiting;
                                 const isSelected = selectedId === node.id;
-                                const parent = !isExiting && node.parentId
-                                    ? visiblePositionsById.get(node.parentId)
-                                    : undefined;
                                 const nodeDiameter = getNodeDiameter(node);
                                 const discTop = (NODE_HEIGHT - nodeDiameter) / 2;
                                 const eyebrowText = node.eyebrow ?? "CATALOG";
@@ -1032,14 +1050,26 @@ export default function InterestExplorer() {
                                 const labelLines = Math.ceil(node.label.length / labelCharactersPerLine)
                                     + (node.label.length > labelCharactersPerLine * 0.6 ? 1 : 0);
                                 const labelHeight = Math.max(24, labelLines * 13 * labelScale + 4);
+                                const animationDelay = `${isExiting
+                                    ? motionFast ? 0 : Math.max(0, maxExitingDepth - node.depth) * MOTION_STAGGER
+                                    : 0}ms`;
                                 return (
                                     <button
                                         type="button"
                                         key={node.id}
-                                        onPointerDown={isExiting ? undefined : (event) => event.stopPropagation()}
-                                        onPointerEnter={isExiting ? undefined : () => setHoveredId(node.id)}
+                                        onPointerDown={isExiting ? undefined : (event) => {
+                                            if (!isWithinNodeHitbox(event)) return;
+                                            event.stopPropagation();
+                                        }}
+                                        onPointerEnter={isExiting ? undefined : (event) => {
+                                            setHoveredId(isWithinNodeHitbox(event) ? node.id : null);
+                                        }}
+                                        onPointerMove={isExiting ? undefined : (event) => {
+                                            setHoveredId(isWithinNodeHitbox(event) ? node.id : null);
+                                        }}
                                         onPointerLeave={isExiting ? undefined : () => setHoveredId(null)}
                                         onPointerUp={isExiting ? undefined : (event) => {
+                                            if (!isWithinNodeHitbox(event)) return;
                                             event.stopPropagation();
                                             toggleNode(node.id);
                                         }}
@@ -1051,75 +1081,63 @@ export default function InterestExplorer() {
                                         }}
                                         onAnimationEnd={isExiting
                                             ? () => setExitingNodes((current) => current.filter((item) => item.id !== node.id))
-                                            : isEntering
-                                                ? () => setEnteringNodeIds((current) => {
-                                                    if (!current.has(node.id)) return current;
-                                                    const next = new Set(current);
-                                                    next.delete(node.id);
-                                                    return next;
-                                                })
-                                                : undefined}
+                                            : undefined}
                                         aria-hidden={isExiting}
                                         aria-label={`${node.label}, ${node.eyebrow ?? "CATALOG"}`}
                                         tabIndex={isExiting ? -1 : undefined}
-                                        className={`interest-node absolute cursor-pointer text-center ${isEntering ? "interest-node-enter" : ""} ${isExiting ? "interest-node-exit pointer-events-none" : ""}`}
+                                        className={`interest-node absolute cursor-pointer text-center ${isExiting ? "interest-node-exit pointer-events-none" : ""}`}
                                         style={{
                                             opacity: isFocusNeighbor(node) ? 1 : 0.3,
                                             width: NODE_WIDTH,
                                             height: NODE_HEIGHT,
                                             transform: `translate3d(${node.x}px, ${node.y}px, 0)`,
-                                            transitionDuration: `${motionFast ? FAST_MOTION_DURATION : MOTION_DURATION}ms`,
                                             animationDuration: `${motionFast ? FAST_MOTION_DURATION : MOTION_DURATION}ms`,
-                                            animationDelay: `${isExiting
-                                                ? motionFast ? 0 : Math.max(0, maxExitingDepth - node.depth) * MOTION_STAGGER
-                                                : node.parentId
-                                                    ? motionFast ? 0 : Math.min(node.depth * MOTION_STAGGER, MAX_MOTION_STAGGER)
-                                                    : 0}ms`,
+                                            animationDelay,
                                             "--node-x": `${node.x}px`,
                                             "--node-y": `${node.y}px`,
-                                            "--reveal-x": `${isExiting ? node.x : parent?.x ?? node.x}px`,
-                                            "--reveal-y": `${isExiting ? node.y : parent?.y ?? node.y}px`,
                                             "--exit-x": `${exitingNode?.exitX ?? node.x}px`,
                                             "--exit-y": `${exitingNode?.exitY ?? node.y}px`,
                                         } as CSSProperties}
                                     >
-                                        {eyebrowsVisible && (
+                                        <span className="interest-node-content">
+                                            {eyebrowsVisible && (
+                                                <span
+                                                    className="w-full shrink-0 whitespace-normal break-words text-[9px] font-bold uppercase tracking-[0.1em] text-neutral-300 [text-shadow:0_1px_4px_#151516]"
+                                                    style={{
+                                                        position: "absolute",
+                                                        left: 0,
+                                                        top: `${discTop - eyebrowHeight - 8}px`,
+                                                        width: NODE_WIDTH,
+                                                        fontSize: `${eyebrowFontSize * labelScale}px`,
+                                                        lineHeight: `${eyebrowLineHeight * labelScale}px`,
+                                                        height: `${eyebrowHeight}px`,
+                                                    }}
+                                                >
+                                                    {eyebrowText}
+                                                </span>
+                                            )}
                                             <span
-                                                className="w-full shrink-0 whitespace-normal break-words text-[9px] font-bold uppercase tracking-[0.1em] text-neutral-300 [text-shadow:0_1px_4px_#151516]"
+                                                className={`interest-node-disc absolute flex items-center justify-center rounded-full border-2 text-center text-white transition-shadow ${isSelected ? "border-white shadow-[0_0_0_5px_rgba(255,255,255,0.16)]" : "border-black/25"}`}
                                                 style={{
-                                                    position: "absolute",
-                                                    left: 0,
-                                                    top: `${discTop - eyebrowHeight - 8}px`,
+                                                    left: (NODE_WIDTH - nodeDiameter) / 2,
+                                                    top: discTop,
+                                                    width: nodeDiameter,
+                                                    height: nodeDiameter,
+                                                    backgroundColor: isExiting ? "#242629" : node.color,
+                                                }}
+                                            />
+                                            <span
+                                                className="absolute left-0 max-w-full whitespace-normal break-words px-1 text-[11px] font-bold leading-tight tracking-wide text-neutral-100 [text-shadow:0_1px_5px_#151516]"
+                                                style={{
+                                                    top: discTop + nodeDiameter + 8,
                                                     width: NODE_WIDTH,
-                                                    fontSize: `${eyebrowFontSize * labelScale}px`,
-                                                    lineHeight: `${eyebrowLineHeight * labelScale}px`,
-                                                    height: `${eyebrowHeight}px`,
+                                                    height: labelHeight,
+                                                    fontSize: `${11 * labelScale}px`,
+                                                    lineHeight: `${13 * labelScale}px`,
                                                 }}
                                             >
-                                                {eyebrowText}
+                                                {node.label}
                                             </span>
-                                        )}
-                                        <span
-                                            className={`interest-node-disc absolute flex items-center justify-center rounded-full border-2 text-center text-white transition-shadow ${isSelected ? "border-white shadow-[0_0_0_5px_rgba(255,255,255,0.16)]" : "border-black/25"}`}
-                                            style={{
-                                                left: (NODE_WIDTH - nodeDiameter) / 2,
-                                                top: discTop,
-                                                width: nodeDiameter,
-                                                height: nodeDiameter,
-                                                backgroundColor: isExiting ? "#242629" : node.color,
-                                            }}
-                                        />
-                                        <span
-                                            className="absolute left-0 max-w-full whitespace-normal break-words px-1 text-[11px] font-bold leading-tight tracking-wide text-neutral-100 [text-shadow:0_1px_5px_#151516]"
-                                            style={{
-                                                top: discTop + nodeDiameter + 8,
-                                                width: NODE_WIDTH,
-                                                height: labelHeight,
-                                                fontSize: `${11 * labelScale}px`,
-                                                lineHeight: `${13 * labelScale}px`,
-                                            }}
-                                        >
-                                            {node.label}
                                         </span>
                                     </button>
                                 );
@@ -1131,12 +1149,13 @@ export default function InterestExplorer() {
 
             <style jsx>{`
                 .interest-node {
-                    transition: transform ${MOTION_DURATION}ms cubic-bezier(0.22, 1, 0.36, 1), border-color 120ms ease, background-color 120ms ease;
-                    will-change: transform;
+                    transition: border-color 120ms ease, background-color 120ms ease;
                 }
 
-                .interest-node-enter {
-                    animation: interest-node-in ${MOTION_DURATION}ms cubic-bezier(0.22, 1, 0.36, 1) both;
+                .interest-node-content {
+                    position: absolute;
+                    inset: 0;
+                    display: block;
                 }
 
                 .interest-node-exit {
@@ -1148,29 +1167,10 @@ export default function InterestExplorer() {
                     transition: none !important;
                 }
 
-                @keyframes interest-node-in {
-                    from {
-                        opacity: 0;
-                        transform: translate3d(var(--reveal-x), var(--reveal-y), 0) scale(0.82);
-                    }
-                    58% {
-                        opacity: 1;
-                        transform: translate3d(var(--node-x), var(--node-y), 0) scale(1.08);
-                    }
-                    to {
-                        opacity: 1;
-                        transform: translate3d(var(--node-x), var(--node-y), 0) scale(1);
-                    }
-                }
-
                 @keyframes interest-node-out {
                     from {
                         opacity: 1;
                         transform: translate3d(var(--node-x), var(--node-y), 0) scale(1);
-                    }
-                    38% {
-                        opacity: 1;
-                        transform: translate3d(var(--node-x), var(--node-y), 0) scale(1.08);
                     }
                     to {
                         opacity: 0;

@@ -53,7 +53,7 @@ export const INTEREST_BRANCHES: Record<string, InterestBranch> = {
     "vore": {
         id: "vore",
         label: "VORE",
-        eyebrow: "ROOT / SENSATION",
+        eyebrow: "ROOT / FANTASY",
         description: "Interests organized around vore.",
         children: [
             "alternative-vore",
