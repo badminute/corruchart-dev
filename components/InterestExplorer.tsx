@@ -4,17 +4,19 @@ import Link from "next/link";
 import {
     Eye,
     EyeOff,
+    ListTree,
     LocateFixed,
     Maximize2,
     Minus,
     Network,
     PanelLeftClose,
-    PanelLeftOpen,
+    PanelTopClose,
+    PanelTopOpen,
     Pause,
     Play,
     Plus,
-    RotateCcw,
     Search,
+    Settings,
     X,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from "react";
@@ -37,7 +39,7 @@ const RADIAL_START_RADIUS = 190;
 const RADIAL_RADIUS_STEP = 224;
 const RADIAL_NODE_GAP = 300;
 const CONTENT_PADDING = 112;
-const MIN_ZOOM = 0.25;
+const MIN_ZOOM = 0.12;
 const ROOT_COLORS = ["#287271", "#C17C74", "#6A994E", "#577590", "#B07D62", "#8E7DBE"];
 const GRAVITY_ITERATIONS = 72;
 const MAX_SEARCH_RESULTS = 8;
@@ -428,7 +430,7 @@ export default function InterestExplorer() {
     const [query, setQuery] = useState("");
     const [zoom, setZoom] = useState(0.46);
     const [pan, setPan] = useState({ x: 0, y: 0 });
-    const [sidebarVisible, setSidebarVisible] = useState(true);
+    const [sidebarVisible, setSidebarVisible] = useState(false);
     const [isDragging, setIsDragging] = useState(false);
     const [hoveredId, setHoveredId] = useState<string | null>(null);
     const [exitingNodes, setExitingNodes] = useState<ExitingNode[]>([]);
@@ -441,6 +443,9 @@ export default function InterestExplorer() {
     const [sidebarOpenIds, setSidebarOpenIds] = useState<Set<string>>(
         () => new Set(),
     );
+    const [topBarVisible, setTopBarVisible] = useState(true);
+    const [searchVisible, setSearchVisible] = useState(false);
+    const [moreOptionsVisible, setMoreOptionsVisible] = useState(false);
     const [motionFast, setMotionFast] = useState(false);
     const [cameraSettling, setCameraSettling] = useState(false);
     const fastMotionTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -535,9 +540,6 @@ export default function InterestExplorer() {
             getNode(firstId).label.localeCompare(getNode(secondId).label)),
         [],
     );
-    const primaryRootIds = sortedRootIds.slice(0, 5);
-    const overflowRootIds = sortedRootIds.slice(5);
-
     const toggleSidebarNode = (id: string) => {
         setSidebarOpenIds((current) => {
             const next = new Set(current);
@@ -716,20 +718,6 @@ export default function InterestExplorer() {
         }
     };
 
-    const resetView = () => {
-        setExpanded(new Set(INTEREST_ROOTS));
-        setSelectedId("vanilla");
-        setMotionFast(false);
-        if (fastMotionTimeout.current) clearTimeout(fastMotionTimeout.current);
-        fastMotionTimeout.current = null;
-        if (expansionTimeout.current) clearTimeout(expansionTimeout.current);
-        expansionTimeout.current = null;
-        setCameraSettling(false);
-        setZoom(0.46);
-        setPan({ x: 0, y: 0 });
-        setExitingNodes([]);
-    };
-
     const selectSearchResult = (id: string) => {
         setSelectedId(id);
     };
@@ -748,9 +736,10 @@ export default function InterestExplorer() {
 
     const handlePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
         if (!isDragging) return;
+        const dragSensitivity = 0.75;
         setPan({
-            x: dragStart.current.panX + event.clientX - dragStart.current.x,
-            y: dragStart.current.panY + event.clientY - dragStart.current.y,
+            x: dragStart.current.panX + ((event.clientX - dragStart.current.x) / zoom) * dragSensitivity,
+            y: dragStart.current.panY + ((event.clientY - dragStart.current.y) / zoom) * dragSensitivity,
         });
     };
 
@@ -769,222 +758,235 @@ export default function InterestExplorer() {
         <main className={`min-h-screen overflow-hidden bg-[#191B1C] text-neutral-100 ${animationsEnabled ? "" : "animations-disabled"}`}>
             <div className={`grid min-h-screen w-full grid-cols-1 ${sidebarVisible ? "lg:grid-cols-[238px_minmax(0,1fr)]" : ""}`}>
                 {sidebarVisible && (
-                    <aside className="border-b border-white/[0.07] bg-[#1D1E21] p-3 lg:border-b-0 lg:border-r lg:p-4">
-                    <Link
-                        href="/"
-                        className="mb-4 block text-[11px] font-bold uppercase tracking-[0.22em] text-neutral-100 transition hover:text-violet-200"
-                        aria-label="Go to Corruchart home"
-                    >
-                        CORRUCHART
-                    </Link>
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-500">
-                                Navigation
-                            </p>
-                        </div>
-                        <div className="flex items-center gap-1">
+                    <aside aria-label="Root directory" className="cursor-pointer border-b border-white/[0.07] bg-[#1D1E21] p-3 lg:border-b-0 lg:border-r lg:p-4">
+                        <div className="flex items-center justify-between">
+                            <Link
+                                href="/"
+                                className="block text-[11px] font-bold uppercase tracking-[0.22em] text-neutral-100 transition hover:text-violet-200"
+                                aria-label="Go to Corruchart home"
+                            >
+                                CORRUCHART
+                            </Link>
                             <button
                                 type="button"
                                 onClick={() => setSidebarVisible(false)}
                                 className="flex size-7 cursor-pointer items-center justify-center text-neutral-500 transition hover:bg-violet-400/10 hover:text-violet-200"
-                                aria-label="Hide navigation sidebar"
-                                title="Hide navigation sidebar"
+                                aria-label="Close root directory"
+                                title="Close root directory"
                             >
                                 <PanelLeftClose className="size-3.5" />
                             </button>
                         </div>
-                    </div>
-
-                    <div className="relative mt-3">
-                        <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-neutral-500" />
-                        <input
-                            value={query}
-                            onChange={(event) => setQuery(event.target.value)}
-                            placeholder="Search 1,616 interests"
-                            className="h-10 w-full border border-white/10 bg-[#17181A] pl-9 pr-9 text-xs text-neutral-100 outline-none placeholder:text-neutral-600 focus:border-violet-400/70"
-                            aria-label="Search interests"
-                        />
-                        {query && (
-                            <button
-                                type="button"
-                                onClick={() => setQuery("")}
-                                className="absolute right-2 top-1/2 flex size-6 -translate-y-1/2 cursor-pointer items-center justify-center text-neutral-500 transition hover:text-neutral-200"
-                                aria-label="Clear search"
-                            >
-                                <X className="size-3.5" />
-                            </button>
-                        )}
-                    </div>
-
-                    {query && (
-                        <div className="mt-2 border border-white/10 bg-[#17181A] p-1">
-                            {searchResults.length ? (
-                                searchResults.map((result) => (
-                                    <button
-                                        type="button"
-                                        key={result.id}
-                                        onClick={() => selectSearchResult(result.id)}
-                                        className="flex w-full cursor-pointer items-center justify-between gap-3 px-3 py-2 text-left transition hover:bg-violet-400/10"
-                                    >
-                                        <span className="min-w-0 truncate text-xs font-semibold text-neutral-200">
-                                            {result.label}
-                                        </span>
-                                        <span className="shrink-0 text-[9px] tabular-nums text-neutral-600">
-                                            {childIds(getNode(result.id)).length}
-                                        </span>
-                                    </button>
-                                ))
-                            ) : (
-                                <p className="px-3 py-3 text-xs text-neutral-500">No interests found.</p>
-                            )}
+                        <div className="hide-scrollbar mt-3 max-h-[calc(100vh-5rem)] overflow-y-auto pr-1">
+                            {sortedRootIds.map((rootId) => renderSidebarNode(rootId))}
                         </div>
-                    )}
-
-                    <div className="mt-4 space-y-1">
-                        {primaryRootIds.map((rootId) => renderSidebarNode(rootId))}
-                    </div>
-                    {overflowRootIds.length > 0 && (
-                        <div className="mt-3 border-t border-white/[0.07] pt-2">
-                            <p className="mb-1 px-2 text-[9px] font-bold uppercase tracking-[0.18em] text-neutral-600">
-                                More roots
-                            </p>
-                            <div className="hide-scrollbar max-h-36 overflow-y-auto pr-1">
-                                {overflowRootIds.map((rootId) => renderSidebarNode(rootId))}
-                            </div>
-                        </div>
-                    )}
                     </aside>
                 )}
 
                 <section className="relative flex min-h-[620px] min-w-0 flex-col bg-[#191B1C]">
-                    {!sidebarVisible && (
+                    {topBarVisible && (
+                        <div className="relative z-30 border-b border-white/[0.07]">
+                            <div className={`flex min-w-0 flex-wrap items-center justify-between gap-2 py-2 ${sidebarVisible ? "px-3 sm:px-7" : "px-3 sm:px-7"}`}>
+                                <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1">
+                                    <button
+                                        type="button"
+                                        onClick={() => setZoom((current) => Math.max(MIN_ZOOM, current - 0.1))}
+                                        className="flex size-7 cursor-pointer items-center justify-center text-neutral-500 transition hover:bg-violet-400/10 hover:text-violet-200"
+                                        aria-label="Zoom out"
+                                        title="Zoom out"
+                                    >
+                                        <Minus className="size-3.5" />
+                                    </button>
+                                    <span className="w-9 text-center text-[9px] font-bold text-neutral-400">{Math.round(zoom * 100)}%</span>
+                                    <button
+                                        type="button"
+                                        onClick={() => setZoom((current) => Math.min(1.25, current + 0.1))}
+                                        className="flex size-7 cursor-pointer items-center justify-center text-neutral-500 transition hover:bg-violet-400/10 hover:text-violet-200"
+                                        aria-label="Zoom in"
+                                        title="Zoom in"
+                                    >
+                                        <Plus className="size-3.5" />
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => fitGraph()}
+                                        className="flex size-7 cursor-pointer items-center justify-center text-neutral-500 transition hover:bg-violet-400/10 hover:text-violet-200"
+                                        aria-label="Fit interest web"
+                                        title="Fit interest web"
+                                    >
+                                        <Maximize2 className="size-3.5" />
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setEyebrowsVisible((current) => !current)}
+                                        className={`flex size-7 cursor-pointer items-center justify-center transition hover:bg-violet-400/10 hover:text-violet-200 ${eyebrowsVisible ? "text-neutral-500" : "bg-violet-400/10 text-violet-200"}`}
+                                        aria-label={eyebrowsVisible ? "Hide node eyebrows" : "Show node eyebrows"}
+                                        title={eyebrowsVisible ? "Hide node eyebrows" : "Show node eyebrows"}
+                                        aria-pressed={eyebrowsVisible}
+                                    >
+                                        {eyebrowsVisible ? <Eye className="size-3.5" /> : <EyeOff className="size-3.5" />}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setLinksVisible((current) => !current)}
+                                        className={`flex size-7 cursor-pointer items-center justify-center transition hover:bg-violet-400/10 hover:text-violet-200 ${linksVisible ? "text-neutral-500" : "bg-violet-400/10 text-violet-200"}`}
+                                        aria-label={linksVisible ? "Hide graph links" : "Show graph links"}
+                                        title={linksVisible ? "Hide graph links" : "Show graph links"}
+                                        aria-pressed={linksVisible}
+                                    >
+                                        <Network className="size-3.5" />
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setSearchVisible((current) => !current);
+                                            setMoreOptionsVisible(false);
+                                        }}
+                                        className={`flex size-7 cursor-pointer items-center justify-center transition hover:bg-violet-400/10 hover:text-violet-200 ${searchVisible ? "bg-violet-400/10 text-violet-200" : "text-neutral-500"}`}
+                                        aria-label={searchVisible ? "Close search" : "Open search"}
+                                        title={searchVisible ? "Close search" : "Open search"}
+                                        aria-pressed={searchVisible}
+                                    >
+                                        <Search className="size-3.5" />
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setSidebarVisible((current) => !current);
+                                            setMoreOptionsVisible(false);
+                                        }}
+                                        className={`flex size-7 cursor-pointer items-center justify-center transition hover:bg-violet-400/10 hover:text-violet-200 ${sidebarVisible ? "bg-violet-400/10 text-violet-200" : "text-neutral-500"}`}
+                                        aria-label={sidebarVisible ? "Close root directory" : "Open root directory"}
+                                        title={sidebarVisible ? "Close root directory" : "Open root directory"}
+                                        aria-pressed={sidebarVisible}
+                                    >
+                                        <ListTree className="size-3.5" />
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setMoreOptionsVisible((current) => !current)}
+                                        className={`flex size-7 cursor-pointer items-center justify-center transition hover:bg-violet-400/10 hover:text-violet-200 ${moreOptionsVisible ? "bg-violet-400/10 text-violet-200" : "text-neutral-500"}`}
+                                        aria-label="Open more graph options"
+                                        title="More graph options"
+                                        aria-pressed={moreOptionsVisible}
+                                    >
+                                        <Settings className="size-3.5" />
+                                    </button>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => setTopBarVisible(false)}
+                                    className="flex size-7 cursor-pointer items-center justify-center text-neutral-500 transition hover:bg-violet-400/10 hover:text-violet-200"
+                                    aria-label="Hide graph controls"
+                                    title="Hide graph controls"
+                                >
+                                    <PanelTopClose className="size-3.5" />
+                                </button>
+                            </div>
+                            {searchVisible && (
+                                <div className="border-t border-white/[0.07] bg-[#17181A] p-2">
+                                    <div className="relative">
+                                        <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-neutral-500" />
+                                        <input
+                                            value={query}
+                                            onChange={(event) => setQuery(event.target.value)}
+                                            placeholder="Search interests"
+                                            className="h-9 w-full border border-white/10 bg-[#1D1E21] pl-9 pr-9 text-xs text-neutral-100 outline-none placeholder:text-neutral-600 focus:border-violet-400/70"
+                                            aria-label="Search interests"
+                                            autoFocus
+                                        />
+                                        {query && (
+                                            <button
+                                                type="button"
+                                                onClick={() => setQuery("")}
+                                                className="absolute right-2 top-1/2 flex size-6 -translate-y-1/2 cursor-pointer items-center justify-center text-neutral-500 transition hover:text-neutral-200"
+                                                aria-label="Clear search"
+                                            >
+                                                <X className="size-3.5" />
+                                            </button>
+                                        )}
+                                    </div>
+                                    {query && (
+                                        <div className="mt-2 max-h-52 overflow-y-auto border border-white/10 bg-[#1D1E21] p-1">
+                                            {searchResults.length ? searchResults.map((result) => (
+                                                <button
+                                                    type="button"
+                                                    key={result.id}
+                                                    onClick={() => selectSearchResult(result.id)}
+                                                    className="flex w-full cursor-pointer items-center justify-between gap-3 px-3 py-2 text-left transition hover:bg-violet-400/10"
+                                                >
+                                                    <span className="min-w-0 truncate text-xs font-semibold text-neutral-200">{result.label}</span>
+                                                    <span className="shrink-0 text-[9px] tabular-nums text-neutral-600">{childIds(getNode(result.id)).length}</span>
+                                                </button>
+                                            )) : <p className="px-3 py-3 text-xs text-neutral-500">No interests found.</p>}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                            {moreOptionsVisible && (
+                                <div className="absolute right-2 top-full mt-2 w-[min(290px,calc(100vw-1rem))] border border-white/10 bg-[#1D1E21] p-2 shadow-2xl">
+                                    <button
+                                        type="button"
+                                        onClick={toggleGravityLayout}
+                                        className={`flex h-8 w-full cursor-pointer items-center justify-between border px-2 text-left text-[9px] font-bold uppercase tracking-[0.12em] transition ${gravityEnabled ? "border-emerald-300/35 bg-emerald-400/10 text-emerald-100" : "border-white/10 text-neutral-500"}`}
+                                        aria-label={gravityEnabled ? "Disable gravity layout" : "Enable gravity layout"}
+                                        aria-pressed={gravityEnabled}
+                                    >
+                                        <span>Gravity</span>
+                                        <span>{gravityEnabled ? "ON" : "OFF"}</span>
+                                    </button>
+                                    <label className="mt-2 flex h-8 items-center gap-2 border border-white/10 px-2 text-[9px] font-bold uppercase tracking-[0.12em] text-neutral-500">
+                                        <span>Closeness</span>
+                                        <input
+                                            type="range"
+                                            min="0.65"
+                                            max="1.35"
+                                            step="0.05"
+                                            value={nodeSpacing}
+                                            onChange={(event) => updateNodeSpacing(Number(event.target.value))}
+                                            className="h-1 min-w-0 flex-1 cursor-pointer accent-emerald-300"
+                                            aria-label="Adjust node closeness"
+                                        />
+                                        <span className="w-7 text-right text-[8px] tracking-[0.08em] text-neutral-400">{nodeSpacing.toFixed(2)}x</span>
+                                    </label>
+                                    <button
+                                        type="button"
+                                        onClick={() => setAutoPanEnabled((current) => !current)}
+                                        className={`mt-2 flex h-8 w-full cursor-pointer items-center justify-between border px-2 text-[9px] font-bold uppercase tracking-[0.12em] transition ${autoPanEnabled ? "border-violet-300/35 bg-violet-400/10 text-violet-100" : "border-white/10 text-neutral-500"}`}
+                                        aria-label={autoPanEnabled ? "Disable auto-pan" : "Enable auto-pan"}
+                                        aria-pressed={autoPanEnabled}
+                                    >
+                                        <span className="flex items-center gap-1.5"><LocateFixed className="size-3.5" />Auto-pan</span>
+                                        <span>{autoPanEnabled ? "ON" : "OFF"}</span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setAnimationsEnabled((current) => !current)}
+                                        className={`mt-2 flex h-8 w-full cursor-pointer items-center justify-between border px-2 text-[9px] font-bold uppercase tracking-[0.12em] transition ${animationsEnabled ? "border-white/10 text-neutral-400" : "border-violet-300/35 bg-violet-400/10 text-violet-100"}`}
+                                        aria-label={animationsEnabled ? "Disable animations" : "Enable animations"}
+                                        aria-pressed={!animationsEnabled}
+                                    >
+                                        <span className="flex items-center gap-1.5">{animationsEnabled ? <Pause className="size-3.5" /> : <Play className="size-3.5" />}Animations</span>
+                                        <span>{animationsEnabled ? "ON" : "OFF"}</span>
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    )}
+                    {!topBarVisible && (
                         <button
                             type="button"
-                            onClick={() => setSidebarVisible(true)}
-                            className="absolute left-0 top-3 z-20 flex size-9 cursor-pointer items-center justify-center border border-white/10 bg-[#1D1E21] text-neutral-400 transition hover:border-violet-400/50 hover:bg-violet-400/10 hover:text-violet-200"
-                            aria-label="Show navigation sidebar"
-                            title="Show navigation sidebar"
+                            onClick={() => setTopBarVisible(true)}
+                            className="absolute right-2 top-2 z-20 flex size-8 cursor-pointer items-center justify-center border border-white/10 bg-[#1D1E21] text-neutral-400 transition hover:border-violet-400/50 hover:bg-violet-400/10 hover:text-violet-200"
+                            aria-label="Show graph controls"
+                            title="Show graph controls"
                         >
-                            <PanelLeftOpen className="size-4" />
+                            <PanelTopOpen className="size-4" />
                         </button>
                     )}
-                    <div className={`flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.07] py-3 ${sidebarVisible ? "px-5 sm:px-7" : "pl-12 pr-5 sm:pl-12 sm:pr-7"}`}>
-                        <div className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-[0.18em] text-neutral-500">
-                            <span className="text-violet-300">{graph.positions.length}</span> visible nodes
-                            <span className="text-neutral-700">/</span>
-                            <span>{graph.positions.filter((node) => node.parentId).length} branch nodes</span>
-                            <span className="text-neutral-700">/</span>
-                            <span>{OPTIONS.length.toLocaleString()} interests</span>
-                        </div>
-                        <div className="flex items-center gap-1 border border-white/[0.07] bg-[#17181A] p-1">
-                            <button
-                                type="button"
-                                onClick={() => setZoom((current) => Math.max(MIN_ZOOM, current - 0.1))}
-                                className="flex size-7 cursor-pointer items-center justify-center text-neutral-500 transition hover:bg-violet-400/10 hover:text-violet-200"
-                                aria-label="Zoom out"
-                            >
-                                <Minus className="size-3.5" />
-                            </button>
-                            <span className="w-12 text-center text-[10px] font-bold text-neutral-400">{Math.round(zoom * 100)}%</span>
-                            <button
-                                type="button"
-                                onClick={() => setZoom((current) => Math.min(1.25, current + 0.1))}
-                                className="flex size-7 cursor-pointer items-center justify-center text-neutral-500 transition hover:bg-violet-400/10 hover:text-violet-200"
-                                aria-label="Zoom in"
-                            >
-                                <Plus className="size-3.5" />
-                            </button>
-                            <span className="mx-1 h-4 w-px bg-white/10" />
-                            <button
-                                type="button"
-                                onClick={resetView}
-                                className="flex size-7 cursor-pointer items-center justify-center text-neutral-500 transition hover:bg-violet-400/10 hover:text-violet-200"
-                                aria-label="Reset interest web"
-                            >
-                                <RotateCcw className="size-3.5" />
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => fitGraph()}
-                                className="flex size-7 cursor-pointer items-center justify-center text-neutral-500 transition hover:bg-violet-400/10 hover:text-violet-200"
-                                aria-label="Fit interest web"
-                            >
-                                <Maximize2 className="size-3.5" />
-                            </button>
-                            <span className="mx-1 h-4 w-px bg-white/10" />
-                            <button
-                                type="button"
-                                onClick={() => setAnimationsEnabled((current) => !current)}
-                                className={`flex size-7 cursor-pointer items-center justify-center transition hover:bg-violet-400/10 hover:text-violet-200 ${animationsEnabled ? "text-neutral-500" : "bg-violet-400/10 text-violet-200"}`}
-                                aria-label={animationsEnabled ? "Disable animations" : "Enable animations"}
-                                title={animationsEnabled ? "Disable animations" : "Enable animations"}
-                                aria-pressed={!animationsEnabled}
-                            >
-                                {animationsEnabled ? <Pause className="size-3.5" /> : <Play className="size-3.5" />}
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setLinksVisible((current) => !current)}
-                                className={`flex size-7 cursor-pointer items-center justify-center transition hover:bg-violet-400/10 hover:text-violet-200 ${linksVisible ? "text-neutral-500" : "bg-violet-400/10 text-violet-200"}`}
-                                aria-label={linksVisible ? "Hide graph links" : "Show graph links"}
-                                title={linksVisible ? "Hide graph links" : "Show graph links"}
-                                aria-pressed={linksVisible}
-                            >
-                                <Network className="size-3.5" />
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setEyebrowsVisible((current) => !current)}
-                                className={`flex size-7 cursor-pointer items-center justify-center transition hover:bg-violet-400/10 hover:text-violet-200 ${eyebrowsVisible ? "text-neutral-500" : "bg-violet-400/10 text-violet-200"}`}
-                                aria-label={eyebrowsVisible ? "Hide node eyebrows" : "Show node eyebrows"}
-                                title={eyebrowsVisible ? "Hide node eyebrows" : "Show node eyebrows"}
-                                aria-pressed={eyebrowsVisible}
-                            >
-                                {eyebrowsVisible ? <Eye className="size-3.5" /> : <EyeOff className="size-3.5" />}
-                            </button>
-                            <button
-                                type="button"
-                                onClick={toggleGravityLayout}
-                                className={`flex h-7 cursor-pointer items-center gap-1.5 whitespace-nowrap border px-2 text-[9px] font-bold uppercase tracking-[0.12em] transition ${gravityEnabled ? "border-emerald-300/35 bg-emerald-400/10 text-emerald-100 hover:border-emerald-300/60" : "border-white/10 bg-transparent text-neutral-500 hover:border-emerald-400/40 hover:text-emerald-200"}`}
-                                aria-label={gravityEnabled ? "Disable gravity layout" : "Enable gravity layout"}
-                                title={gravityEnabled ? "Disable gravity layout" : "Enable gravity layout"}
-                                aria-pressed={gravityEnabled}
-                            >
-                                <span>Gravity</span>
-                                <span className="text-[8px] tracking-[0.08em]">{gravityEnabled ? "ON" : "OFF"}</span>
-                            </button>
-                            <label className="flex h-7 items-center gap-2 border border-white/10 px-2 text-[9px] font-bold uppercase tracking-[0.12em] text-neutral-500" title="Adjust node closeness">
-                                <span>Closeness</span>
-                                <input
-                                    type="range"
-                                    min="0.65"
-                                    max="1.35"
-                                    step="0.05"
-                                    value={nodeSpacing}
-                                    onChange={(event) => updateNodeSpacing(Number(event.target.value))}
-                                    className="h-1 w-16 cursor-pointer accent-emerald-300"
-                                    aria-label="Adjust node closeness"
-                                />
-                                <span className="w-7 text-right text-[8px] tracking-[0.08em] text-neutral-400">{nodeSpacing.toFixed(2)}x</span>
-                            </label>
-                            <button
-                                type="button"
-                                onClick={() => setAutoPanEnabled((current) => !current)}
-                                className={`flex h-7 cursor-pointer items-center gap-1.5 whitespace-nowrap border px-2 text-[9px] font-bold uppercase tracking-[0.12em] transition ${autoPanEnabled ? "border-violet-300/35 bg-violet-400/10 text-violet-100 hover:border-violet-300/60" : "border-white/10 bg-transparent text-neutral-500 hover:border-violet-400/40 hover:text-violet-200"}`}
-                                aria-label={autoPanEnabled ? "Disable auto-pan" : "Enable auto-pan"}
-                                title={autoPanEnabled ? "Disable auto-pan" : "Enable auto-pan"}
-                                aria-pressed={autoPanEnabled}
-                            >
-                                <LocateFixed className="size-3.5" />
-                                <span>Auto-pan</span>
-                                <span className="text-[8px] tracking-[0.08em]">{autoPanEnabled ? "ON" : "OFF"}</span>
-                            </button>
-                        </div>
-                    </div>
 
                     <div
-                        className={`relative flex-1 overflow-hidden bg-[#151516] ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
+                        className={`relative flex-1 touch-none select-none overflow-hidden bg-[#151516] ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
                         ref={graphViewportRef}
                         onPointerDown={handlePointerDown}
                         onPointerMove={handlePointerMove}
